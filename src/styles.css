@@ -1,0 +1,24 @@
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+.Canvas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  border: 2px dashed black;
+}
+
+#screen {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 380px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 2px solid red;
+  overflow: hidden;
+}
