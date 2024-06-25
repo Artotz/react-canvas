@@ -20,7 +20,7 @@ export default function App() {
 
   // ----- SCREEN (RAYCASTING) -----
 
-  var screen: HTMLElement | null;
+  //var screen: HTMLElement | null;
   var _screenStrips: { top: number; left: number; height: number }[] = [];
   const [screenStrips, setScreenStrips] = useState<
     { top: number; left: number; height: number }[]
@@ -33,7 +33,7 @@ export default function App() {
   var screenWidth = 480;
   var screenHeight = 360;
 
-  var stripWidth = 20;
+  var stripWidth = 80;
   var fov = (60 * Math.PI) / 180;
 
   var numRays = Math.ceil(screenWidth / stripWidth);
@@ -44,6 +44,7 @@ export default function App() {
   // ----- MEMES -----
 
   var time = new Date();
+  var bruh = 0;
 
   // ----- FUNCTIONS -----
 
@@ -89,7 +90,7 @@ export default function App() {
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist
+        rayScreenPos * rayScreenPos + viewDist * viewDist,
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -99,11 +100,11 @@ export default function App() {
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++
+        stripIdx++,
       );
     }
 
-    setScreenStrips(_screenStrips);
+    setScreenStrips([..._screenStrips]);
   };
 
   const castSingleRay = (rayAngle: number, stripIdx: number) => {
@@ -201,7 +202,7 @@ export default function App() {
 
       // use perpendicular distance to adjust for fish eye
       // distorted_dist = correct_dist / cos(relative_angle_of_ray)
-      //dist = dist * Math.cos(player.rot - rayAngle);
+      dist = dist * Math.cos(player.rot - rayAngle);
 
       // now calc the position, height and width of the wall strip
 
@@ -238,7 +239,7 @@ export default function App() {
             x * miniMapScale,
             y * miniMapScale,
             miniMapScale,
-            miniMapScale
+            miniMapScale,
           );
         }
       }
@@ -252,7 +253,7 @@ export default function App() {
       player.x * miniMapScale - 8 / 2,
       player.y * miniMapScale - 8 / 2,
       8,
-      8
+      8,
     );
 
     objectCtx.strokeStyle = "red";
@@ -260,7 +261,7 @@ export default function App() {
     objectCtx.moveTo(player.x * miniMapScale, player.y * miniMapScale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMapScale,
-      (player.y + Math.sin(player.rot)) * miniMapScale
+      (player.y + Math.sin(player.rot)) * miniMapScale,
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -277,7 +278,9 @@ export default function App() {
   };
 
   const draw = () => {
-    setFrameCount(frameCount + 1);
+    bruh++;
+    setFrameCount(bruh);
+    //console.log(frameCount);
 
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
@@ -285,9 +288,9 @@ export default function App() {
     drawMiniMap();
     drawPlayer();
 
-    // let _time = new Date();
-    // console.log(_time.getMilliseconds() - time.getMilliseconds());
-    // time = _time;
+    let _time = new Date();
+    console.log(_time.getMilliseconds() - time.getMilliseconds() + " ms");
+    time = _time;
   };
 
   // ----- GAME CYCLE -----
@@ -296,9 +299,9 @@ export default function App() {
     move();
     draw();
     castRays();
-
-    console.log(frameCount);
   };
+
+  // ----- USE EFFECT -----
 
   useEffect(() => {
     let animationFrameId: number;
@@ -308,8 +311,6 @@ export default function App() {
 
     objectCanvas = document.getElementsByTagName("canvas")[1];
     objectCtx = objectCanvas!.getContext("2d")!;
-
-    screen = document.getElementById("screen");
 
     initScreen();
 
@@ -322,7 +323,9 @@ export default function App() {
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [gameCycle]);
+  }, []);
+
+  // ----- HTML -----
 
   return (
     <div className="App">

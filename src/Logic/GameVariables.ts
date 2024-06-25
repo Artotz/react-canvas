@@ -104,7 +104,7 @@ export const player = {
   rot: 0, // the current angle of rotation
   speed: 0, // is the playing moving forward (speed = 1) or backwards (speed = -1).
   moveSpeed: 0.18, // how far (in map units) does the player move each step/update
-  rotSpeed: (0.5 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
+  rotSpeed: (0.1 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
 };
 
 export const mapWidth = map[0].length;
