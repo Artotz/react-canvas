@@ -28,7 +28,7 @@ export default function App() {
     color: string;
   }[] = [];
   const [screenStrips, setScreenStrips] = useState<
-    { top: number; left: number; height: number }[]
+    { top: number; left: number; height: number; color: string }[]
   >([]);
 
   // ----- FUN ZONE -----
