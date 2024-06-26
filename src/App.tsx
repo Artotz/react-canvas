@@ -1,15 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import "./styles.css";
 
 import "./Logic/GameVariables";
 import { map, mapHeight, mapWidth, player, twoPI } from "./Logic/GameVariables";
+import { useKeybindings } from "./Hooks/useKeybindings";
 
 export default function App() {
-  // const mapCanvasRef = useRef<HTMLCanvasElement>(null);
-  // const objectCanvasRef = useRef<HTMLCanvasElement>(null);
-
   // ----- VARIABLES -----
-
   // ----- CANVAS (MINIMAP) -----
 
   var mapCanvas: HTMLCanvasElement | null;
@@ -20,7 +17,6 @@ export default function App() {
 
   // ----- SCREEN (RAYCASTING) -----
 
-  //var screen: HTMLElement | null;
   var _screenStrips: {
     top: number;
     left: number;
@@ -38,7 +34,7 @@ export default function App() {
   var screenWidth = 480;
   var screenHeight = 360;
 
-  var stripWidth = 20;
+  var stripWidth = 10;
   var fov = (60 * Math.PI) / 180;
 
   var numRays = Math.ceil(screenWidth / stripWidth);
@@ -49,11 +45,14 @@ export default function App() {
   // ----- MEMES -----
 
   var time = new Date();
-  var bruh = 0;
+  const [fps, setFps] = useState(0);
+
+  var frameCountAux = 0;
 
   // ----- FUNCTIONS -----
-
   // ----- INITIALIZATION -----
+
+  useKeybindings(player);
 
   const initScreen = () => {
     _screenStrips.length = 0;
@@ -64,25 +63,42 @@ export default function App() {
         left: i,
         height: Math.floor(Math.random() * screenHeight),
         color: "grey",
-        //height: 0,
       };
 
       _screenStrips.push(strip);
     }
 
-    //setScreenStrips(_screenStrips);
+    setScreenStrips(_screenStrips);
   };
 
   // ----- PLAYER MOVEMENT -----
 
   const move = () => {
-    // player.rot += player.dir * player.rotSpeed; // add rotation if player is rotating (player.dir != 0)
-    player.rot += 1 * player.rotSpeed; // add rotation if player is rotating (player.dir != 0)
+    // Player will move this far along
+    // the current direction vector
+    var moveStep = player.speed * player.moveSpeed;
 
-    // make sure the angle is between 0 and 360 degrees
-    while (player.rot < 0) player.rot += twoPI;
-    while (player.rot >= twoPI) player.rot -= twoPI;
+    // Add rotation if player is rotating (player.dir != 0)
+    player.rot += player.dir * player.rotSpeed;
+
+    // Calculate new player position with simple trigonometry
+    var newX = player.x + Math.cos(player.rot) * moveStep;
+    var newY = player.y + Math.sin(player.rot) * moveStep;
+
+    if (isBlocking(newX, newY)) return;
+
+    // Set new position
+    player.x = newX;
+    player.y = newY;
   };
+
+  function isBlocking(x: number, y: number) {
+    // first make sure that we cannot move outside the boundaries of the level
+    if (y < 0 || y >= mapHeight || x < 0 || x >= mapWidth) return true;
+
+    // return true if the map block is not 0, ie. if there is a blocking wall.
+    return map[Math.floor(y)][Math.floor(x)] != 0;
+  }
 
   // ----- RAYCASTING -----
 
@@ -110,6 +126,7 @@ export default function App() {
       );
     }
 
+    // has to be this way otherwise React won't react
     setScreenStrips([..._screenStrips]);
   };
 
@@ -259,13 +276,16 @@ export default function App() {
 
   const drawPlayer = () => {
     objectCtx.fillStyle = "red";
-    objectCtx.fillRect(
+    objectCtx.beginPath();
+    objectCtx.arc(
       // draw a dot at the current player position
-      player.x * miniMapScale - 8 / 2,
-      player.y * miniMapScale - 8 / 2,
-      8,
-      8,
+      player.x * miniMapScale,
+      player.y * miniMapScale,
+      5,
+      0,
+      twoPI,
     );
+    objectCtx.fill();
 
     objectCtx.strokeStyle = "red";
     objectCtx.beginPath();
@@ -289,8 +309,8 @@ export default function App() {
   };
 
   const draw = () => {
-    bruh++;
-    setFrameCount(bruh);
+    frameCountAux++;
+    setFrameCount(frameCountAux);
     //console.log(frameCount);
 
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
@@ -298,10 +318,6 @@ export default function App() {
 
     drawMiniMap();
     drawPlayer();
-
-    let _time = new Date();
-    console.log(_time.getMilliseconds() - time.getMilliseconds() + " ms");
-    time = _time;
   };
 
   // ----- GAME CYCLE -----
@@ -310,6 +326,15 @@ export default function App() {
     move();
     draw();
     castRays();
+
+    // FPS calculation
+    let _time = new Date();
+    if (frameCountAux % 20 == 0) {
+      setFps(
+        Math.floor(1000 / (_time.getMilliseconds() - time.getMilliseconds())),
+      );
+    }
+    time = _time;
   };
 
   // ----- USE EFFECT -----
@@ -349,6 +374,7 @@ export default function App() {
           height: screenHeight + "px",
         }}
       >
+        {/* ----- UPDATING THE SCREEN STRIPS DIVS ----- */}
         {screenStrips.map((v, i) => {
           return (
             <div
@@ -358,7 +384,6 @@ export default function App() {
                 top: v.top + "px",
                 left: v.left + "px",
                 width: stripWidth + "px",
-                //height: Math.floor(Math.random() * 360) + "px",
                 height: v.height + "px",
                 overflow: "hidden",
                 backgroundColor: v.color,
@@ -366,7 +391,17 @@ export default function App() {
             ></div>
           );
         })}
-        <div>{frameCount}</div>
+
+        {/* ----- DEBUG ----- */}
+        <div
+          style={{
+            width: screenWidth + "px",
+            height: screenHeight / 2 + "px",
+            backgroundColor: "#AAF",
+          }}
+        >
+          frames: {frameCount} fps: {fps}
+        </div>
       </div>
     </div>
   );
