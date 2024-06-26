@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import "./styles.css";
 
-import "./Logic/GameVariables.ts";
+import "./Logic/GameVariables";
 import { map, mapHeight, mapWidth, player, twoPI } from "./Logic/GameVariables";
 
 export default function App() {
@@ -21,7 +21,12 @@ export default function App() {
   // ----- SCREEN (RAYCASTING) -----
 
   //var screen: HTMLElement | null;
-  var _screenStrips: { top: number; left: number; height: number }[] = [];
+  var _screenStrips: {
+    top: number;
+    left: number;
+    height: number;
+    color: string;
+  }[] = [];
   const [screenStrips, setScreenStrips] = useState<
     { top: number; left: number; height: number }[]
   >([]);
@@ -33,7 +38,7 @@ export default function App() {
   var screenWidth = 480;
   var screenHeight = 360;
 
-  var stripWidth = 80;
+  var stripWidth = 20;
   var fov = (60 * Math.PI) / 180;
 
   var numRays = Math.ceil(screenWidth / stripWidth);
@@ -58,6 +63,7 @@ export default function App() {
         top: 0,
         left: i,
         height: Math.floor(Math.random() * screenHeight),
+        color: "grey",
         //height: 0,
       };
 
@@ -140,6 +146,8 @@ export default function App() {
     var x = right ? Math.ceil(player.x) : Math.floor(player.x); // starting horizontal position, at one of the edges of the current map block
     var y = player.y + (x - player.x) * slope; // starting vertical position. We add the small horizontal step we just made, multiplied by the slope.
 
+    let color = "grey";
+
     while (x >= 0 && x < mapWidth && y >= 0 && y < mapHeight) {
       var wallX = Math.floor(x + (right ? 0 : -1));
       var wallY = Math.floor(y);
@@ -186,6 +194,8 @@ export default function App() {
           yHit = y;
           textureX = x % 1;
           if (up) textureX = 1 - textureX;
+
+          color = "darkgray";
         }
         break;
       }
@@ -220,6 +230,7 @@ export default function App() {
 
       strip.top = top;
       strip.height = height;
+      strip.color = color;
     }
   };
 
@@ -350,7 +361,7 @@ export default function App() {
                 //height: Math.floor(Math.random() * 360) + "px",
                 height: v.height + "px",
                 overflow: "hidden",
-                backgroundColor: "grey",
+                backgroundColor: v.color,
               }}
             ></div>
           );
