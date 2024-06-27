@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Player } from "../Logic/GameVariables";
+import { Player } from "../utils/GameVariables";
 
 export const useKeybindings = (player: Player) => {
   const bindingsKeyDown = (e: KeyboardEvent) => {
@@ -8,7 +8,7 @@ export const useKeybindings = (player: Player) => {
 
     //console.log(e.key);
 
-    switch (e.key) {
+    switch (e.key.toLowerCase()) {
       // Up, move player forward, ie. increase speed
       case "w":
         player.speed = 1;
@@ -30,7 +30,7 @@ export const useKeybindings = (player: Player) => {
 
   const bindingsKeyUp = (e: KeyboardEvent) => {
     e = e || window.event;
-    switch (e.key) {
+    switch (e.key.toLowerCase()) {
       case "w":
       case "s":
         player.speed = 0;
