@@ -25,6 +25,9 @@ export const useKeybindings = (player: Player) => {
       case "d":
         player.dir = 1;
         break;
+      case "shift":
+        player.moveSpeed = 0.1;
+        break;
     }
   };
 
@@ -38,6 +41,9 @@ export const useKeybindings = (player: Player) => {
       case "a":
       case "d":
         player.dir = 0;
+        break;
+      case "shift":
+        player.moveSpeed = 0.05;
         break;
     }
   };

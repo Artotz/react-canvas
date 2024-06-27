@@ -242,7 +242,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
 
       // use perpendicular distance to adjust for fish eye
       // distorted_dist = correct_dist / cos(relative_angle_of_ray)
-      dist = dist * Math.cos(player.rot - rayAngle);
+      // dist = dist * Math.cos(player.rot - rayAngle);
 
       // now calc the position, height and width of the wall strip
 
