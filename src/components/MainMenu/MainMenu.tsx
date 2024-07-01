@@ -11,6 +11,7 @@ export default function MainMenu() {
       screenHeight: 300,
       stripWidth: 80,
       fov: 60,
+      targetFps: 30,
     });
 
   const [keyState, setKeyState] = useState(0);
@@ -30,6 +31,7 @@ export default function MainMenu() {
       screenHeight: arrayAux[2],
       stripWidth: arrayAux[3],
       fov: arrayAux[4],
+      targetFps: arrayAux[5],
     };
 
     setRayCastingConfigs(_rayCastingConfigs);
@@ -79,6 +81,14 @@ export default function MainMenu() {
             name="title5"
             id="title5"
             defaultValue={rayCastingConfigs.fov}
+          ></input>
+
+          <label id="title6">targetFps</label>
+          <input
+            type="text"
+            name="title6"
+            id="title6"
+            defaultValue={rayCastingConfigs.targetFps}
           ></input>
 
           <button

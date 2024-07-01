@@ -15,7 +15,10 @@ export type RaycastingModuleProps = {
   screenHeight: number;
   stripWidth: number;
   fov: number;
+  targetFps: number;
 };
+
+type ScreenStrip = { top: number; left: number; height: number; color: string };
 
 export default function RaycastingModule(props: RaycastingModuleProps) {
   // ----- VARIABLES -----
@@ -25,19 +28,14 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   var mapCtx: CanvasRenderingContext2D;
   var objectCanvas: HTMLCanvasElement | null;
   var objectCtx: CanvasRenderingContext2D;
-  const [frameCount, setFrameCount] = useState(0);
+
+  var frameCount = 0;
+  const [frameCountState, setFrameCountState] = useState(0);
 
   // ----- SCREEN (RAYCASTING) -----
 
-  var _screenStrips: {
-    top: number;
-    left: number;
-    height: number;
-    color: string;
-  }[] = [];
-  const [screenStrips, setScreenStrips] = useState<
-    { top: number; left: number; height: number; color: string }[]
-  >([]);
+  var _screenStrips: ScreenStrip[] = [];
+  const [screenStrips, setScreenStrips] = useState<ScreenStrip[]>([]);
 
   // ----- FUN ZONE -----
 
@@ -50,20 +48,25 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   const fov = (props.fov * Math.PI) / 180;
 
   const numRays = Math.ceil(screenWidth / stripWidth);
-  const fovHalf = fov / 2;
+  //const fovHalf = fov / 2;
 
   const viewDist = screenWidth / 2 / Math.tan(fov / 2);
 
   // ----- MEMES -----
 
-  var time = new Date();
-  const [fps, setFps] = useState(0);
+  var targetFps: number = props.targetFps,
+    fpsInterval: number,
+    startTime: number,
+    now: number,
+    then: number,
+    elapsed: number;
 
-  var frameCountAux = 0;
+  const [fpsState, setFpsState] = useState(0);
 
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
 
+  //KEYBINDING HOOK
   useKeybindings(player);
 
   const initScreen = () => {
@@ -79,8 +82,6 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
 
       _screenStrips.push(strip);
     }
-
-    setScreenStrips(_screenStrips);
   };
 
   // ----- PLAYER MOVEMENT -----
@@ -124,7 +125,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist,
+        rayScreenPos * rayScreenPos + viewDist * viewDist
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -135,11 +136,9 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++,
+        stripIdx++
       );
     }
-
-    // has to be this way otherwise React won't react
     setScreenStrips([..._screenStrips]);
   };
 
@@ -242,7 +241,8 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
 
       // use perpendicular distance to adjust for fish eye
       // distorted_dist = correct_dist / cos(relative_angle_of_ray)
-      // dist = dist * Math.cos(player.rot - rayAngle);
+
+      dist = dist * Math.cos(player.rot - rayAngle);
 
       // now calc the position, height and width of the wall strip
 
@@ -280,7 +280,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
             x * miniMapScale,
             y * miniMapScale,
             miniMapScale,
-            miniMapScale,
+            miniMapScale
           );
         }
       }
@@ -296,7 +296,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
       player.y * miniMapScale,
       0.25 * miniMapScale,
       0,
-      twoPI,
+      twoPI
     );
     objectCtx.fill();
 
@@ -305,7 +305,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
     objectCtx.moveTo(player.x * miniMapScale, player.y * miniMapScale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMapScale,
-      (player.y + Math.sin(player.rot)) * miniMapScale,
+      (player.y + Math.sin(player.rot)) * miniMapScale
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -322,32 +322,21 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   };
 
   const draw = () => {
-    frameCountAux++;
-    setFrameCount(frameCountAux);
-    //console.log(frameCount);
+    setFrameCountState(frameCount);
+    //console.log(frameCountState);
 
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
 
     drawMiniMap();
     drawPlayer();
+    castRays();
   };
 
   // ----- GAME CYCLE -----
 
   const gameCycle = () => {
     move();
-    draw();
-    castRays();
-
-    // FPS calculation
-    let _time = new Date();
-    if (frameCountAux % 20 == 0) {
-      setFps(
-        Math.floor(1000 / (_time.getMilliseconds() - time.getMilliseconds())),
-      );
-    }
-    time = _time;
   };
 
   // ----- USE EFFECT -----
@@ -355,17 +344,48 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   useEffect(() => {
     let animationFrameId: number;
 
+    // referencing the canvas and contexts
     mapCanvas = document.getElementsByTagName("canvas")[0];
     mapCtx = mapCanvas!.getContext("2d")!;
 
     objectCanvas = document.getElementsByTagName("canvas")[1];
     objectCtx = objectCanvas!.getContext("2d")!;
 
+    // initializing the screen strips
     initScreen();
 
+    // fps calculation
+    fpsInterval = 1000 / targetFps;
+    then = window.performance.now();
+    startTime = then;
+
     const render = () => {
-      gameCycle();
       animationFrameId = window.requestAnimationFrame(render);
+
+      // game logic
+      gameCycle();
+
+      // calc elapsed time since last loop
+
+      now = window.performance.now();
+      elapsed = now - then;
+
+      // if enough time has elapsed, draw the next frame
+
+      if (elapsed > fpsInterval) {
+        // Get ready for next frame by setting then=now, but also adjust for your
+        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+        then = now - (elapsed % fpsInterval);
+
+        var sinceStart = now - startTime;
+        var currentFps =
+          Math.round((1000 / (sinceStart / ++frameCount)) * 100) / 100;
+
+        setFpsState(currentFps);
+
+        // drawing the frames
+        draw();
+      }
     };
     render();
 
@@ -438,7 +458,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
             }}
           >
             {/* ----- DEBUG (YES, IN THE SKY) ----- */}
-            frames: {frameCount} fps: {fps}
+            frames: {frameCountState} fps: {fpsState}
           </div>
 
           {/* ----- GROUND ----- */}

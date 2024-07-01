@@ -5,7 +5,7 @@
     "target": "es5",
     "lib": ["es6", "dom"],
     "sourceMap": true,
-    "allowJs": true,
+    "allowJs": false,
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "moduleResolution": "node",
@@ -22,7 +22,8 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "src/setupTests.ts"
+    "src/setupTests.ts",
+    "vite.config.ts"
   ],
   "types": ["typePatches"]
 }
