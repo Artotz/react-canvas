@@ -13,4 +13,15 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+  /* Both the full size options */
+  .full-size {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Both the most common centering options */
+  .full-center {
+    justify-content: center;
+    align-items: center;
+  }
 }
