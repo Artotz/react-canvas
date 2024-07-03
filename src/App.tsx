@@ -1,6 +1,7 @@
 import CLIModule from "./components/CLIModule/CLIModule";
 import DesktopInterface from "./components/DesktopInterface/DesktopInterface";
 import MainMenu from "./components/MainMenu/MainMenu";
+import MissionMenu from "./components/MissionMenu/MissionMenu";
 import StoreMenu from "./components/StoreMenu/StoreMenu";
 import "./styles.css";
 
@@ -10,7 +11,8 @@ export default function App() {
       {/* <DesktopInterface /> */}
       {/* <MainMenu /> */}
       {/* <CLIModule /> */}
-      <StoreMenu />
+      {/* <StoreMenu /> */}
+      <MissionMenu />
     </div>
   );
 }

@@ -7,7 +7,6 @@ import {
   player,
   twoPI,
 } from "../../utils/GameVariables";
-import { useKeybindings } from "../../hooks/useKeybindings";
 
 export type RaycastingModuleProps = {
   miniMapScale: number;
@@ -18,16 +17,19 @@ export type RaycastingModuleProps = {
   targetFps: number;
 };
 
+RaycastingModule.defaultProps = {
+  miniMapScale: 10,
+  screenWidth: 480,
+  screenHeight: 300,
+  stripWidth: 20,
+  fov: 60,
+  targetFps: 30,
+};
+
 type ScreenStrip = { top: number; left: number; height: number; color: string };
 
 export default function RaycastingModule(props: RaycastingModuleProps) {
   // ----- VARIABLES -----
-  // ----- CANVAS (MINIMAP) -----
-
-  var mapCanvas: HTMLCanvasElement | null;
-  var mapCtx: CanvasRenderingContext2D;
-  var objectCanvas: HTMLCanvasElement | null;
-  var objectCtx: CanvasRenderingContext2D;
 
   var frameCount = 0;
   const [frameCountState, setFrameCountState] = useState(0);
@@ -66,9 +68,6 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
 
-  //KEYBINDING HOOK
-  useKeybindings(player);
-
   const initScreen = () => {
     _screenStrips.length = 0;
 
@@ -84,35 +83,6 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
     }
   };
 
-  // ----- PLAYER MOVEMENT -----
-
-  const move = () => {
-    // Player will move this far along
-    // the current direction vector
-    var moveStep = player.speed * player.moveSpeed;
-
-    // Add rotation if player is rotating (player.dir != 0)
-    player.rot += player.dir * player.rotSpeed;
-
-    // Calculate new player position with simple trigonometry
-    var newX = player.x + Math.cos(player.rot) * moveStep;
-    var newY = player.y + Math.sin(player.rot) * moveStep;
-
-    if (isBlocking(newX, newY)) return;
-
-    // Set new position
-    player.x = newX;
-    player.y = newY;
-  };
-
-  const isBlocking = (x: number, y: number) => {
-    // first make sure that we cannot move outside the boundaries of the level
-    if (y < 0 || y >= mapHeight || x < 0 || x >= mapWidth) return true;
-
-    // return true if the map block is not 0, ie. if there is a blocking wall.
-    return map[Math.floor(y)][Math.floor(x)] != 0;
-  };
-
   // ----- RAYCASTING -----
 
   const castRays = () => {
@@ -125,7 +95,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist
+        rayScreenPos * rayScreenPos + viewDist * viewDist,
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -136,7 +106,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++
+        stripIdx++,
       );
     }
     setScreenStrips([..._screenStrips]);
@@ -233,7 +203,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
     }
 
     if (dist) {
-      drawRay(xHit, yHit);
+      //drawRay(xHit, yHit);
 
       var strip = _screenStrips[stripIdx];
 
@@ -266,90 +236,16 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
 
   // ----- DRAWING -----
 
-  const drawMiniMap = () => {
-    for (var y = 0; y < mapHeight; y++) {
-      for (var x = 0; x < mapWidth; x++) {
-        var wall = map[y][x];
-
-        if (wall > 0) {
-          // if there is a wall block at this (x,y) ...
-
-          mapCtx.fillStyle = "rgb(200,200,200)";
-          mapCtx.fillRect(
-            // ... then draw a block on the minimap
-            x * miniMapScale,
-            y * miniMapScale,
-            miniMapScale,
-            miniMapScale
-          );
-        }
-      }
-    }
-  };
-
-  const drawPlayer = () => {
-    objectCtx.fillStyle = "red";
-    objectCtx.beginPath();
-    objectCtx.arc(
-      // draw a dot at the current player position
-      player.x * miniMapScale,
-      player.y * miniMapScale,
-      0.25 * miniMapScale,
-      0,
-      twoPI
-    );
-    objectCtx.fill();
-
-    objectCtx.strokeStyle = "red";
-    objectCtx.beginPath();
-    objectCtx.moveTo(player.x * miniMapScale, player.y * miniMapScale);
-    objectCtx.lineTo(
-      (player.x + Math.cos(player.rot)) * miniMapScale,
-      (player.y + Math.sin(player.rot)) * miniMapScale
-    );
-    objectCtx.closePath();
-    objectCtx.stroke();
-  };
-
-  const drawRay = (rayX: number, rayY: number) => {
-    objectCtx.strokeStyle = "rgba(0,100,0,0.3)";
-    objectCtx.lineWidth = 0.5;
-    objectCtx.beginPath();
-    objectCtx.moveTo(player.x * miniMapScale, player.y * miniMapScale);
-    objectCtx.lineTo(rayX * miniMapScale, rayY * miniMapScale);
-    objectCtx.closePath();
-    objectCtx.stroke();
-  };
-
   const draw = () => {
     setFrameCountState(frameCount);
-    //console.log(frameCountState);
 
-    mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
-    objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
-
-    drawMiniMap();
-    drawPlayer();
     castRays();
-  };
-
-  // ----- GAME CYCLE -----
-
-  const gameCycle = () => {
-    move();
   };
 
   // ----- USE EFFECT -----
 
   useEffect(() => {
     let animationFrameId: number;
-
-    // referencing the canvas and contexts
-    mapCanvas = document.getElementsByTagName("canvas")[0];
-    mapCtx = mapCanvas!.getContext("2d")!;
-
-    objectCanvas = document.getElementsByTagName("canvas")[1];
-    objectCtx = objectCanvas!.getContext("2d")!;
 
     // initializing the screen strips
     initScreen();
@@ -363,7 +259,6 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
       animationFrameId = window.requestAnimationFrame(render);
 
       // game logic
-      gameCycle();
 
       // calc elapsed time since last loop
 
@@ -398,30 +293,6 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
 
   return (
     <div className="flex flex-col w-full pt-4 overflow-hidden">
-      <div className="flex h-1/2 justify-start">
-        <div
-          style={{
-            position: "relative",
-            width: screenWidth + "px",
-            height: screenHeight + "px",
-          }}
-        >
-          <canvas
-            style={{
-              position: "absolute",
-            }}
-            width={screenWidth}
-            height={screenHeight}
-          />
-          <canvas
-            style={{
-              position: "absolute",
-            }}
-            width={screenWidth}
-            height={screenHeight}
-          />
-        </div>
-      </div>
       <div className="flex h-1/2 justify-start">
         <div
           style={{

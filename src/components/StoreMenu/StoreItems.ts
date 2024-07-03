@@ -7,8 +7,13 @@ export const StoreItems = {
   ],
   GUI: ["Basic Buttons"],
   "KB+M": ["Turn & Move"],
-  Sensor: ["Radius", "Auto Refresh Rate"],
-  Map: ["Current Location", "Add Wall on Click", "Auto add Wall on Wall Bump"],
+  Sensor: ["Radius", "Auto Refresh Rate", "Detect Objects"],
+  Map: [
+    "Current Location",
+    "Direction",
+    "Add Wall on Click",
+    "Auto add Wall on Wall Bump",
+  ],
   Camera: [
     "Number of Rays",
     "FoV",
