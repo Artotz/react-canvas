@@ -9,9 +9,10 @@ type CommandType = {
 
 export default function CLIModule() {
   var text = LoremIpsum;
-  var delay = 50;
+  var delay = 25;
 
   const [commandHistory, setCommandHistory] = useState<CommandType[]>([]);
+  const [reloadAux, setReloadAux] = useState(0);
 
   const addCommand = () => {
     var input: HTMLInputElement;
@@ -26,31 +27,29 @@ export default function CLIModule() {
   };
 
   const rollText = () => {
-    let _cmds = [...commandHistory];
+    if (commandHistory.length > 0) {
+      let _cmds = [...commandHistory];
 
-    for (var i = 0; i < _cmds.length; i++) {
-      if (_cmds[i].textRollingIndex < _cmds[i].text.length - 1) {
-        _cmds[i].currentText += _cmds[i].text[++_cmds[i].textRollingIndex];
+      if (_cmds[0].textRollingIndex < _cmds[0].text.length - 1) {
+        _cmds[0].currentText += _cmds[0].text[++_cmds[0].textRollingIndex];
+        if (_cmds[0].textRollingIndex < _cmds[0].text.length - 1)
+          setTimeout(rollText, delay);
       }
 
-      console.log(_cmds[i].currentText);
+      setReloadAux(Math.random());
     }
-
-    setCommandHistory([..._cmds]);
   };
 
-  useEffect(() => {
-    console.log("bruh");
-  }, []);
+  useEffect(rollText, [commandHistory]);
 
   return (
     /* ----- TERMINAL WRAPPER ----- */
-    <div className="flex flex-col-reverse w-full h-full bg-green-500 border-green-500 border-solid border-2 p-2 gap-2 overflow-y-scroll no-scrollbar">
+    <div className="flex flex-col-reverse w-full h-full bg-black border-green-500 border-solid border-2 p-2 gap-2 overflow-y-scroll no-scrollbar">
       {/* ----- INPUT ----- */}
       <div className="flex gap-2">
         <input
           id="input"
-          className="flex flex-row w-full h-content px-2 border-black border-solid border-2"
+          className="flex flex-row w-full h-content px-2 focus:outline-none bg-black text-green-500 border-green-500 border-solid border-2"
         ></input>
         <button onClick={addCommand} className="flex bg-white px-2">
           send
@@ -61,10 +60,10 @@ export default function CLIModule() {
       {commandHistory.map((v, i) => {
         return (
           <div
-            key={i}
-            className="flex flex-row w-full h-content px-2 bg-white border-black border-solid border-2"
+            key={i == 0 ? reloadAux : i}
+            className="flex flex-row w-full h-content px-2 text-wrap break-all text-green-500 border-green-500 border-solid border-2"
           >
-            {v.text} .
+            {i == 0 ? v.currentText + " <" : v.text + " <"}
           </div>
         );
       })}
