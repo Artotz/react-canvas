@@ -20,6 +20,8 @@ export default function MissionMenu() {
   var frameBruh = 0;
   const [frameCountState, setFrameCountState] = useState(0);
 
+  //console.log("MissionMenu");
+
   // ----- FPS CALCULATION -----
   var targetFps: number = 30,
     fpsInterval: number,
@@ -81,6 +83,7 @@ export default function MissionMenu() {
       elapsed = now - then;
       // if enough time has elapsed, draw the next frame
       if (elapsed > fpsInterval) {
+        // game logic with fps
         move();
 
         // Get ready for next frame by setting then=now, but also adjust for your

@@ -73,7 +73,7 @@ export default function MapModule(props: MapModuleProps) {
             x * miniMapScale,
             y * miniMapScale,
             miniMapScale,
-            miniMapScale
+            miniMapScale,
           );
         }
       }
@@ -89,7 +89,7 @@ export default function MapModule(props: MapModuleProps) {
       player.y * miniMapScale,
       0.25 * miniMapScale,
       0,
-      2 * Math.PI
+      2 * Math.PI,
     );
     objectCtx.fill();
 
@@ -98,7 +98,7 @@ export default function MapModule(props: MapModuleProps) {
     objectCtx.moveTo(player.x * miniMapScale, player.y * miniMapScale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMapScale,
-      (player.y + Math.sin(player.rot)) * miniMapScale
+      (player.y + Math.sin(player.rot)) * miniMapScale,
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -124,8 +124,8 @@ export default function MapModule(props: MapModuleProps) {
     drawMiniMap();
     drawPlayer();
 
-    console.log(document.getElementById("container")?.clientWidth);
-    console.log(document.getElementById("container")?.clientHeight);
+    // console.log(document.getElementById("container")?.clientWidth);
+    // console.log(document.getElementById("container")?.clientHeight);
   };
 
   // ----- USE EFFECT -----

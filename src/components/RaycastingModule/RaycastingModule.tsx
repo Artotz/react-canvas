@@ -19,8 +19,8 @@ export type RaycastingModuleProps = {
 
 RaycastingModule.defaultProps = {
   miniMapScale: 10,
-  screenWidth: 800,
-  screenHeight: 600,
+  screenWidth: 600,
+  screenHeight: 480,
   stripWidth: 20,
   fov: 60,
   targetFps: 30,
@@ -55,6 +55,8 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   const viewDist = screenWidth / 2 / Math.tan(fov / 2);
 
   // ----- MEMES -----
+
+  // console.log("RaycastingModule");
 
   var targetFps: number = props.targetFps,
     fpsInterval: number,
@@ -95,7 +97,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist
+        rayScreenPos * rayScreenPos + viewDist * viewDist,
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -106,7 +108,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++
+        stripIdx++,
       );
     }
     setScreenStrips([..._screenStrips]);
@@ -292,12 +294,12 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   // ----- HTML -----
 
   return (
-    <div className="flex full-size ">
+    <div className="flex full-size full-center overflow-hidden">
       <div
         style={{
+          position: "relative",
           width: screenWidth + "px",
           height: screenHeight + "px",
-          overflow: "hidden",
         }}
       >
         {/* ----- UPDATING THE SCREEN STRIPS DIVS ----- */}
