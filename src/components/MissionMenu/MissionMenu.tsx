@@ -20,6 +20,7 @@ export default function MissionMenu() {
   var frameBruh = 0;
   const [frameCountState, setFrameCountState] = useState(0);
 
+  // ----- FPS CALCULATION -----
   var targetFps: number = 30,
     fpsInterval: number,
     startTime: number,
@@ -27,9 +28,10 @@ export default function MissionMenu() {
     then: number,
     elapsed: number;
 
+  // ----- PLAYER MOVEMENT -----
+
   //KEYBINDING HOOK
   useKeybindings(player);
-  // ----- PLAYER MOVEMENT -----
 
   const move = () => {
     // Player will move this far along
@@ -112,22 +114,26 @@ export default function MissionMenu() {
              ${i == focusedModule ? "row-span-4 col-span-3 -order-1" : ""}`}
             style={{ backgroundColor: v }}
           >
-            <div
-              className={`flex flex-col full-size full-center ${i == focusedModule ? "" : "scale-50"}`}
+            <button
+              className={`flex flex-col full-size full-center ${
+                i == focusedModule ? "" : ""
+              }`}
+              onClick={() => {
+                setFocusedModule(i);
+              }}
             >
               {i == 0 && <CLIModule />}
               {i == 1 && <RaycastingModule />}
               {i == 2 && <MapModule />}
-            </div>
-            Module {i}
-            <button
+            </button>
+            {/* <button
               className="bg-white px-2 border-solid border-2 border-black rounded-xl"
               onClick={() => {
                 setFocusedModule(i);
               }}
             >
               Focus
-            </button>
+            </button> */}
           </div>
         );
       })}

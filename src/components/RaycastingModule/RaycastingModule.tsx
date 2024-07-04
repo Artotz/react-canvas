@@ -19,8 +19,8 @@ export type RaycastingModuleProps = {
 
 RaycastingModule.defaultProps = {
   miniMapScale: 10,
-  screenWidth: 480,
-  screenHeight: 300,
+  screenWidth: 800,
+  screenHeight: 600,
   stripWidth: 20,
   fov: 60,
   targetFps: 30,
@@ -95,7 +95,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist,
+        rayScreenPos * rayScreenPos + viewDist * viewDist
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -106,7 +106,7 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++,
+        stripIdx++
       );
     }
     setScreenStrips([..._screenStrips]);
@@ -292,55 +292,52 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
   // ----- HTML -----
 
   return (
-    <div className="flex flex-col w-full pt-4 overflow-hidden">
-      <div className="flex h-1/2 justify-start">
+    <div className="flex full-size ">
+      <div
+        style={{
+          width: screenWidth + "px",
+          height: screenHeight + "px",
+          overflow: "hidden",
+        }}
+      >
+        {/* ----- UPDATING THE SCREEN STRIPS DIVS ----- */}
+        {screenStrips.map((v, i) => {
+          return (
+            <div
+              key={i}
+              style={{
+                position: "absolute",
+                top: v.top + "px",
+                left: v.left + "px",
+                width: stripWidth + "px",
+                height: v.height + "px",
+                overflow: "hidden",
+                backgroundColor: v.color,
+              }}
+            ></div>
+          );
+        })}
+
+        {/* ----- SKY ----- */}
         <div
           style={{
-            position: "relative",
             width: screenWidth + "px",
-            height: screenHeight + "px",
-            overflow: "hidden",
+            height: screenHeight / 2 + "px",
+            backgroundColor: "#AAF",
           }}
         >
-          {/* ----- UPDATING THE SCREEN STRIPS DIVS ----- */}
-          {screenStrips.map((v, i) => {
-            return (
-              <div
-                key={i}
-                style={{
-                  position: "absolute",
-                  top: v.top + "px",
-                  left: v.left + "px",
-                  width: stripWidth + "px",
-                  height: v.height + "px",
-                  overflow: "hidden",
-                  backgroundColor: v.color,
-                }}
-              ></div>
-            );
-          })}
-
-          {/* ----- SKY ----- */}
-          <div
-            style={{
-              width: screenWidth + "px",
-              height: screenHeight / 2 + "px",
-              backgroundColor: "#AAF",
-            }}
-          >
-            {/* ----- DEBUG (YES, IN THE SKY) ----- */}
-            frames: {frameCountState} fps: {fpsState}
-          </div>
-
-          {/* ----- GROUND ----- */}
-          <div
-            style={{
-              width: screenWidth + "px",
-              height: screenHeight / 2 + "px",
-              backgroundColor: "#CC9",
-            }}
-          ></div>
+          {/* ----- DEBUG (YES, IN THE SKY) ----- */}
+          frames: {frameCountState} fps: {fpsState}
         </div>
+
+        {/* ----- GROUND ----- */}
+        <div
+          style={{
+            width: screenWidth + "px",
+            height: screenHeight / 2 + "px",
+            backgroundColor: "#CC9",
+          }}
+        ></div>
       </div>
     </div>
   );
