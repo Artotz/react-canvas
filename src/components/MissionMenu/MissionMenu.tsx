@@ -20,8 +20,6 @@ export default function MissionMenu() {
   var frameBruh = 0;
   const [frameCountState, setFrameCountState] = useState(0);
 
-  //console.log("MissionMenu");
-
   // ----- FPS CALCULATION -----
   var targetFps: number = 30,
     fpsInterval: number,
@@ -71,6 +69,8 @@ export default function MissionMenu() {
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
+
+    console.log("MissionMenu");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);

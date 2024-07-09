@@ -28,13 +28,15 @@ export default function MapModule(props: MapModuleProps) {
   var mapCtx: CanvasRenderingContext2D;
   var objectCanvas: HTMLCanvasElement | null;
   var objectCtx: CanvasRenderingContext2D;
+  var drawingCanvas: HTMLCanvasElement | null;
+  var drawingCtx: CanvasRenderingContext2D;
 
   var frameCount = 0;
   const [frameCountState, setFrameCountState] = useState(0);
 
   // ----- SIZING HELL -----
 
-  const miniMapScale = props.miniMapScale;
+  var miniMapScale = props.miniMapScale;
 
   // const screenWidth = props.screenWidth;
   // const screenHeight = props.screenHeight;
@@ -43,8 +45,6 @@ export default function MapModule(props: MapModuleProps) {
 
   const screenWidth = windowSizeState.width;
   const screenHeight = windowSizeState.height;
-
-  //console.log(windowSizeState);
 
   // ----- MEMES -----
 
@@ -140,10 +140,15 @@ export default function MapModule(props: MapModuleProps) {
     objectCanvas = document.getElementsByTagName("canvas")[1];
     objectCtx = objectCanvas!.getContext("2d")!;
 
+    drawingCanvas = document.getElementsByTagName("canvas")[2];
+    drawingCtx = drawingCanvas!.getContext("2d")!;
+
     // fps calculation
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
+
+    console.log("MapModule");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
@@ -190,6 +195,13 @@ export default function MapModule(props: MapModuleProps) {
           height: screenHeight + "px",
         }}
       >
+        <canvas
+          style={{
+            position: "absolute",
+          }}
+          width={screenWidth}
+          height={screenHeight}
+        />
         <canvas
           style={{
             position: "absolute",

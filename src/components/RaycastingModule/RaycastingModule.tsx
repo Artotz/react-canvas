@@ -56,8 +56,6 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
 
   // ----- MEMES -----
 
-  // console.log("RaycastingModule");
-
   var targetFps: number = props.targetFps,
     fpsInterval: number,
     startTime: number,
@@ -256,6 +254,8 @@ export default function RaycastingModule(props: RaycastingModuleProps) {
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
+
+    // console.log("RaycastingModule");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);

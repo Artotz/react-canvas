@@ -26,6 +26,12 @@ export default function CLIModule() {
     input.value = "";
   };
 
+  const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    addCommand();
+  };
+
   const rollText = () => {
     if (commandHistory.length > 0) {
       let _cmds = [...commandHistory];
@@ -46,15 +52,15 @@ export default function CLIModule() {
     /* ----- TERMINAL WRAPPER ----- */
     <div className="flex flex-col-reverse w-full h-full bg-black border-green-500 border-solid border-2 p-2 gap-2 overflow-y-scroll no-scrollbar">
       {/* ----- INPUT ----- */}
-      <div className="flex gap-2">
+      <form className="flex m-0" onSubmit={onSubmitForm}>
         <input
           id="input"
           className="flex flex-row w-full h-content px-2 focus:outline-none bg-black text-green-500 border-green-500 border-solid border-2"
         ></input>
-        <button onClick={addCommand} className="flex bg-white px-2">
+        {/* <button onClick={addCommand} className="flex bg-white px-2">
           send
-        </button>
-      </div>
+        </button> */}
+      </form>
 
       {/* ----- COMMANDS ----- */}
       {commandHistory.map((v, i) => {
