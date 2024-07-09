@@ -3,24 +3,31 @@ import { map, mapHeight, mapWidth, player } from "../../utils/GameVariables";
 import useWindowResize from "../../hooks/useWindowResize";
 
 export type MapModuleProps = {
-  miniMapScale: number;
-  screenWidth: number;
-  screenHeight: number;
-  stripWidth: number;
-  fov: number;
-  targetFps: number;
+  _miniMapScale?: number;
+  _screenWidth?: number;
+  _screenHeight?: number;
+  _stripWidth?: number;
+  _fov?: number;
+  _targetFps?: number;
 };
 
-MapModule.defaultProps = {
-  miniMapScale: 5,
-  screenWidth: 480,
-  screenHeight: 300,
-  stripWidth: 20,
-  fov: 60,
-  targetFps: 30,
-};
+// MapModule.defaultProps = {
+//   miniMapScale: 5,
+//   screenWidth: 480,
+//   screenHeight: 300,
+//   stripWidth: 20,
+//   fov: 60,
+//   targetFps: 30,
+// };
 
-export default function MapModule(props: MapModuleProps) {
+export default function MapModule({
+  _miniMapScale = 5,
+  _screenWidth = 480,
+  _screenHeight = 300,
+  _stripWidth = 20,
+  _fov = 60,
+  _targetFps = 30,
+}: MapModuleProps) {
   // ----- VARIABLES -----
   // ----- CANVAS (MINIMAP) -----
 
@@ -36,10 +43,10 @@ export default function MapModule(props: MapModuleProps) {
 
   // ----- SIZING HELL -----
 
-  var miniMapScale = props.miniMapScale;
+  var miniMapScale = _miniMapScale;
 
-  // const screenWidth = props.screenWidth;
-  // const screenHeight = props.screenHeight;
+  // const screenWidth = _screenWidth;
+  // const screenHeight = _screenHeight;
 
   const windowSizeState = useWindowResize();
 
@@ -48,7 +55,7 @@ export default function MapModule(props: MapModuleProps) {
 
   // ----- MEMES -----
 
-  var targetFps: number = props.targetFps,
+  var targetFps: number = _targetFps,
     fpsInterval: number,
     startTime: number,
     now: number,
@@ -183,6 +190,18 @@ export default function MapModule(props: MapModuleProps) {
       window.cancelAnimationFrame(animationFrameId);
     };
   }, []);
+
+  //  useEffect(() => {
+  //     window.addEventListener("mousedown", handleMouseDown);
+  //     window.addEventListener("mouseup", handleMouseUp);
+  //     window.addEventListener("mousemove", handleMouseMove);
+
+  //     return () => {
+  //       window.removeEventListener("mousedown", handleMouseDown);
+  //       window.removeEventListener("mouseup", handleMouseUp);
+  //       window.removeEventListener("mousemove", handleMouseMove);
+  //     };
+  //   }, [handleMouseDown, handleMouseUp, handleMouseMove]);
 
   // ----- HTML -----
 

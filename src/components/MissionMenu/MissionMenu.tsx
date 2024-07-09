@@ -129,14 +129,6 @@ export default function MissionMenu() {
               {i == 1 && <RaycastingModule />}
               {i == 2 && <MapModule />}
             </button>
-            {/* <button
-              className="bg-white px-2 border-solid border-2 border-black rounded-xl"
-              onClick={() => {
-                setFocusedModule(i);
-              }}
-            >
-              Focus
-            </button> */}
           </div>
         );
       })}
