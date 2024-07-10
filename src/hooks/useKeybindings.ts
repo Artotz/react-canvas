@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { Player } from "../utils/GameVariables";
+import { player, Player } from "../utils/GameVariables";
 
-export const useKeybindings = (player: Player) => {
+export const useKeybindings = () => {
   const bindingsKeyDown = (e: KeyboardEvent) => {
     e = e || window.event;
     // Which key was pressed?

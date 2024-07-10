@@ -5,6 +5,7 @@ import {
   mapHeight,
   mapWidth,
   player,
+  raycastingRays,
   twoPI,
 } from "../../utils/GameVariables";
 
@@ -30,9 +31,9 @@ type ScreenStrip = { top: number; left: number; height: number; color: string };
 
 export default function RaycastingModule({
   _miniMapScale = 10,
-  _screenWidth = 600,
-  _screenHeight = 480,
-  _stripWidth = 20,
+  _screenWidth = 600 / 4,
+  _screenHeight = 480 / 4,
+  _stripWidth = 10,
   _fov = 60,
   _targetFps = 30,
 }: RaycastingModuleProps) {
@@ -117,6 +118,8 @@ export default function RaycastingModule({
       );
     }
     setScreenStrips([..._screenStrips]);
+
+    //console.log(raycastingRays);
   };
 
   const castSingleRay = (rayAngle: number, stripIdx: number) => {
@@ -211,6 +214,7 @@ export default function RaycastingModule({
 
     if (dist) {
       //drawRay(xHit, yHit);
+      raycastingRays[stripIdx] = { x: xHit, y: yHit };
 
       var strip = _screenStrips[stripIdx];
 
@@ -261,6 +265,12 @@ export default function RaycastingModule({
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
+
+    if (raycastingRays.length == 0) {
+      for (var i = 0; i < numRays; i++) {
+        raycastingRays.push({ x: 0, y: 0 });
+      }
+    }
 
     // console.log("RaycastingModule");
 

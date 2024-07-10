@@ -121,3 +121,7 @@ export const mapWidth = map[0].length;
 export const mapHeight = map.length;
 
 export const twoPI = Math.PI * 2;
+
+export const raycastingRays: { x: number; y: number }[] = [];
+
+export const miniMap = { scale: 15 };

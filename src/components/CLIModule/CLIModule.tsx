@@ -67,7 +67,7 @@ export default function CLIModule() {
         return (
           <div
             key={i == 0 ? reloadAux : i}
-            className="flex flex-row w-full h-content px-2 text-wrap break-all text-green-500 border-green-500 border-solid border-2"
+            className="flex flex-row w-full h-content px-2 text-left text-wrap break-all text-green-500 border-green-500 border-solid border-2"
           >
             {i == 0 ? v.currentText + " <" : v.text + " <"}
           </div>

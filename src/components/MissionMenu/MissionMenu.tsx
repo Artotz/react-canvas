@@ -13,7 +13,7 @@ export default function MissionMenu() {
   const [colors, setColors] = useState<string[]>([]);
 
   useEffect(() => {
-    const bruh = ["#f55", "#5f5", "#55f", "#ff5", "#f5f"];
+    const bruh = ["#555", "#5f5", "#55f", "#ff5", "#f5f"];
     setColors([...bruh]);
   }, [setColors]);
 
@@ -31,7 +31,7 @@ export default function MissionMenu() {
   // ----- PLAYER MOVEMENT -----
 
   //KEYBINDING HOOK
-  useKeybindings(player);
+  useKeybindings();
 
   const move = () => {
     // Player will move this far along
@@ -116,19 +116,17 @@ export default function MissionMenu() {
             className={`flex flex-col full-size full-center border-solid border-2 border-black
              ${i == focusedModule ? "row-span-4 col-span-3 -order-1" : ""}`}
             style={{ backgroundColor: v }}
+            onClick={
+              i == focusedModule
+                ? () => {}
+                : () => {
+                    setFocusedModule(i);
+                  }
+            }
           >
-            <button
-              className={`flex flex-col full-size full-center ${
-                i == focusedModule ? "" : ""
-              }`}
-              onClick={() => {
-                setFocusedModule(i);
-              }}
-            >
-              {i == 0 && <CLIModule />}
-              {i == 1 && <RaycastingModule />}
-              {i == 2 && <MapModule />}
-            </button>
+            {i == 2 && <CLIModule />}
+            {i == 1 && <RaycastingModule />}
+            {i == 0 && <MapModule />}
           </div>
         );
       })}
