@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+  gameVarFocusedModule,
+  // drawingMouse,
   map,
   mapHeight,
   mapWidth,
@@ -7,12 +9,14 @@ import {
   player,
   raycastingRays,
 } from "../../utils/GameVariables";
+
 import useWindowResize from "../../hooks/useWindowResize";
 
 export type MapModuleProps = {
   _screenWidth?: number;
   _screenHeight?: number;
   _targetFps?: number;
+  moduleIndex: number;
 };
 
 // MapModule.defaultProps = {
@@ -27,7 +31,8 @@ export type MapModuleProps = {
 export default function MapModule({
   _screenWidth = 480,
   _screenHeight = 300,
-  _targetFps = 30,
+  _targetFps = 60,
+  moduleIndex = 0,
 }: MapModuleProps) {
   // ----- VARIABLES -----
   // ----- CANVAS (MINIMAP) -----
@@ -45,15 +50,14 @@ export default function MapModule({
 
   // ----- SIZING HELL -----
 
-  const screenWidth = _screenWidth;
-  const screenHeight = _screenHeight;
+  // const screenWidth = _screenWidth;
+  // const screenHeight = _screenHeight;
 
-  // const windowSizeState = useWindowResize();
+  const containerRef = useRef();
 
-  // const screenWidth = windowSizeState.width;
-  // const screenHeight = windowSizeState.height;
+  var screenWidth = 1000;
+  var screenHeight = 1000;
 
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [lastClick, setLastClick] = useState({ x: 0, y: 0 });
 
   // ----- MEMES -----
@@ -128,8 +132,25 @@ export default function MapModule({
     setFrameCountState(frameCount);
     //console.log(frameCountState);
 
+    const _w = (containerRef!.current! as any).clientWidth;
+    const _h = (containerRef!.current! as any).clientHeight;
+
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
+
+    if (moduleIndex == gameVarFocusedModule.bruh) {
+      mapCtx.translate(miniMap.offsetX, miniMap.offsetY);
+      objectCtx.translate(miniMap.offsetX, miniMap.offsetY);
+    } else {
+      mapCtx.translate(
+        -player.x * miniMap.scale + _w / 2,
+        -player.y * miniMap.scale + _h / 2,
+      );
+      objectCtx.translate(
+        -player.x * miniMap.scale + _w / 2,
+        -player.y * miniMap.scale + _h / 2,
+      );
+    }
 
     for (var i = 0; i < raycastingRays.length; i++) {
       drawRay(raycastingRays[i].x, raycastingRays[i].y);
@@ -138,35 +159,81 @@ export default function MapModule({
     drawMiniMap();
     drawPlayer();
 
+    // if (drawingMouse.pressed) {
+    //   drawingCtx.fillStyle = "red";
+    //   drawingCtx.beginPath();
+    //   drawingCtx.arc(
+    //     // draw a dot at the current player position
+    //     drawingMouse.pos[1].x,
+    //     drawingMouse.pos[1].y,
+    //     1 * miniMap.scale,
+    //     0,
+    //     2 * Math.PI,
+    //   );
+    //   drawingCtx.fill();
+
+    //   // console.log(drawingMouse.pos[1]);
+    // }
+
+    mapCtx.setTransform(1, 0, 0, 1, 0, 0);
+    objectCtx.setTransform(1, 0, 0, 1, 0, 0);
+
+    console.log(
+      "W:",
+      (containerRef!.current! as any).clientWidth,
+      "H:",
+      (containerRef!.current! as any).clientHeight,
+    );
+
     // console.log(miniMap.scale);
-    // console.log(document.getElementById("container")?.clientWidth);
-    // console.log(document.getElementById("container")?.clientHeight);
   };
 
   // ----- MOUSE -----
 
-  const handleMouseDown = (e: MouseEvent) => {
-    setLastClick({
-      x: e.clientX - offset.x,
-      y: e.clientY - offset.y,
-    });
-  };
-
-  const handleMouseUp = (e: MouseEvent) => {
-    setLastClick({
-      x: 0,
-      y: 0,
-    });
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (lastClick.x !== 0 && lastClick.y !== 0) {
-      setOffset({ x: -lastClick.x + e.clientX, y: -lastClick.y + e.clientY });
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.button == 0) {
+      //drawingMouse.pressed = true;
+    } else if (e.button == 1) {
+      setLastClick({
+        x: e.clientX - miniMap.offsetX,
+        y: e.clientY - miniMap.offsetY,
+      });
+    } else if (e.button == 2) {
+      miniMap.offsetX = 0;
+      miniMap.offsetY = 0;
     }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (e.button == 0) {
+      //drawingMouse.pressed = false;
+    } else if (e.button == 1) {
+      setLastClick({
+        x: 0,
+        y: 0,
+      });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (lastClick.x !== 0 && lastClick.y !== 0) {
+      miniMap.offsetX = -lastClick.x + e.clientX;
+      miniMap.offsetY = -lastClick.y + e.clientY;
+    }
+
+    // if (drawingMouse.pressed) {
+    //   drawingMouse.pos[0] = { ...drawingMouse.pos[1] };
+    //   drawingMouse.pos[1] = {
+    //     x: e.nativeEvent.layerX,
+    //     y: e.nativeEvent.layerY,
+    //   };
+
+    //   console.log(drawingMouse.pos[1]);
+    // }
     //console.log(e);
   };
 
-  const handleMouseWheel = (e: WheelEvent) => {
+  const handleMouseWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     if (e.deltaY > 0) {
       miniMap.scale += miniMap.scale == 20 ? 0 : 1;
     } else if (e.deltaY < 0) {
@@ -178,7 +245,6 @@ export default function MapModule({
 
   useEffect(() => {
     let animationFrameId: number;
-
     // referencing the canvas and contexts
     mapCanvas = document.getElementsByTagName("canvas")[0];
     mapCtx = mapCanvas!.getContext("2d")!;
@@ -234,31 +300,38 @@ export default function MapModule({
 
   return (
     <div
-      id="container"
-      className="flex flex-col w-full overflow-hidden border-solid border-2 border-red-600"
+      ref={containerRef}
+      className="flex flex-col w-full h-full overflow-hidden border-solid border-2 border-red-600 text-white"
     >
+      {/* fps: {fpsState} */}
       <div
         style={{
           position: "relative",
           width: screenWidth + "px",
           height: screenHeight + "px",
-          left: offset.x + "px",
-          top: offset.y + "px",
+          border: "1px solid black",
         }}
         onMouseDown={(e) => {
-          handleMouseDown(e as any);
+          handleMouseDown(e);
         }}
         onMouseUp={(e) => {
-          handleMouseUp(e as any);
+          handleMouseUp(e);
         }}
         onMouseLeave={(e) => {
-          handleMouseUp(e as any);
+          handleMouseUp(e);
         }}
         onMouseMove={(e) => {
-          handleMouseMove(e as any);
+          handleMouseMove(e);
         }}
         onWheel={(e) => {
-          handleMouseWheel(e as any);
+          handleMouseWheel(e);
+        }}
+        // HMMM
+        onFocus={() => {
+          console.log("focus");
+        }}
+        onResize={() => {
+          console.log("resize");
         }}
       >
         <canvas

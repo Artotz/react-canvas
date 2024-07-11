@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { useKeybindings } from "../../hooks/useKeybindings";
-import { map, mapHeight, mapWidth, player } from "../../utils/GameVariables";
+import {
+  gameVarFocusedModule,
+  map,
+  mapHeight,
+  mapWidth,
+  player,
+} from "../../utils/GameVariables";
 import CLIModule from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import RaycastingModule from "../RaycastingModule/RaycastingModule";
@@ -120,13 +126,14 @@ export default function MissionMenu() {
               i == focusedModule
                 ? () => {}
                 : () => {
+                    gameVarFocusedModule.bruh = i;
                     setFocusedModule(i);
                   }
             }
           >
             {i == 2 && <CLIModule />}
             {i == 1 && <RaycastingModule />}
-            {i == 0 && <MapModule />}
+            {i == 0 && <MapModule moduleIndex={i} />}
           </div>
         );
       })}

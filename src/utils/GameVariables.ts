@@ -124,4 +124,14 @@ export const twoPI = Math.PI * 2;
 
 export const raycastingRays: { x: number; y: number }[] = [];
 
-export const miniMap = { scale: 15 };
+export const miniMap = { offsetX: 0, offsetY: 0, scale: 15 };
+
+export var gameVarFocusedModule = { bruh: 0 };
+
+// export const drawingMouse = {
+//   pressed: false,
+//   pos: [
+//     { x: 0, y: 0 },
+//     { x: 0, y: 0 },
+//   ],
+// };
