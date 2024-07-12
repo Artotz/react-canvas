@@ -10,10 +10,9 @@ import {
 } from "../../utils/GameVariables";
 
 export type RaycastingModuleProps = {
-  _miniMapScale?: number;
-  _screenWidth?: number;
-  _screenHeight?: number;
-  _stripWidth?: number;
+  width?: number;
+  height?: number;
+  _numRays?: number;
   _fov?: number;
   _targetFps?: number;
 };
@@ -30,10 +29,9 @@ export type RaycastingModuleProps = {
 type ScreenStrip = { top: number; left: number; height: number; color: string };
 
 export default function RaycastingModule({
-  _miniMapScale = 10,
-  _screenWidth = 600 / 4,
-  _screenHeight = 480 / 4,
-  _stripWidth = 10,
+  width = 100,
+  height = 100,
+  _numRays = 10,
   _fov = 60,
   _targetFps = 30,
 }: RaycastingModuleProps) {
@@ -49,15 +47,13 @@ export default function RaycastingModule({
 
   // ----- FUN ZONE -----
 
-  const miniMapScale = _miniMapScale;
+  const screenWidth = width;
+  const screenHeight = height;
 
-  const screenWidth = _screenWidth;
-  const screenHeight = _screenHeight;
-
-  const stripWidth = _stripWidth;
+  const numRays = _numRays;
   const fov = (_fov * Math.PI) / 180;
 
-  const numRays = Math.ceil(screenWidth / stripWidth);
+  const stripWidth = Math.ceil(screenWidth / numRays);
   //const fovHalf = fov / 2;
 
   const viewDist = screenWidth / 2 / Math.tan(fov / 2);

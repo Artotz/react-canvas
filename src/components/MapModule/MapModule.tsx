@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 import {
-  gameVarFocusedModule,
   // drawingMouse,
   map,
   mapHeight,
   mapWidth,
   miniMap,
+  moduleFocus,
   player,
   raycastingRays,
 } from "../../utils/GameVariables";
@@ -53,10 +53,9 @@ export default function MapModule({
   // const screenWidth = _screenWidth;
   // const screenHeight = _screenHeight;
 
-  const containerRef = useRef();
+  const containerRef = createRef<HTMLDivElement>();
 
-  var screenWidth = 1000;
-  var screenHeight = 1000;
+  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
 
   const [lastClick, setLastClick] = useState({ x: 0, y: 0 });
 
@@ -132,23 +131,20 @@ export default function MapModule({
     setFrameCountState(frameCount);
     //console.log(frameCountState);
 
-    const _w = (containerRef!.current! as any).clientWidth;
-    const _h = (containerRef!.current! as any).clientHeight;
-
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
 
-    if (moduleIndex == gameVarFocusedModule.bruh) {
+    if (moduleFocus[moduleIndex] == 1) {
       mapCtx.translate(miniMap.offsetX, miniMap.offsetY);
       objectCtx.translate(miniMap.offsetX, miniMap.offsetY);
     } else {
       mapCtx.translate(
-        -player.x * miniMap.scale + _w / 2,
-        -player.y * miniMap.scale + _h / 2,
+        -player.x * miniMap.scale + mapCtx.canvas.width / 2,
+        -player.y * miniMap.scale + mapCtx.canvas.height / 2,
       );
       objectCtx.translate(
-        -player.x * miniMap.scale + _w / 2,
-        -player.y * miniMap.scale + _h / 2,
+        -player.x * miniMap.scale + mapCtx.canvas.width / 2,
+        -player.y * miniMap.scale + mapCtx.canvas.height / 2,
       );
     }
 
@@ -178,12 +174,12 @@ export default function MapModule({
     mapCtx.setTransform(1, 0, 0, 1, 0, 0);
     objectCtx.setTransform(1, 0, 0, 1, 0, 0);
 
-    console.log(
-      "W:",
-      (containerRef!.current! as any).clientWidth,
-      "H:",
-      (containerRef!.current! as any).clientHeight,
-    );
+    // console.log(
+    //   "W:",
+    //   (containerRef!.current! as any).clientWidth,
+    //   "H:",
+    //   (containerRef!.current! as any).clientHeight,
+    // );
 
     // console.log(miniMap.scale);
   };
@@ -245,6 +241,12 @@ export default function MapModule({
 
   useEffect(() => {
     let animationFrameId: number;
+
+    setScreenSize({
+      width: containerRef.current!.clientWidth,
+      height: containerRef.current!.clientHeight,
+    });
+
     // referencing the canvas and contexts
     mapCanvas = document.getElementsByTagName("canvas")[0];
     mapCtx = mapCanvas!.getContext("2d")!;
@@ -294,22 +296,25 @@ export default function MapModule({
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, []);
+  }, [moduleFocus[moduleIndex]]);
 
   // ----- HTML -----
 
   return (
     <div
       ref={containerRef}
-      className="flex flex-col w-full h-full overflow-hidden border-solid border-2 border-red-600 text-white"
+      className="flex flex-col w-full h-full overflow-hidden text-white"
+      onResize={() => {
+        console.log("resize");
+      }}
     >
-      {/* fps: {fpsState} */}
+      frames: {frameCountState}
       <div
         style={{
           position: "relative",
-          width: screenWidth + "px",
-          height: screenHeight + "px",
-          border: "1px solid black",
+          width: screenSize.width + "px",
+          height: screenSize.height + "px",
+          border: "1px solid red",
         }}
         onMouseDown={(e) => {
           handleMouseDown(e);
@@ -326,34 +331,27 @@ export default function MapModule({
         onWheel={(e) => {
           handleMouseWheel(e);
         }}
-        // HMMM
-        onFocus={() => {
-          console.log("focus");
-        }}
-        onResize={() => {
-          console.log("resize");
-        }}
       >
         <canvas
           style={{
             position: "absolute",
           }}
-          width={screenWidth}
-          height={screenHeight}
+          width={screenSize.width}
+          height={screenSize.height}
         />
         <canvas
           style={{
             position: "absolute",
           }}
-          width={screenWidth}
-          height={screenHeight}
+          width={screenSize.width}
+          height={screenSize.height}
         />
         {/* <canvas
           style={{
             position: "absolute",
           }}
-          width={screenWidth}
-          height={screenHeight}
+          width={screenSize.width}
+          height={screenSize.height}
         /> */}
       </div>
     </div>

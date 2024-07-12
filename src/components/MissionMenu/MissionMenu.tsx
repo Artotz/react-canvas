@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import { useKeybindings } from "../../hooks/useKeybindings";
 import {
-  gameVarFocusedModule,
   map,
   mapHeight,
   mapWidth,
+  moduleFocus,
   player,
+  raycastingRays,
 } from "../../utils/GameVariables";
 import CLIModule from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
+import Bruh from "../RaycastingModule/Bruh";
 import RaycastingModule from "../RaycastingModule/RaycastingModule";
 
 //TODO: SYNC THE UPDATES FROM MODULES
@@ -16,12 +18,21 @@ import RaycastingModule from "../RaycastingModule/RaycastingModule";
 export default function MissionMenu() {
   const [focusedModule, setFocusedModule] = useState(0);
 
-  const [colors, setColors] = useState<string[]>([]);
+  const ref1 = createRef<HTMLDivElement>();
+  const ref2 = createRef<HTMLDivElement>();
 
-  useEffect(() => {
-    const bruh = ["#555", "#5f5", "#55f", "#ff5", "#f5f"];
-    setColors([...bruh]);
-  }, [setColors]);
+  const [colors, setColors] = useState<string[]>([
+    "#5f5",
+    "#555",
+    "#55f",
+    "#ff5",
+    "#f5f",
+  ]);
+
+  // useEffect(() => {
+  //   const bruh = ["#5f5", "#555", "#55f", "#ff5", "#f5f"];
+  //   setColors([...bruh]);
+  // }, [setColors]);
 
   var frameBruh = 0;
   const [frameCountState, setFrameCountState] = useState(0);
@@ -118,6 +129,7 @@ export default function MissionMenu() {
       {colors.map((v, i) => {
         return (
           <div
+            ref={i == 0 ? ref1 : ref2}
             key={i}
             className={`flex flex-col full-size full-center border-solid border-2 border-black
              ${i == focusedModule ? "row-span-4 col-span-3 -order-1" : ""}`}
@@ -126,14 +138,15 @@ export default function MissionMenu() {
               i == focusedModule
                 ? () => {}
                 : () => {
-                    gameVarFocusedModule.bruh = i;
+                    moduleFocus[focusedModule] = 0;
+                    moduleFocus[i] = 1;
                     setFocusedModule(i);
                   }
             }
           >
-            {i == 2 && <CLIModule />}
-            {i == 1 && <RaycastingModule />}
-            {i == 0 && <MapModule moduleIndex={i} />}
+            {i == 0 && <CLIModule />}
+            {i == 1 && <Bruh moduleIndex={1} />}
+            {i == 2 && <MapModule moduleIndex={2} />}
           </div>
         );
       })}

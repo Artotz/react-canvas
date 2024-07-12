@@ -1,3 +1,5 @@
+import { ScreenStrip } from "../components/RaycastingModule/RaycastingModule";
+
 export const map = [
   [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -126,7 +128,9 @@ export const raycastingRays: { x: number; y: number }[] = [];
 
 export const miniMap = { offsetX: 0, offsetY: 0, scale: 15 };
 
-export var gameVarFocusedModule = { bruh: 0 };
+export var moduleFocus: number[] = [];
+
+// export var _screenStrips: ScreenStrip[] = [];
 
 // export const drawingMouse = {
 //   pressed: false,
