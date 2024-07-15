@@ -47,7 +47,7 @@ export default function MissionMenu() {
   // ----- PLAYER MOVEMENT -----
 
   //KEYBINDING HOOK
-  useKeybindings();
+  //useKeybindings();
 
   const move = () => {
     // Player will move this far along
@@ -56,7 +56,14 @@ export default function MissionMenu() {
 
     // Add rotation if player is rotating (player.dir != 0)
     player.rot += player.dir * player.rotSpeed;
+    player.rot =
+      player.rot < 0
+        ? 2 * Math.PI - player.rot
+        : player.rot >= 2 * Math.PI
+          ? player.rot - 2 * Math.PI
+          : player.rot;
 
+    console.log(player.rot / (2 * Math.PI));
     // Calculate new player position with simple trigonometry
     var newX = player.x + Math.cos(player.rot) * moveStep;
     var newY = player.y + Math.sin(player.rot) * moveStep;

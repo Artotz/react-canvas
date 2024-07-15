@@ -1,3 +1,4 @@
+//import { ScreenStrip } from "../components/RaycastingModule/RaycastingModule";
 export const map = [
   [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -108,8 +109,8 @@ export type Player = {
 };
 
 export const player: Player = {
-  x: 15, // current x, y position
-  y: 10,
+  x: 15.5, // current x, y position
+  y: 10.5,
   dir: 0, // the direction that the player is turning, either -1 for left or 1 for right.
   rot: 0, // the current angle of rotation
   speed: 0, // is the playing moving forward (speed = 1) or backwards (speed = -1).
