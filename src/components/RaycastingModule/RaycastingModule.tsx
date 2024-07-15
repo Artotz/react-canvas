@@ -31,7 +31,7 @@ type ScreenStrip = { top: number; left: number; height: number; color: string };
 export default function RaycastingModule({
   width = 100,
   height = 100,
-  _numRays = 10,
+  _numRays = 100,
   _fov = 60,
   _targetFps = 30,
 }: RaycastingModuleProps) {
@@ -53,6 +53,7 @@ export default function RaycastingModule({
   const numRays = _numRays;
   const fov = (_fov * Math.PI) / 180;
 
+  // const stripWidth = Math.ceil(screenWidth / numRays);
   const stripWidth = Math.ceil(screenWidth / numRays);
   //const fovHalf = fov / 2;
 
@@ -75,16 +76,18 @@ export default function RaycastingModule({
   const initScreen = () => {
     _screenStrips.length = 0;
 
-    for (var i = 0; i < screenWidth; i += stripWidth) {
+    for (var i = 0; i < numRays; i++) {
       let strip = {
         top: 0,
-        left: i,
+        left: i * stripWidth,
         height: 0,
         color: "grey",
       };
 
       _screenStrips.push(strip);
     }
+
+    draw();
   };
 
   // ----- RAYCASTING -----
@@ -99,7 +102,7 @@ export default function RaycastingModule({
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist,
+        rayScreenPos * rayScreenPos + viewDist * viewDist
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -110,7 +113,7 @@ export default function RaycastingModule({
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++,
+        stripIdx++
       );
     }
     setScreenStrips([..._screenStrips]);
@@ -210,7 +213,9 @@ export default function RaycastingModule({
 
     if (dist) {
       //drawRay(xHit, yHit);
-      raycastingRays[stripIdx] = { x: xHit, y: yHit };
+
+      // draw rays
+      //raycastingRays[stripIdx] = { x: xHit, y: yHit };
 
       var strip = _screenStrips[stripIdx];
 
@@ -226,7 +231,7 @@ export default function RaycastingModule({
       // "real" wall height in the game world is 1 unit, the distance from the player to the screen is viewDist,
       // thus the height on the screen is equal to wall_height_real * viewDist / dist
 
-      var height = Math.round(viewDist / dist);
+      var height = Math.round((0.75 * viewDist) / dist);
 
       // width is the same, but we have to stretch the texture to a factor of stripWidth to make it fill the strip correctly
       //var width = height * stripWidth;
@@ -268,7 +273,8 @@ export default function RaycastingModule({
       }
     }
 
-    // console.log("RaycastingModule");
+    console.log("RaycastingModule");
+    console.log(screenWidth, screenHeight, stripWidth);
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
@@ -307,10 +313,11 @@ export default function RaycastingModule({
   // ----- HTML -----
 
   return (
-    <div className="flex full-size full-center overflow-hidden">
+    <div className="flex full-size full-center overflow-hidden border-red-400 border-2 border-solid">
       <div
         style={{
           position: "relative",
+          overflow: "hidden",
           width: screenWidth + "px",
           height: screenHeight + "px",
         }}

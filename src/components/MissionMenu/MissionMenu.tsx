@@ -26,7 +26,6 @@ export default function MissionMenu() {
     "#555",
     "#55f",
     "#ff5",
-    "#f5f",
   ]);
 
   // useEffect(() => {
@@ -125,7 +124,7 @@ export default function MissionMenu() {
   }, []);
 
   return (
-    <div className="grid grid-rows-4 grid-cols-4 gap-4 full-size bg-white p-4 border-solid border-2 border-black">
+    <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size bg-white p-2 border-solid border-2 border-black">
       {colors.map((v, i) => {
         return (
           <div
@@ -147,6 +146,7 @@ export default function MissionMenu() {
             {i == 0 && <CLIModule />}
             {i == 1 && <Bruh moduleIndex={1} />}
             {i == 2 && <MapModule moduleIndex={2} />}
+            {i == 3 && <Bruh moduleIndex={3} fps={0} />}
           </div>
         );
       })}

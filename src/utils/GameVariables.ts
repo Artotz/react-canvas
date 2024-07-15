@@ -1,5 +1,3 @@
-import { ScreenStrip } from "../components/RaycastingModule/RaycastingModule";
-
 export const map = [
   [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
@@ -116,17 +114,32 @@ export const player: Player = {
   rot: 0, // the current angle of rotation
   speed: 0, // is the playing moving forward (speed = 1) or backwards (speed = -1).
   moveSpeed: 0.05, // how far (in map units) does the player move each step/update
-  rotSpeed: (2 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
+  rotSpeed: (6 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
 };
 
 export const mapWidth = map[0].length;
 export const mapHeight = map.length;
 
+export const drawingMap = <number[][]>[];
+for (let i = 0; i < mapWidth; i++) {
+  let arr = Array<number>(mapHeight);
+  arr.fill(0);
+  drawingMap.push(arr);
+}
+
+//console.log(drawingMap);
+
 export const twoPI = Math.PI * 2;
 
 export const raycastingRays: { x: number; y: number }[] = [];
 
-export const miniMap = { offsetX: 0, offsetY: 0, scale: 15 };
+export const miniMap = {
+  offsetX: 0,
+  offsetY: 0,
+  drawingOffsetX: 0,
+  drawingOffsetY: 0,
+  scale: 15,
+};
 
 export var moduleFocus: number[] = [];
 
