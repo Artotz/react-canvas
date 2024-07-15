@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { checkCommands } from "./CLICommands";
 import { LoremIpsum } from "./LoremIpsum";
 
+
 type CommandLineType = {
   command: string;
   text: string;
@@ -19,6 +20,7 @@ export default function CLIModule() {
   const addCommand = () => {
     var input: HTMLInputElement;
     input = document.getElementById("input")! as HTMLInputElement;
+
 
     if (input.value.match(/[^\s]/g) != null) {
       setCommandHistory([
@@ -72,7 +74,11 @@ export default function CLIModule() {
       className="flex flex-col-reverse w-full h-full bg-black select-none border-green-500 border-solid border-2 p-2 gap-2 overflow-y-scroll no-scrollbar"
     >
       {/* ----- INPUT ----- */}
-      <form className="flex m-0" onSubmit={onSubmitForm}>
+      <form
+        className="flex m-0 px-2 border-green-500 border-solid border-2 text-green-500"
+        onSubmit={onSubmitForm}
+      >
+        @artotz:
         <input
           id="input"
           type="text"

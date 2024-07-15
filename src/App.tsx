@@ -8,7 +8,7 @@ import "./styles.css";
 export default function App() {
   return (
     <div
-      className="flex full-size bg-gray-500 p-4 full-center"
+      className="flex full-size bg-gray-500 p-2 full-center"
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
