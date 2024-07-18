@@ -1,17 +1,12 @@
-import { createRef, useEffect, useRef, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import {
-  drawingMap,
   // drawingMouse,
-  map,
-  mapHeight,
-  mapWidth,
+  mapsArray,
   miniMap,
   moduleFocus,
   player,
   raycastingRays,
 } from "../../utils/GameVariables";
-
-import useWindowResize from "../../hooks/useWindowResize";
 
 export type MapModuleProps = {
   _screenWidth?: number;
@@ -19,15 +14,6 @@ export type MapModuleProps = {
   _targetFps?: number;
   moduleIndex: number;
 };
-
-// MapModule.defaultProps = {
-//   miniMap.scale: 5,
-//   screenWidth: 480,
-//   screenHeight: 300,
-//   stripWidth: 20,
-//   fov: 60,
-//   targetFps: 30,
-// };
 
 export default function MapModule({
   _screenWidth = 480,
@@ -42,9 +28,6 @@ export default function MapModule({
   var mapCtx: CanvasRenderingContext2D;
   var objectCanvas: HTMLCanvasElement | null;
   var objectCtx: CanvasRenderingContext2D;
-
-  // var drawingCanvas: HTMLCanvasElement | null;
-  // var drawingCtx: CanvasRenderingContext2D;
 
   var frameCount = 0;
   const [frameCountState, setFrameCountState] = useState(0);
@@ -74,21 +57,9 @@ export default function MapModule({
   // ----- DRAWING -----
 
   const drawMiniMap = () => {
-    for (var y = 0; y < mapHeight; y++) {
-      for (var x = 0; x < mapWidth; x++) {
-        var wall = map[y][x];
-
-        if (drawingMap[x][y] == 1) {
-          mapCtx.fillStyle = "rgb(200,100,100)";
-          mapCtx.fillRect(
-            // ... then draw a block on the minimap
-            x * miniMap.scale,
-            y * miniMap.scale,
-            miniMap.scale,
-            miniMap.scale
-          );
-          continue;
-        }
+    for (var y = 0; y < mapsArray.mapsHeight; y++) {
+      for (var x = 0; x < mapsArray.mapsWidth; x++) {
+        var wall = mapsArray.viewingMap[y][x];
 
         if (wall > 0) {
           // if there is a wall block at this (x,y) ...
@@ -99,14 +70,36 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale
+            miniMap.scale,
+          );
+        }
+
+        if (mapsArray.drawingMap[y][x] == 1) {
+          mapCtx.fillStyle = "rgb(200,100,100,0.5)";
+          mapCtx.fillRect(
+            // ... then draw a block on the minimap
+            x * miniMap.scale,
+            y * miniMap.scale,
+            miniMap.scale,
+            miniMap.scale,
           );
         }
       }
     }
+
+    objectCtx.strokeStyle = "black";
+    objectCtx.beginPath();
+    objectCtx.rect(
+      0,
+      0,
+      mapsArray.mapsWidth * miniMap.scale,
+      mapsArray.mapsHeight * miniMap.scale,
+    );
+    objectCtx.stroke();
   };
 
   const drawPlayer = () => {
+    // player body
     objectCtx.fillStyle = "red";
     objectCtx.beginPath();
     objectCtx.arc(
@@ -115,18 +108,33 @@ export default function MapModule({
       player.y * miniMap.scale,
       0.25 * miniMap.scale,
       0,
-      2 * Math.PI
+      2 * Math.PI,
     );
     objectCtx.fill();
 
+    // player rotation
     objectCtx.strokeStyle = "red";
     objectCtx.beginPath();
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMap.scale,
-      (player.y + Math.sin(player.rot)) * miniMap.scale
+      (player.y + Math.sin(player.rot)) * miniMap.scale,
     );
     objectCtx.closePath();
+    objectCtx.stroke();
+
+    // player position meme
+    // arbitrary numbers watch out
+    objectCtx.fillStyle = "red";
+    objectCtx.beginPath();
+    objectCtx.arc(
+      // draw a dot at the current player position
+      player.x * miniMap.scale,
+      player.y * miniMap.scale,
+      (25 - (player.showingPosition % 25)) * miniMap.scale,
+      0,
+      2 * Math.PI,
+    );
     objectCtx.stroke();
   };
 
@@ -147,15 +155,27 @@ export default function MapModule({
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
 
+    const centerAux = {
+      x: mapCtx.canvas.width / 2 - (mapsArray.mapsWidth / 2) * miniMap.scale,
+      y: mapCtx.canvas.height / 2 - (mapsArray.mapsHeight / 2) * miniMap.scale,
+    };
+
     if (moduleFocus[moduleIndex] == 1) {
       //if (true) {
-      miniMap.drawingOffsetX = miniMap.offsetX;
-      miniMap.drawingOffsetY = miniMap.offsetY;
+      miniMap.drawingOffsetX = centerAux.x + miniMap.offsetX;
+      miniMap.drawingOffsetY = centerAux.y + miniMap.offsetY;
     } else {
-      miniMap.drawingOffsetX =
-        -player.x * miniMap.scale + mapCtx.canvas.width / 2;
-      miniMap.drawingOffsetY =
-        -player.y * miniMap.scale + mapCtx.canvas.height / 2;
+      // center on player
+      // miniMap.drawingOffsetX =
+      //   -player.x * miniMap.scale + mapCtx.canvas.width / 2;
+      // miniMap.drawingOffsetY =
+      //   -player.y * miniMap.scale + mapCtx.canvas.height / 2;
+      miniMap.drawingOffsetX = centerAux.x;
+      miniMap.drawingOffsetY = centerAux.y;
+      if (miniMap.offsetX != 0 || miniMap.offsetY != 0) {
+        miniMap.offsetX = 0;
+        miniMap.offsetY = 0;
+      }
     }
 
     mapCtx.translate(miniMap.drawingOffsetX, miniMap.drawingOffsetY);
@@ -167,7 +187,7 @@ export default function MapModule({
     // }
 
     drawMiniMap();
-    drawPlayer();
+    if (player.showingPosition > 0) drawPlayer();
 
     mapCtx.setTransform(1, 0, 0, 1, 0, 0);
     objectCtx.setTransform(1, 0, 0, 1, 0, 0);
@@ -214,35 +234,39 @@ export default function MapModule({
     if (e.buttons == 1) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
         ),
       };
       if (
-        click.x < mapWidth &&
-        click.y < mapHeight &&
+        click.x < mapsArray.mapsWidth &&
+        click.y < mapsArray.mapsHeight &&
         click.x >= 0 &&
         click.y >= 0
       )
-        drawingMap[click.x][click.y] = drawingMap[click.x][click.y] = 1;
+        mapsArray.drawingMap[click.y][click.x] = mapsArray.drawingMap[click.y][
+          click.x
+        ] = 1;
     } else if (e.buttons == 2) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
         ),
       };
       if (
-        click.x < mapWidth &&
-        click.y < mapHeight &&
+        click.x < mapsArray.mapsWidth &&
+        click.y < mapsArray.mapsHeight &&
         click.x >= 0 &&
         click.y >= 0
       )
-        drawingMap[click.x][click.y] = drawingMap[click.x][click.y] = 0;
+        mapsArray.drawingMap[click.y][click.x] = mapsArray.drawingMap[click.y][
+          click.x
+        ] = 0;
     }
   };
 
@@ -272,9 +296,6 @@ export default function MapModule({
     objectCtx = objectCanvas!.getContext("2d")!;
 
     draw();
-
-    // drawingCanvas = document.getElementsByTagName("canvas")[2];
-    // drawingCtx = drawingCanvas!.getContext("2d")!;
 
     // fps calculation
     fpsInterval = 1000 / targetFps;
@@ -327,13 +348,13 @@ export default function MapModule({
         console.log("resize");
       }}
     >
-      frames: {frameCountState} fps: {fpsState}
+      {/* frames: {frameCountState} fps: {fpsState} */}
       <div
         style={{
           position: "relative",
           width: screenSize.width + "px",
           height: screenSize.height + "px",
-          border: "1px solid red",
+          border: "0px solid red",
         }}
         onMouseDown={(e) => {
           handleMouseDown(e);
@@ -365,13 +386,6 @@ export default function MapModule({
           width={screenSize.width}
           height={screenSize.height}
         />
-        {/* <canvas
-          style={{
-            position: "absolute",
-          }}
-          width={screenSize.width}
-          height={screenSize.height}
-        /> */}
       </div>
     </div>
   );

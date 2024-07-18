@@ -14,11 +14,11 @@ export default function App() {
         e.stopPropagation();
       }}
     >
-      {/* <DesktopInterface /> */}
+      <DesktopInterface />
       {/* <MainMenu /> */}
       {/* <CLIModule /> */}
       {/* <StoreMenu /> */}
-      <MissionMenu />
+      {/* <MissionMenu /> */}
     </div>
   );
 }

@@ -1,12 +1,10 @@
 import { createRef, useEffect, useState } from "react";
 import { useKeybindings } from "../../hooks/useKeybindings";
 import {
-  map,
-  mapHeight,
-  mapWidth,
   moduleFocus,
   player,
   raycastingRays,
+  mapsArray,
 } from "../../utils/GameVariables";
 import CLIModule from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
@@ -18,6 +16,9 @@ import RaycastingModule from "../RaycastingModule/RaycastingModule";
 export default function MissionMenu() {
   const [focusedModule, setFocusedModule] = useState(0);
 
+  const [youWon, setYouWon] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+
   const ref1 = createRef<HTMLDivElement>();
   const ref2 = createRef<HTMLDivElement>();
 
@@ -27,11 +28,6 @@ export default function MissionMenu() {
     "#55f",
     "#ff5",
   ]);
-
-  // useEffect(() => {
-  //   const bruh = ["#5f5", "#555", "#55f", "#ff5", "#f5f"];
-  //   setColors([...bruh]);
-  // }, [setColors]);
 
   var frameBruh = 0;
   const [frameCountState, setFrameCountState] = useState(0);
@@ -63,7 +59,7 @@ export default function MissionMenu() {
           ? player.rot - 2 * Math.PI
           : player.rot;
 
-    console.log(player.rot / (2 * Math.PI));
+    // console.log(player.rot / (2 * Math.PI));
     // Calculate new player position with simple trigonometry
     var newX = player.x + Math.cos(player.rot) * moveStep;
     var newY = player.y + Math.sin(player.rot) * moveStep;
@@ -73,14 +69,33 @@ export default function MissionMenu() {
     // Set new position
     player.x = newX;
     player.y = newY;
+
+    if (
+      mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -1
+    ) {
+      setYouWon(true);
+      setGameOver(true);
+    }
+
+    player.fuel -= 0.025;
+    player.showingPosition -= player.showingPosition > 0 ? 1 : 0;
+
+    if (player.fuel <= 0 || player.hp <= 0) setGameOver(true);
   };
 
   const isBlocking = (x: number, y: number) => {
     // first make sure that we cannot move outside the boundaries of the level
-    if (y < 0 || y >= mapHeight || x < 0 || x >= mapWidth) return true;
+    if (y < 0 || y >= mapsArray.mapsHeight || x < 0 || x >= mapsArray.mapsWidth)
+      return true;
 
     // return true if the map block is not 0, ie. if there is a blocking wall.
-    return map[Math.floor(y)][Math.floor(x)] != 0;
+    return mapsArray.missionMap[Math.floor(y)][Math.floor(x)] > 0;
+  };
+
+  // ----- GAME LOGIC -----
+
+  const missionLogic = () => {
+    move();
   };
 
   // ----- RENDERING -----
@@ -107,7 +122,8 @@ export default function MissionMenu() {
       // if enough time has elapsed, draw the next frame
       if (elapsed > fpsInterval) {
         // game logic with fps
-        move();
+
+        missionLogic();
 
         // Get ready for next frame by setting then=now, but also adjust for your
         // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
@@ -131,32 +147,57 @@ export default function MissionMenu() {
   }, []);
 
   return (
-    <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size bg-white p-2 border-solid border-2 border-black">
-      {colors.map((v, i) => {
-        return (
-          <div
-            ref={i == 0 ? ref1 : ref2}
-            key={i}
-            className={`flex flex-col full-size full-center border-solid border-2 border-black
+    <div className="flex full-size bg-green-500 p-2 border-solid border-2 border-black">
+      {!gameOver ? (
+        <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
+          {colors.map((v, i) => {
+            return (
+              <div
+                ref={i == 0 ? ref1 : ref2}
+                key={i}
+                className={`flex flex-col full-size full-center border-solid border-2 border-black
              ${i == focusedModule ? "row-span-4 col-span-3 -order-1" : ""}`}
-            style={{ backgroundColor: v }}
-            onClick={
-              i == focusedModule
-                ? () => {}
-                : () => {
-                    moduleFocus[focusedModule] = 0;
-                    moduleFocus[i] = 1;
-                    setFocusedModule(i);
-                  }
-            }
-          >
-            {i == 0 && <CLIModule />}
-            {i == 1 && <Bruh moduleIndex={1} />}
-            {i == 2 && <MapModule moduleIndex={2} />}
-            {i == 3 && <Bruh moduleIndex={3} fps={0} />}
-          </div>
-        );
-      })}
+                style={{ backgroundColor: v }}
+                onClick={
+                  i == focusedModule
+                    ? () => {}
+                    : () => {
+                        moduleFocus[focusedModule] = 0;
+                        moduleFocus[i] = 1;
+                        setFocusedModule(i);
+                      }
+                }
+              >
+                {i == 0 && <CLIModule />}
+                {i == 1 && <MapModule moduleIndex={1} />}
+                {i == 2 && <Bruh moduleIndex={2} photo={true} />}
+                {/* {i == 3 && <Bruh moduleIndex={3} photo={false} />} */}
+                {i == 3 && (
+                  <div
+                    className="flex full-size full-center text-xl text-black font-bold"
+                    style={{
+                      backgroundColor:
+                        "rgb(" +
+                        (150 + 100 * Math.sin(frameCountState / 20)) +
+                        "," +
+                        30 +
+                        "," +
+                        30 +
+                        ")",
+                    }}
+                  >
+                    SIGNAL LOST
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="flex full-size full-center bg-black text-green-500">
+          {youWon ? "parebens bola" : "voce morreu"}
+        </div>
+      )}
     </div>
   );
 }

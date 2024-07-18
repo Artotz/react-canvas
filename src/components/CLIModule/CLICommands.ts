@@ -1,4 +1,4 @@
-import { player } from "../../utils/GameVariables";
+import { mapsArray, player, raycastingPhoto } from "../../utils/GameVariables";
 
 type Command = {
   title: string;
@@ -15,7 +15,12 @@ export const checkCommands = (cmd: string) => {
 
   for (let i = 0; i < commands.length; i++) {
     if (_cmd[0] == commands[i].title) {
-      commandReturn = commands[i].functionCall(_cmd.slice(1));
+      let _options = _cmd.slice(1);
+      if (_options.length == 0) _options.push("");
+      console.log(_options);
+      if (commands[i].options.indexOf(_options[0]) > -1)
+        commandReturn = commands[i].functionCall(_options);
+      else commandReturn = commands[i].title + " command error!";
     }
   }
 
@@ -23,21 +28,60 @@ export const checkCommands = (cmd: string) => {
 };
 
 const moveFunction = (options: string[]) => {
-  moveTimeoutFunction(10);
+  const fixedAngle = Math.round(player.rot / (Math.PI / 2));
 
+  let fixedDir = { x: [1, 0, -1, 0][fixedAngle], y: [0, 1, 0, -1][fixedAngle] };
+  console.log(
+    "player.rot: ",
+    player.rot,
+    "\nangle: ",
+    fixedAngle,
+    "\ndir: ",
+    fixedDir,
+  );
+  moveTimeoutFunction(10, fixedDir, 1);
+  console.log(options);
   return "Moving . . .";
 };
 
-const moveTimeoutFunction = (step: number) => {
-  player.x += (Math.cos(player.rot) * 1) / 10;
-  player.y += (Math.sin(player.rot) * 1) / 10;
+const moveTimeoutFunction = (
+  step: number,
+  dir: { x: number; y: number },
+  sign: number,
+) => {
+  // arbitrary 10 step program watch out
+  let newPos = {
+    x: player.x + (sign * dir.x) / 10,
+    y: player.y + (sign * dir.y) / 10,
+  };
 
-  if (step > 1) {
-    setTimeout(moveTimeoutFunction, 50, step - 1);
-  } else {
-    player.x = parseFloat(player.x.toFixed(1));
-    player.y = parseFloat(player.y.toFixed(1));
-    console.log("x: ", player.x, "y: ", player.y);
+  // illegal move one step ahead
+  if (
+    mapsArray.missionMap[
+      //
+      Math.floor(newPos.y)
+    ][Math.floor(newPos.x)] > 0
+  ) {
+    // You were wrong. Go back.
+    player.hp -= 10;
+    setTimeout(moveTimeoutFunction, 50, 4, dir, -sign);
+  }
+  //legal move
+  else {
+    player.x = newPos.x;
+    player.y = newPos.y;
+
+    if (step > 1) {
+      setTimeout(moveTimeoutFunction, 50, step - 1, dir, sign);
+    } else {
+      // player.x = Math.floor(player.x) + 0.5;
+      // player.y = Math.floor(player.y) + 0.5;
+
+      // player.x = parseFloat(player.x.toFixed(1));
+      // player.y = parseFloat(player.y.toFixed(1));
+
+      console.log("x: ", player.x, "y: ", player.y);
+    }
   }
 };
 
@@ -54,6 +98,7 @@ const turnTimeoutFunction = (step: number) => {
     setTimeout(turnTimeoutFunction, 50, step - 1);
   } else {
     player.rot = Math.round(player.rot / (Math.PI / 2)) * (Math.PI / 2);
+    console.log(player.rot / (2 * Math.PI));
   }
 };
 
@@ -65,7 +110,65 @@ const commands: Command[] = [
   },
   {
     title: "turn",
-    options: [""],
+    options: ["", "left", "right"],
     functionCall: turnFunction,
+  },
+  {
+    title: "stability",
+    options: [""],
+    functionCall: (options: string[]) => {
+      return "Stability: " + player.hp.toFixed(2);
+    },
+  },
+  {
+    title: "fuel",
+    options: [""],
+    functionCall: (options: string[]) => {
+      return "Fuel: " + player.fuel.toFixed(2);
+    },
+  },
+  {
+    title: "scan",
+    options: [""],
+    functionCall: (options: string[]) => {
+      let radarPos = {
+        x: Math.floor(player.x + Math.cos(player.rot) * 1),
+        y: Math.floor(player.y + Math.sin(player.rot) * 1),
+      };
+
+      mapsArray.viewingMap[radarPos.y][radarPos.x] =
+        mapsArray.missionMap[radarPos.y][radarPos.x];
+
+      return "Scanning . . .";
+    },
+  },
+  {
+    title: "position",
+    options: [""],
+    functionCall: (options: string[]) => {
+      player.showingPosition = 500;
+
+      return "Showing position . . .";
+    },
+  },
+  {
+    title: "photo",
+    options: [""],
+    functionCall: (options: string[]) => {
+      raycastingPhoto.trigger = true;
+
+      return "Acessing camera . . .";
+    },
+  },
+  {
+    title: "help",
+    options: [""],
+    functionCall: (options: string[]) => {
+      let _cmdsHelp = "";
+      for (let i = 0; i < commands.length; i++) {
+        _cmdsHelp += commands[i].title + (i < commands.length - 1 ? "\n" : "");
+      }
+      return _cmdsHelp;
+    },
   },
 ];

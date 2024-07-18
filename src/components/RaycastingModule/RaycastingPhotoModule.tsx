@@ -3,11 +3,12 @@ import { useEffect, useState } from "react";
 import {
   mapsArray,
   player,
+  raycastingPhoto,
   raycastingRays,
   twoPI,
 } from "../../utils/GameVariables";
 
-export type RaycastingModuleProps = {
+export type RaycastingPhotoModuleProps = {
   width?: number;
   height?: number;
   _numRays?: number;
@@ -15,7 +16,7 @@ export type RaycastingModuleProps = {
   _targetFps?: number;
 };
 
-// RaycastingModule.defaultProps = {
+// RaycastingPhotoModule.defaultProps = {
 //   miniMapScale: 10,
 //   screenWidth: 600,
 //   screenHeight: 480,
@@ -26,13 +27,13 @@ export type RaycastingModuleProps = {
 
 type ScreenStrip = { top: number; left: number; height: number; color: string };
 
-export default function RaycastingModule({
+export default function RaycastingPhotoModule({
   width = 100,
   height = 100,
   _numRays = 100,
   _fov = 60,
   _targetFps = 30,
-}: RaycastingModuleProps) {
+}: RaycastingPhotoModuleProps) {
   // ----- VARIABLES -----
 
   var frameCount = 0;
@@ -78,8 +79,8 @@ export default function RaycastingModule({
       let strip = {
         top: 0,
         left: i * stripWidth,
-        height: 0,
-        color: "grey",
+        height: screenHeight,
+        color: "black",
       };
 
       _screenStrips.push(strip);
@@ -260,7 +261,13 @@ export default function RaycastingModule({
   const draw = () => {
     setFrameCountState(frameCount);
 
-    castRays();
+    raycastingPhoto.cover -= raycastingPhoto.cover > 0 ? 1 : 0;
+
+    if (raycastingPhoto.trigger) {
+      castRays();
+      raycastingPhoto.cover = 100;
+      raycastingPhoto.trigger = false;
+    }
   };
 
   // ----- USE EFFECT -----
@@ -282,7 +289,7 @@ export default function RaycastingModule({
     //   }
     // }
 
-    console.log("RaycastingModule");
+    console.log("RaycastingPhotoModule");
     //console.log(screenWidth, screenHeight, stripWidth);
 
     const render = () => {
@@ -322,8 +329,8 @@ export default function RaycastingModule({
   // ----- HTML -----
 
   return (
-    // <div className="flex full-size full-center overflow-hidden border-red-400 border-2 border-solid">
     <div className="flex full-size full-center overflow-hidden">
+      {/* <div className="flex full-size full-center overflow-hidden border-red-400 border-2 border-solid"> */}
       <div
         style={{
           position: "relative",
@@ -350,20 +357,6 @@ export default function RaycastingModule({
           );
         })}
 
-        {
-          // <div
-          //   style={{
-          //     position: "absolute",
-          //     top: 0 + "px",
-          //     left: 0 + "px",
-          //     width: screenWidth + "px",
-          //     height: 100 - 5 * (100 - player.fuel) + "px",
-          //     overflow: "hidden",
-          //     backgroundColor: "black",
-          //   }}
-          // ></div>
-        }
-
         {/* ----- SKY ----- */}
         <div
           style={{
@@ -382,6 +375,18 @@ export default function RaycastingModule({
             width: screenWidth + "px",
             height: screenHeight / 2 + "px",
             backgroundColor: "#CC9",
+          }}
+        ></div>
+
+        {/* ----- PHOTO COVER ----- */}
+        <div
+          style={{
+            position: "absolute",
+            top: "0px",
+            width: (raycastingPhoto.cover * screenWidth) / 100 + "px",
+            height: screenHeight + "px",
+            overflow: "hidden",
+            backgroundColor: "black",
           }}
         ></div>
       </div>

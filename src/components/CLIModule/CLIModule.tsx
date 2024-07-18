@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { checkCommands } from "./CLICommands";
 import { LoremIpsum } from "./LoremIpsum";
 
-
 type CommandLineType = {
   command: string;
   text: string;
@@ -13,19 +12,26 @@ type CommandLineType = {
 export default function CLIModule() {
   //var text = LoremIpsum;
   var delay = 50;
+  var username = "C:\\Users\\artotz>";
 
-  const [commandHistory, setCommandHistory] = useState<CommandLineType[]>([]);
+  const [commandHistory, setCommandHistory] = useState<CommandLineType[]>([
+    {
+      command: "",
+      text: 'Welcome!\nTry "help" for commands.',
+      currentText: "",
+      textRollingIndex: -1,
+    },
+  ]);
   const [reloadAux, setReloadAux] = useState(0);
 
   const addCommand = () => {
     var input: HTMLInputElement;
     input = document.getElementById("input")! as HTMLInputElement;
 
-
     if (input.value.match(/[^\s]/g) != null) {
       setCommandHistory([
         {
-          command: input.value,
+          command: username + " " + input.value,
           text: checkCommands(input.value),
           currentText: "",
           textRollingIndex: -1,
@@ -71,50 +77,53 @@ export default function CLIModule() {
 
         return false;
       }}
-      className="flex flex-col-reverse w-full h-full bg-black select-none border-green-500 border-solid border-2 p-2 gap-2 overflow-y-scroll no-scrollbar"
+      className="flex full-size overflow-y-hidden"
     >
-      {/* ----- INPUT ----- */}
-      <form
-        className="flex m-0 px-2 border-green-500 border-solid border-2 text-green-500"
-        onSubmit={onSubmitForm}
-      >
-        @artotz:
-        <input
-          id="input"
-          type="text"
-          spellCheck="false"
-          autoFocus
-          onPaste={(e: any) => {
-            e.preventDefault();
-            return false;
-          }}
-          onCut={(e: any) => {
-            e.preventDefault();
-            return false;
-          }}
-          onDrop={(e: any) => {
-            e.preventDefault();
-            return false;
-          }}
-          className="flex flex-row w-full h-content px-2 pointer-events-none focus:outline-none bg-black text-green-500 border-green-500 border-solid border-2"
-        ></input>
-        {/* <button onClick={addCommand} className="flex bg-white px-2">
+      <div className="flex flex-col-reverse full-size bg-black select-none p-2 overflow-y-scroll no-scrollbar">
+        {/* <div className="flex flex-col-reverse full-size bg-black select-none border-green-500 border-solid border-2 p-2 overflow-y-scroll no-scrollbar"> */}
+        {/* ----- INPUT ----- */}
+        <form
+          className="flex m-0 px-2 border-green-500 border-solid border-2 text-green-500"
+          onSubmit={onSubmitForm}
+        >
+          {username}
+          <input
+            id="input"
+            type="text"
+            spellCheck="false"
+            autoFocus
+            onPaste={(e: any) => {
+              e.preventDefault();
+              return false;
+            }}
+            onCut={(e: any) => {
+              e.preventDefault();
+              return false;
+            }}
+            onDrop={(e: any) => {
+              e.preventDefault();
+              return false;
+            }}
+            className="flex flex-row w-full h-content px-2 pointer-events-none focus:outline-none bg-black"
+          ></input>
+          {/* <button onClick={addCommand} className="flex bg-white px-2">
           send
         </button> */}
-      </form>
+        </form>
 
-      {/* ----- COMMANDS ----- */}
-      {commandHistory.map((v, i) => {
-        return (
-          <div
-            key={i == 0 ? reloadAux : i}
-            className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
-          >
-            <div className="flex">{`${v.command}`}</div>
-            {i == 0 ? v.currentText + " <" : v.text + " <"}
-          </div>
-        );
-      })}
+        {/* ----- COMMANDS ----- */}
+        {commandHistory.map((v, i) => {
+          return (
+            <div
+              key={i == 0 ? reloadAux : i}
+              className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
+            >
+              <div className="flex">{`${v.command}`}</div>
+              {i == 0 ? v.currentText + " <" : v.text + " <"}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
