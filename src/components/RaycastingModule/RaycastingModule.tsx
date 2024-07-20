@@ -322,8 +322,8 @@ export default function RaycastingModule({
   // ----- HTML -----
 
   return (
-    // <div className="flex full-size full-center overflow-hidden border-red-400 border-2 border-solid">
-    <div className="flex full-size full-center overflow-hidden">
+    // <div className="flex full-size full-center overflow-hidden">
+    <div className="flex full-size full-center overflow-hidden border-red-400 border-2 border-solid">
       <div
         style={{
           position: "relative",

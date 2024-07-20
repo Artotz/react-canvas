@@ -195,7 +195,7 @@ export default function MissionMenu() {
         </div>
       ) : (
         <div className="flex full-size full-center bg-black text-green-500">
-          {youWon ? "parebens bola" : "voce morreu"}
+          {youWon ? "parebens bola" : "jogou mto"}
         </div>
       )}
     </div>

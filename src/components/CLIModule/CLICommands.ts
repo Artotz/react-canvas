@@ -17,7 +17,14 @@ export const checkCommands = (cmd: string) => {
     if (_cmd[0] == commands[i].title) {
       let _options = _cmd.slice(1);
       if (_options.length == 0) _options.push("");
+
       console.log(_options);
+
+      if (_options.length > 1) {
+        commandReturn = commands[i].title + " command error!";
+        break;
+      }
+
       if (commands[i].options.indexOf(_options[0]) > -1)
         commandReturn = commands[i].functionCall(_options);
       else commandReturn = commands[i].title + " command error!";
@@ -39,8 +46,11 @@ const moveFunction = (options: string[]) => {
     "\ndir: ",
     fixedDir,
   );
-  moveTimeoutFunction(10, fixedDir, 1);
+
   console.log(options);
+
+  moveTimeoutFunction(10, fixedDir, 1);
+
   return "Moving . . .";
 };
 
@@ -102,7 +112,7 @@ const turnTimeoutFunction = (step: number) => {
   }
 };
 
-const commands: Command[] = [
+export const commands: Command[] = [
   {
     title: "move",
     options: ["", "foward", "backward"],

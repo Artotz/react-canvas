@@ -1,4 +1,4 @@
-//import { ScreenStrip } from "../components/RaycastingModule/RaycastingPhotoModule";
+import { ScreenStrip } from "../components/RaycastingModule/RaycastingPhotoModule";
 
 export const mapsArray = {
   missionMap: [
@@ -65,7 +65,7 @@ export const miniMap = {
 export const raycastingPhoto = {
   trigger: false,
   cover: 0,
-  //photo: Array<ScreenStrip>(),
+  photo: Array<ScreenStrip>(),
 };
 
-export var moduleFocus: number[] = [];
+export const moduleFocus = [1, 0, 0, 0];

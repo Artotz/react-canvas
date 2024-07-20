@@ -2,7 +2,14 @@ import { useEffect, useState } from "react";
 import MissionMenu from "../MissionMenu/MissionMenu";
 
 import "../../utils/GameVariables";
-import { mapsArray, player } from "../../utils/GameVariables";
+import {
+  mapsArray,
+  miniMap,
+  moduleFocus,
+  player,
+  raycastingPhoto,
+} from "../../utils/GameVariables";
+import { ScreenStrip } from "../RaycastingModule/RaycastingPhotoModule";
 
 const p = -666;
 const x = -1;
@@ -20,9 +27,12 @@ const someMaps = [
 export default function DesktopInterface() {
   const [playing, setPlaying] = useState(false);
 
-  const resetMap = (_map: number) => {
+  const loadMap = (_map: number) => {
     mapsArray.missionMap = someMaps[_map];
+    resetMap();
+  };
 
+  const resetMap = () => {
     mapsArray.mapsHeight = mapsArray.missionMap.length;
     mapsArray.mapsWidth = mapsArray.missionMap[0].length;
 
@@ -58,6 +68,30 @@ export default function DesktopInterface() {
       hp: 100, // durability
       showingPosition: 0, // frames displaying position
     });
+
+    moduleFocus.map((v, i) => {
+      moduleFocus[i] = [1, 0, 0, 0][i];
+    });
+
+    Object.assign(
+      {
+        trigger: false,
+        cover: 0,
+        photo: Array<ScreenStrip>(),
+      },
+      raycastingPhoto,
+    );
+
+    Object.assign(
+      {
+        offsetX: 0,
+        offsetY: 0,
+        drawingOffsetX: 0,
+        drawingOffsetY: 0,
+        scale: 15,
+      },
+      miniMap,
+    );
   };
 
   return (
@@ -73,7 +107,7 @@ export default function DesktopInterface() {
                 <div
                   key={i}
                   onClick={() => {
-                    resetMap(i);
+                    loadMap(i);
                     setPlaying(true);
                   }}
                   className="flex flex-col w-content h-20 border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { checkCommands } from "./CLICommands";
+import { checkCommands, commands } from "./CLICommands";
 import { LoremIpsum } from "./LoremIpsum";
 
 type CommandLineType = {
@@ -13,6 +13,7 @@ export default function CLIModule() {
   //var text = LoremIpsum;
   var delay = 50;
   var username = "C:\\Users\\artotz>";
+  // var lastEntry = "";
 
   const [commandHistory, setCommandHistory] = useState<CommandLineType[]>([
     {
@@ -28,16 +29,22 @@ export default function CLIModule() {
     var input: HTMLInputElement;
     input = document.getElementById("input")! as HTMLInputElement;
 
+    const trimmedInput = input.value.trim();
+
+    console.log(trimmedInput);
+
     if (input.value.match(/[^\s]/g) != null) {
       setCommandHistory([
         {
-          command: username + " " + input.value,
-          text: checkCommands(input.value),
+          command: username + " " + trimmedInput,
+          text: checkCommands(trimmedInput),
           currentText: "",
           textRollingIndex: -1,
         },
         ...commandHistory,
       ]);
+
+      // lastEntry = trimmedInput;
 
       console.log(input.value);
 
@@ -66,6 +73,71 @@ export default function CLIModule() {
   };
 
   useEffect(rollText, [commandHistory]);
+
+  const bindingsKeyDown = (e: KeyboardEvent) => {
+    e = e || window.event;
+
+    // Which key was pressed?
+    //console.log(e.key);
+
+    let input = document.getElementById("input")! as HTMLInputElement;
+
+    switch (e.key.toLowerCase()) {
+      case "arrowup":
+        e.preventDefault();
+
+        break;
+
+      case "arrowdown":
+        e.preventDefault();
+
+        break;
+
+      case "tab":
+        e.preventDefault();
+
+        let cutAux = input.value.split(" ");
+
+        console.log(cutAux);
+        if (cutAux[cutAux.length - 1] == "") break;
+
+        if (cutAux.length == 1) {
+          let _commandTitles: string[] = [];
+          commands.map((v) => _commandTitles.push(v.title));
+
+          for (let i = 0; i < _commandTitles.length; i++) {
+            if (_commandTitles[i].startsWith(cutAux[0])) {
+              input.value +=
+                _commandTitles[i].substring(cutAux[0].length) + " ";
+              break;
+            }
+          }
+        } else if (cutAux.length == 2) {
+          let _commandOptions: string[] = [];
+
+          commands.map((v) => {
+            if (v.title == cutAux[0]) _commandOptions = [...v.options];
+          });
+
+          for (let i = 0; i < _commandOptions.length; i++) {
+            if (_commandOptions[i].startsWith(cutAux[1])) {
+              input.value +=
+                _commandOptions[i].substring(cutAux[1].length) + " ";
+              break;
+            }
+          }
+        }
+
+        break;
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", bindingsKeyDown);
+    return () => {
+      document.removeEventListener("keydown", bindingsKeyDown);
+    };
+  }, []);
 
   return (
     /* ----- TERMINAL WRAPPER ----- */

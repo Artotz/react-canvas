@@ -25,7 +25,7 @@ export type RaycastingPhotoModuleProps = {
 //   targetFps: 30,
 // };
 
-type ScreenStrip = { top: number; left: number; height: number; color: string };
+export type ScreenStrip = { height: number; color: string };
 
 export default function RaycastingPhotoModule({
   width = 100,
@@ -58,6 +58,8 @@ export default function RaycastingPhotoModule({
 
   const viewDist = screenWidth / 2 / Math.tan(fov / 2);
 
+  const magicNumber = viewDist / screenWidth;
+
   // ----- MEMES -----
 
   var targetFps: number = _targetFps,
@@ -75,16 +77,18 @@ export default function RaycastingPhotoModule({
   const initScreen = () => {
     _screenStrips.length = 0;
 
-    for (var i = 0; i < numRays; i++) {
-      let strip = {
-        top: 0,
-        left: i * stripWidth,
-        height: screenHeight,
-        color: "black",
-      };
+    console.log(raycastingPhoto.photo.length);
 
-      _screenStrips.push(strip);
-    }
+    if (raycastingPhoto.photo.length == 0) {
+      for (var i = 0; i < numRays; i++) {
+        let strip = {
+          height: 100,
+          color: "black",
+        };
+
+        _screenStrips.push(strip);
+      }
+    } else _screenStrips = [...raycastingPhoto.photo];
 
     setScreenStrips([..._screenStrips]);
 
@@ -117,8 +121,6 @@ export default function RaycastingPhotoModule({
         stripIdx++,
       );
     }
-
-    //console.log(raycastingRays);
   };
 
   const castSingleRay = (rayAngle: number, stripIdx: number) => {
@@ -241,16 +243,14 @@ export default function RaycastingPhotoModule({
       // "real" wall height in the game world is 1 unit, the distance from the player to the screen is viewDist,
       // thus the height on the screen is equal to wall_height_real * viewDist / dist
 
-      var height = Math.round((0.75 * viewDist) / dist);
+      var height = (0.75 * magicNumber) / dist;
 
       // width is the same, but we have to stretch the texture to a factor of stripWidth to make it fill the strip correctly
       //var width = height * stripWidth;
 
       // top placement is easy since everything is centered on the x-axis, so we simply move
       // it half way down the screen and then half the wall height back up.
-      var top = Math.round((screenHeight - height) / 2);
 
-      strip.top = top;
       strip.height = height;
       strip.color = color;
     }
@@ -267,6 +267,7 @@ export default function RaycastingPhotoModule({
       castRays();
       raycastingPhoto.cover = 100;
       raycastingPhoto.trigger = false;
+      raycastingPhoto.photo = [..._screenStrips];
     }
   };
 
@@ -290,6 +291,7 @@ export default function RaycastingPhotoModule({
     // }
 
     console.log("RaycastingPhotoModule");
+    console.log(viewDist / screenHeight);
     //console.log(screenWidth, screenHeight, stripWidth);
 
     const render = () => {
@@ -346,10 +348,12 @@ export default function RaycastingPhotoModule({
               key={i}
               style={{
                 position: "absolute",
-                top: v.top + "px",
-                left: v.left + "px",
+                top:
+                  Math.round((screenHeight - v.height * screenWidth) / 2) +
+                  "px",
+                left: i * stripWidth + "px",
                 width: stripWidth + "px",
-                height: v.height + "px",
+                height: Math.round(v.height * screenWidth) + "px",
                 overflow: "hidden",
                 backgroundColor: v.color,
               }}
