@@ -19,12 +19,12 @@ export default function MissionMenu() {
   const ref2 = createRef<HTMLDivElement>();
 
   const [bigWindowSize, setBigWindowSize] = useState({
-    width: 100,
-    height: 100,
+    width: 0,
+    height: 0,
   });
   const [smallWindowSize, setSmallWindowSize] = useState({
-    width: 100,
-    height: 100,
+    width: 0,
+    height: 0,
   });
 
   const [colors, setColors] = useState<string[]>([
@@ -36,6 +36,8 @@ export default function MissionMenu() {
 
   var frameBruh = 0;
   const [frameCountState, setFrameCountState] = useState(0);
+
+  const [keyAux, setKeyAux] = useState(0);
 
   // ----- FPS CALCULATION -----
   var targetFps: number = 30,
@@ -61,8 +63,8 @@ export default function MissionMenu() {
       player.rot < 0
         ? 2 * Math.PI - player.rot
         : player.rot >= 2 * Math.PI
-        ? player.rot - 2 * Math.PI
-        : player.rot;
+          ? player.rot - 2 * Math.PI
+          : player.rot;
 
     // console.log(player.rot / (2 * Math.PI));
     // Calculate new player position with simple trigonometry
@@ -108,18 +110,6 @@ export default function MissionMenu() {
   useEffect(() => {
     let animationFrameId: number;
 
-    if (ref1.current)
-      setBigWindowSize({
-        width: ref1.current!.clientWidth,
-        height: ref1.current!.clientHeight,
-      });
-
-    if (ref2.current)
-      setSmallWindowSize({
-        width: ref2.current!.clientWidth,
-        height: ref2.current!.clientHeight,
-      });
-
     // fps calculation
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
@@ -163,15 +153,28 @@ export default function MissionMenu() {
     };
   }, []);
 
+  useEffect(() => {
+    setBigWindowSize({
+      width: ref1.current!.clientWidth,
+      height: ref1.current!.clientHeight,
+    });
+    setSmallWindowSize({
+      width: ref2.current!.clientWidth,
+      height: ref2.current!.clientHeight,
+    });
+
+    setKeyAux(Math.random());
+    console.log("keyaux: " + keyAux);
+  }, [ref1.current?.clientWidth, ref2.current?.clientWidth]);
+
   return (
     <div className="flex full-size bg-green-500 p-2 border-solid border-2 border-black">
       {!gameOver ? (
         <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
           <div
             ref={ref1}
-            className={
-              "flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3"
-            }
+            key={keyAux}
+            className={`flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3 bg-[${colors[0]}]`}
           >
             {modules[0] == 0 && <CLIModule />}
             {modules[0] == 1 && (
@@ -207,13 +210,12 @@ export default function MissionMenu() {
             )}
           </div>
 
-          {Array(3).map((v, i) => {
+          {[0, 1, 2].map((v, i) => {
             return (
               <div
-                ref={i == 0 ? ref2 : ""}
-                className={
-                  "flex flex-col full-size full-center border-solid border-2 border-black"
-                }
+                ref={i == 0 ? ref2 : null}
+                key={i + 1 + keyAux}
+                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${colors[i + 1]}]`}
                 onClick={() => {
                   let aux = modules[0];
                   modules[0] = modules[i + 1];

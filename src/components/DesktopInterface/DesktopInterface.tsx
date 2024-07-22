@@ -3,6 +3,7 @@ import MissionMenu from "../MissionMenu/MissionMenu";
 
 import "../../utils/GameVariables";
 import {
+  commandHistory,
   mapsArray,
   miniMap,
   player,
@@ -68,13 +69,15 @@ export default function DesktopInterface() {
       showingPosition: 0, // frames displaying position
     });
 
+    commandHistory.length = 0;
+
     Object.assign(
       {
         trigger: false,
         cover: 0,
         photo: Array<ScreenStrip>(),
       },
-      raycastingPhoto
+      raycastingPhoto,
     );
 
     Object.assign(
@@ -85,7 +88,7 @@ export default function DesktopInterface() {
         drawingOffsetY: 0,
         scale: 15,
       },
-      miniMap
+      miniMap,
     );
   };
 

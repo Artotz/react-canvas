@@ -11,11 +11,11 @@ export type RaycastingModule2Props = {
   focused: boolean;
 };
 
-type ScreenStrip = { top: number; left: number; height: number; color: string };
+type ScreenStrip = { height: number; color: string };
 
 export default function RaycastingModule2({
-  width = 100,
-  height = 100,
+  width = 0,
+  height = 0,
   _numRays = 100,
   _fov = 60,
   _targetFps = 30,
@@ -32,8 +32,6 @@ export default function RaycastingModule2({
 
   // ----- CANVAS -----
 
-  const containerRef = createRef<HTMLDivElement>();
-
   const screenSize = { width: width, height: height };
 
   var raycastCanvas: HTMLCanvasElement | null;
@@ -45,7 +43,7 @@ export default function RaycastingModule2({
   const fov = (_fov * Math.PI) / 180;
 
   // const stripWidth = Math.ceil(screenWidth / numRays);
-  const stripWidth = Math.ceil(screenSize.width / numRays);
+  const stripWidth = screenSize.width / numRays;
   //const fovHalf = fov / 2;
 
   const viewDist = screenSize.width / 2 / Math.tan(fov / 2);
@@ -69,8 +67,6 @@ export default function RaycastingModule2({
 
     for (var i = 0; i < numRays; i++) {
       let strip = {
-        top: 0,
-        left: i * stripWidth,
         height: 100,
         color: "black",
       };
@@ -91,7 +87,7 @@ export default function RaycastingModule2({
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist
+        rayScreenPos * rayScreenPos + viewDist * viewDist,
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -102,7 +98,7 @@ export default function RaycastingModule2({
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++
+        stripIdx++,
       );
     }
 
@@ -238,7 +234,6 @@ export default function RaycastingModule2({
       // it half way down the screen and then half the wall height back up.
       var top = Math.round((screenSize.height - height) / 2);
 
-      strip.top = top;
       strip.height = height;
       strip.color = color;
     }
@@ -252,20 +247,41 @@ export default function RaycastingModule2({
     castRays();
 
     let canvasHeight = raycastCtx.canvas.height;
-    raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
+    //raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
+
+    raycastCtx.fillStyle = "#336";
+    raycastCtx.beginPath();
+    raycastCtx.rect(0, 0, raycastCtx.canvas.width, canvasHeight / 2);
+    raycastCtx.fill();
+
+    raycastCtx.fillStyle = "#663";
+    raycastCtx.beginPath();
+    raycastCtx.rect(
+      0,
+      canvasHeight / 2,
+      raycastCtx.canvas.width,
+      canvasHeight / 2,
+    );
+    raycastCtx.fill();
 
     // screen strips
     for (let i = 0; i < _screenStrips.length; i++) {
       raycastCtx.fillStyle = _screenStrips[i].color;
+      if (i == 0 || i == _screenStrips.length - 1)
+        raycastCtx.fillStyle = "#F00";
       raycastCtx.beginPath();
       raycastCtx.rect(
-        i * stripWidth,
+        Math.floor(i * stripWidth),
         canvasHeight / 2 - _screenStrips[i].height / 2,
-        stripWidth,
-        _screenStrips[i].height
+        Math.ceil(stripWidth),
+        _screenStrips[i].height,
       );
       raycastCtx.fill();
     }
+
+    raycastCtx.fillStyle = "red";
+    raycastCtx.beginPath();
+    raycastCtx.fillText("Frames: " + frameCount, 10, 10);
   };
 
   // ----- USE EFFECT -----
@@ -275,22 +291,22 @@ export default function RaycastingModule2({
 
     // initializing the raycastCanvas
     raycastCanvas = document.getElementById(
-      "raycastCanvas"
+      "raycastCanvas",
     ) as HTMLCanvasElement;
     raycastCtx = raycastCanvas!.getContext("2d")!;
 
     // initializing the screen strips
     initScreen();
 
+    draw();
+
     // fps calculation
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
 
-    draw();
-
     console.log("RaycastingModule2");
-    console.log(stripWidth);
+    console.log(screenSize);
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
@@ -329,17 +345,14 @@ export default function RaycastingModule2({
   // ----- HTML -----
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col full-size overflow-hidden text-white"
-    >
+    <div className="flex flex-col full-size overflow-hidden text-white">
       {/* frames: {frameCountState} fps: {fpsState} */}
       <div
         style={{
           position: "relative",
           width: screenSize.width + "px",
           height: screenSize.height + "px",
-          border: "2px solid red",
+          border: "2px solid blue",
         }}
       >
         <canvas

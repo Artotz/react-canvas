@@ -14,8 +14,8 @@ export type MapModuleProps = {
 };
 
 export default function MapModule({
-  width = 100,
-  height = 100,
+  width = 0,
+  height = 0,
   _targetFps = 30,
   focused = false,
 }: MapModuleProps) {
@@ -34,8 +34,6 @@ export default function MapModule({
 
   // const screenWidth = _screenWidth;
   // const screenHeight = _screenHeight;
-
-  const containerRef = createRef<HTMLDivElement>();
 
   const screenSize = { width: width, height: height };
 
@@ -68,7 +66,7 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale
+            miniMap.scale,
           );
         }
 
@@ -79,7 +77,7 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale
+            miniMap.scale,
           );
         }
       }
@@ -91,7 +89,7 @@ export default function MapModule({
       0,
       0,
       mapsArray.mapsWidth * miniMap.scale,
-      mapsArray.mapsHeight * miniMap.scale
+      mapsArray.mapsHeight * miniMap.scale,
     );
     objectCtx.stroke();
   };
@@ -106,7 +104,7 @@ export default function MapModule({
       player.y * miniMap.scale,
       0.25 * miniMap.scale,
       0,
-      2 * Math.PI
+      2 * Math.PI,
     );
     objectCtx.fill();
 
@@ -116,7 +114,7 @@ export default function MapModule({
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMap.scale,
-      (player.y + Math.sin(player.rot)) * miniMap.scale
+      (player.y + Math.sin(player.rot)) * miniMap.scale,
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -131,7 +129,7 @@ export default function MapModule({
       player.y * miniMap.scale,
       (25 - (player.showingPosition % 25)) * miniMap.scale,
       0,
-      2 * Math.PI
+      2 * Math.PI,
     );
     objectCtx.stroke();
   };
@@ -149,6 +147,7 @@ export default function MapModule({
   const draw = () => {
     setFrameCountState(frameCount);
     //console.log(frameCountState);
+    // console.log(screenSize);
 
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
@@ -189,6 +188,10 @@ export default function MapModule({
 
     mapCtx.setTransform(1, 0, 0, 1, 0, 0);
     objectCtx.setTransform(1, 0, 0, 1, 0, 0);
+
+    mapCtx.fillStyle = "red";
+    mapCtx.beginPath();
+    mapCtx.fillText("Frames: " + frameCount, 10, 10);
   };
 
   // ----- MOUSE -----
@@ -223,7 +226,7 @@ export default function MapModule({
     }
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseMove = (e: any) => {
     if (lastClick.x !== 0 && lastClick.y !== 0) {
       miniMap.offsetX = -lastClick.x + e.clientX;
       miniMap.offsetY = -lastClick.y + e.clientY;
@@ -232,10 +235,10 @@ export default function MapModule({
     if (e.buttons == 1) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
         ),
       };
       if (
@@ -250,10 +253,10 @@ export default function MapModule({
     } else if (e.buttons == 2) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
         ),
       };
       if (
@@ -334,17 +337,14 @@ export default function MapModule({
   // ----- HTML -----
 
   return (
-    <div
-      ref={containerRef}
-      className="flex flex-col w-full h-full overflow-hidden text-white"
-    >
+    <div className="flex flex-col full-size overflow-hidden text-white bg-gray-500">
       {/* frames: {frameCountState} fps: {fpsState} */}
       <div
         style={{
           position: "relative",
           width: screenSize.width + "px",
           height: screenSize.height + "px",
-          border: "0px solid red",
+          border: "2px solid blue",
         }}
         onMouseDown={(e) => {
           handleMouseDown(e);

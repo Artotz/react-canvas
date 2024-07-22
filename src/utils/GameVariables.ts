@@ -1,4 +1,5 @@
 import { ScreenStrip } from "../components/RaycastingModule/RaycastingPhotoModule";
+import { CommandLineType } from "../components/CLIModule/CLIModule";
 
 export const mapsArray = {
   missionMap: [
@@ -53,6 +54,8 @@ export const player: Player = {
 export const twoPI = Math.PI * 2;
 
 //export const raycastingRays: { x: number; y: number }[] = [];
+
+export const commandHistory: CommandLineType[] = [];
 
 export const miniMap = {
   offsetX: 0,
