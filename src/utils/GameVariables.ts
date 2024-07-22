@@ -67,5 +67,3 @@ export const raycastingPhoto = {
   cover: 0,
   photo: Array<ScreenStrip>(),
 };
-
-export const moduleFocus = [1, 0, 0, 0];

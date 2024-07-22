@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 
-import {
-  mapsArray,
-  player,
-  raycastingRays,
-  twoPI,
-} from "../../utils/GameVariables";
+import { mapsArray, player, twoPI } from "../../utils/GameVariables";
 
 export type RaycastingModuleProps = {
   width?: number;
@@ -102,7 +97,7 @@ export default function RaycastingModule({
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist,
+        rayScreenPos * rayScreenPos + viewDist * viewDist
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -113,7 +108,7 @@ export default function RaycastingModule({
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++,
+        stripIdx++
       );
     }
 
@@ -322,8 +317,7 @@ export default function RaycastingModule({
   // ----- HTML -----
 
   return (
-    // <div className="flex full-size full-center overflow-hidden">
-    <div className="flex full-size full-center overflow-hidden border-red-400 border-2 border-solid">
+    <div className="flex full-size full-center overflow-hidden">
       <div
         style={{
           position: "relative",

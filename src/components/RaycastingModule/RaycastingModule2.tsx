@@ -1,39 +1,26 @@
-import { useEffect, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 
-import {
-  mapsArray,
-  player,
-  raycastingPhoto,
-  //raycastingRays,
-  twoPI,
-} from "../../utils/GameVariables";
+import { mapsArray, player, twoPI } from "../../utils/GameVariables";
 
-export type RaycastingPhotoModuleProps = {
+export type RaycastingModule2Props = {
   width?: number;
   height?: number;
   _numRays?: number;
   _fov?: number;
   _targetFps?: number;
+  focused: boolean;
 };
 
-// RaycastingPhotoModule.defaultProps = {
-//   miniMapScale: 10,
-//   screenWidth: 600,
-//   screenHeight: 480,
-//   stripWidth: 20,
-//   fov: 60,
-//   targetFps: 30,
-// };
+type ScreenStrip = { top: number; left: number; height: number; color: string };
 
-export type ScreenStrip = { height: number; color: string };
-
-export default function RaycastingPhotoModule({
+export default function RaycastingModule2({
   width = 100,
   height = 100,
   _numRays = 100,
   _fov = 60,
   _targetFps = 30,
-}: RaycastingPhotoModuleProps) {
+  focused = false,
+}: RaycastingModule2Props) {
   // ----- VARIABLES -----
 
   var frameCount = 0;
@@ -42,23 +29,26 @@ export default function RaycastingPhotoModule({
   // ----- SCREEN (RAYCASTING) -----
 
   var _screenStrips: ScreenStrip[] = [];
-  const [screenStrips, setScreenStrips] = useState<ScreenStrip[]>([]);
+
+  // ----- CANVAS -----
+
+  const containerRef = createRef<HTMLDivElement>();
+
+  const screenSize = { width: width, height: height };
+
+  var raycastCanvas: HTMLCanvasElement | null;
+  var raycastCtx: CanvasRenderingContext2D;
 
   // ----- FUN ZONE -----
-
-  const screenWidth = width;
-  const screenHeight = height;
 
   const numRays = _numRays;
   const fov = (_fov * Math.PI) / 180;
 
   // const stripWidth = Math.ceil(screenWidth / numRays);
-  const stripWidth = Math.ceil(screenWidth / numRays);
+  const stripWidth = Math.ceil(screenSize.width / numRays);
   //const fovHalf = fov / 2;
 
-  const viewDist = screenWidth / 2 / Math.tan(fov / 2);
-
-  const magicNumber = viewDist / screenWidth;
+  const viewDist = screenSize.width / 2 / Math.tan(fov / 2);
 
   // ----- MEMES -----
 
@@ -77,22 +67,16 @@ export default function RaycastingPhotoModule({
   const initScreen = () => {
     _screenStrips.length = 0;
 
-    console.log(raycastingPhoto.photo.length);
+    for (var i = 0; i < numRays; i++) {
+      let strip = {
+        top: 0,
+        left: i * stripWidth,
+        height: 100,
+        color: "black",
+      };
 
-    if (raycastingPhoto.photo.length == 0) {
-      for (var i = 0; i < numRays; i++) {
-        let strip = {
-          height: 100,
-          color: "black",
-        };
-
-        _screenStrips.push(strip);
-      }
-    } else _screenStrips = [...raycastingPhoto.photo];
-
-    setScreenStrips([..._screenStrips]);
-
-    draw();
+      _screenStrips.push(strip);
+    }
   };
 
   // ----- RAYCASTING -----
@@ -121,6 +105,8 @@ export default function RaycastingPhotoModule({
         stripIdx++
       );
     }
+
+    //console.log(raycastingRays);
   };
 
   const castSingleRay = (rayAngle: number, stripIdx: number) => {
@@ -243,14 +229,16 @@ export default function RaycastingPhotoModule({
       // "real" wall height in the game world is 1 unit, the distance from the player to the screen is viewDist,
       // thus the height on the screen is equal to wall_height_real * viewDist / dist
 
-      var height = (0.75 * magicNumber) / dist;
+      var height = Math.round((0.75 * viewDist) / dist);
 
       // width is the same, but we have to stretch the texture to a factor of stripWidth to make it fill the strip correctly
       //var width = height * stripWidth;
 
       // top placement is easy since everything is centered on the x-axis, so we simply move
       // it half way down the screen and then half the wall height back up.
+      var top = Math.round((screenSize.height - height) / 2);
 
+      strip.top = top;
       strip.height = height;
       strip.color = color;
     }
@@ -261,14 +249,22 @@ export default function RaycastingPhotoModule({
   const draw = () => {
     setFrameCountState(frameCount);
 
-    raycastingPhoto.cover -= raycastingPhoto.cover > 0 ? 1 : 0;
+    castRays();
 
-    if (raycastingPhoto.trigger) {
-      castRays();
-      raycastingPhoto.cover = 100;
-      raycastingPhoto.trigger = false;
-      raycastingPhoto.photo = [..._screenStrips];
-      console.log(raycastingPhoto.photo);
+    let canvasHeight = raycastCtx.canvas.height;
+    raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
+
+    // screen strips
+    for (let i = 0; i < _screenStrips.length; i++) {
+      raycastCtx.fillStyle = _screenStrips[i].color;
+      raycastCtx.beginPath();
+      raycastCtx.rect(
+        i * stripWidth,
+        canvasHeight / 2 - _screenStrips[i].height / 2,
+        stripWidth,
+        _screenStrips[i].height
+      );
+      raycastCtx.fill();
     }
   };
 
@@ -276,6 +272,12 @@ export default function RaycastingPhotoModule({
 
   useEffect(() => {
     let animationFrameId: number;
+
+    // initializing the raycastCanvas
+    raycastCanvas = document.getElementById(
+      "raycastCanvas"
+    ) as HTMLCanvasElement;
+    raycastCtx = raycastCanvas!.getContext("2d")!;
 
     // initializing the screen strips
     initScreen();
@@ -285,15 +287,10 @@ export default function RaycastingPhotoModule({
     then = window.performance.now();
     startTime = then;
 
-    // if (raycastingRays.length == 0) {
-    //   for (var i = 0; i < numRays; i++) {
-    //     raycastingRays.push({ x: 0, y: 0 });
-    //   }
-    // }
+    draw();
 
-    console.log("RaycastingPhotoModule");
-    // console.log(viewDist / screenHeight);
-    console.log(screenWidth, screenHeight, stripWidth);
+    console.log("RaycastingModule2");
+    console.log(stripWidth);
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
@@ -332,67 +329,27 @@ export default function RaycastingPhotoModule({
   // ----- HTML -----
 
   return (
-    <div className="flex full-size full-center overflow-hidden">
+    <div
+      ref={containerRef}
+      className="flex flex-col full-size overflow-hidden text-white"
+    >
+      {/* frames: {frameCountState} fps: {fpsState} */}
       <div
         style={{
           position: "relative",
-          overflow: "hidden",
-          width: screenWidth + "px",
-          height: screenHeight + "px",
+          width: screenSize.width + "px",
+          height: screenSize.height + "px",
+          border: "2px solid red",
         }}
       >
-        {/* ----- UPDATING THE SCREEN STRIPS DIVS ----- */}
-        {screenStrips.map((v, i) => {
-          return (
-            <div
-              key={i}
-              style={{
-                position: "absolute",
-                top:
-                  Math.round((screenHeight - v.height * screenWidth) / 2) +
-                  "px",
-                left: i * stripWidth + "px",
-                width: stripWidth + "px",
-                height: Math.round(v.height * screenWidth) + "px",
-                overflow: "hidden",
-                backgroundColor: v.color,
-              }}
-            ></div>
-          );
-        })}
-
-        {/* ----- SKY ----- */}
-        <div
-          style={{
-            width: screenWidth + "px",
-            height: screenHeight / 2 + "px",
-            backgroundColor: "#AAF",
-          }}
-        >
-          {/* ----- DEBUG (YES, IN THE SKY) ----- */}
-          frames: {frameCountState} fps: {fpsState}
-        </div>
-
-        {/* ----- GROUND ----- */}
-        <div
-          style={{
-            width: screenWidth + "px",
-            height: screenHeight / 2 + "px",
-            backgroundColor: "#CC9",
-          }}
-        ></div>
-
-        {/* ----- PHOTO COVER ----- */}
-        <div
+        <canvas
+          id="raycastCanvas"
           style={{
             position: "absolute",
-            top: "0px",
-            width: (raycastingPhoto.cover * screenWidth) / 100 + "px",
-            height: screenHeight + "px",
-            overflow: "hidden",
-            backgroundColor: "black",
           }}
-        ></div>
+          width={screenSize.width}
+          height={screenSize.height}
+        />
       </div>
     </div>
   );

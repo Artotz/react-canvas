@@ -3,23 +3,21 @@ import {
   // drawingMouse,
   mapsArray,
   miniMap,
-  moduleFocus,
   player,
-  raycastingRays,
 } from "../../utils/GameVariables";
 
 export type MapModuleProps = {
-  _screenWidth?: number;
-  _screenHeight?: number;
+  width?: number;
+  height?: number;
   _targetFps?: number;
-  moduleIndex: number;
+  focused: boolean;
 };
 
 export default function MapModule({
-  _screenWidth = 480,
-  _screenHeight = 300,
+  width = 100,
+  height = 100,
   _targetFps = 30,
-  moduleIndex = 0,
+  focused = false,
 }: MapModuleProps) {
   // ----- VARIABLES -----
   // ----- CANVAS (MINIMAP) -----
@@ -39,7 +37,7 @@ export default function MapModule({
 
   const containerRef = createRef<HTMLDivElement>();
 
-  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 });
+  const screenSize = { width: width, height: height };
 
   const [lastClick, setLastClick] = useState({ x: 0, y: 0 });
 
@@ -70,7 +68,7 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale,
+            miniMap.scale
           );
         }
 
@@ -81,7 +79,7 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale,
+            miniMap.scale
           );
         }
       }
@@ -93,7 +91,7 @@ export default function MapModule({
       0,
       0,
       mapsArray.mapsWidth * miniMap.scale,
-      mapsArray.mapsHeight * miniMap.scale,
+      mapsArray.mapsHeight * miniMap.scale
     );
     objectCtx.stroke();
   };
@@ -108,7 +106,7 @@ export default function MapModule({
       player.y * miniMap.scale,
       0.25 * miniMap.scale,
       0,
-      2 * Math.PI,
+      2 * Math.PI
     );
     objectCtx.fill();
 
@@ -118,7 +116,7 @@ export default function MapModule({
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMap.scale,
-      (player.y + Math.sin(player.rot)) * miniMap.scale,
+      (player.y + Math.sin(player.rot)) * miniMap.scale
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -133,7 +131,7 @@ export default function MapModule({
       player.y * miniMap.scale,
       (25 - (player.showingPosition % 25)) * miniMap.scale,
       0,
-      2 * Math.PI,
+      2 * Math.PI
     );
     objectCtx.stroke();
   };
@@ -160,7 +158,7 @@ export default function MapModule({
       y: mapCtx.canvas.height / 2 - (mapsArray.mapsHeight / 2) * miniMap.scale,
     };
 
-    if (moduleFocus[moduleIndex] == 1) {
+    if (focused) {
       //if (true) {
       miniMap.drawingOffsetX = centerAux.x + miniMap.offsetX;
       miniMap.drawingOffsetY = centerAux.y + miniMap.offsetY;
@@ -234,10 +232,10 @@ export default function MapModule({
     if (e.buttons == 1) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
         ),
       };
       if (
@@ -252,10 +250,10 @@ export default function MapModule({
     } else if (e.buttons == 2) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
         ),
       };
       if (
@@ -283,16 +281,11 @@ export default function MapModule({
   useEffect(() => {
     let animationFrameId: number;
 
-    setScreenSize({
-      width: containerRef.current!.clientWidth,
-      height: containerRef.current!.clientHeight,
-    });
-
     // referencing the canvas and contexts
-    mapCanvas = document.getElementsByTagName("canvas")[0];
+    mapCanvas = document.getElementById("mapCanvas") as HTMLCanvasElement;
     mapCtx = mapCanvas!.getContext("2d")!;
 
-    objectCanvas = document.getElementsByTagName("canvas")[1];
+    objectCanvas = document.getElementById("objectCanvas") as HTMLCanvasElement;
     objectCtx = objectCanvas!.getContext("2d")!;
 
     draw();
@@ -336,7 +329,7 @@ export default function MapModule({
     return () => {
       window.cancelAnimationFrame(animationFrameId);
     };
-  }, [moduleFocus[moduleIndex]]);
+  }, []);
 
   // ----- HTML -----
 
@@ -344,9 +337,6 @@ export default function MapModule({
     <div
       ref={containerRef}
       className="flex flex-col w-full h-full overflow-hidden text-white"
-      onResize={() => {
-        console.log("resize");
-      }}
     >
       {/* frames: {frameCountState} fps: {fpsState} */}
       <div
@@ -373,6 +363,7 @@ export default function MapModule({
         }}
       >
         <canvas
+          id="mapCanvas"
           style={{
             position: "absolute",
           }}
@@ -380,6 +371,7 @@ export default function MapModule({
           height={screenSize.height}
         />
         <canvas
+          id="objectCanvas"
           style={{
             position: "absolute",
           }}

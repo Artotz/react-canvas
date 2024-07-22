@@ -1,26 +1,31 @@
 import { createRef, useEffect, useState } from "react";
 import { useKeybindings } from "../../hooks/useKeybindings";
-import {
-  moduleFocus,
-  player,
-  raycastingRays,
-  mapsArray,
-} from "../../utils/GameVariables";
+import { player, mapsArray } from "../../utils/GameVariables";
 import CLIModule from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import Bruh from "../RaycastingModule/Bruh";
 import RaycastingModule from "../RaycastingModule/RaycastingModule";
+import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
 
 //TODO: SYNC THE UPDATES FROM MODULES
 
 export default function MissionMenu() {
-  const [focusedModule, setFocusedModule] = useState(0);
+  const [modules, setModules] = useState([0, 1, 2, 3]);
 
   const [youWon, setYouWon] = useState(false);
   const [gameOver, setGameOver] = useState(false);
 
   const ref1 = createRef<HTMLDivElement>();
   const ref2 = createRef<HTMLDivElement>();
+
+  const [bigWindowSize, setBigWindowSize] = useState({
+    width: 100,
+    height: 100,
+  });
+  const [smallWindowSize, setSmallWindowSize] = useState({
+    width: 100,
+    height: 100,
+  });
 
   const [colors, setColors] = useState<string[]>([
     "#5f5",
@@ -56,8 +61,8 @@ export default function MissionMenu() {
       player.rot < 0
         ? 2 * Math.PI - player.rot
         : player.rot >= 2 * Math.PI
-          ? player.rot - 2 * Math.PI
-          : player.rot;
+        ? player.rot - 2 * Math.PI
+        : player.rot;
 
     // console.log(player.rot / (2 * Math.PI));
     // Calculate new player position with simple trigonometry
@@ -102,6 +107,18 @@ export default function MissionMenu() {
 
   useEffect(() => {
     let animationFrameId: number;
+
+    if (ref1.current)
+      setBigWindowSize({
+        width: ref1.current!.clientWidth,
+        height: ref1.current!.clientHeight,
+      });
+
+    if (ref2.current)
+      setSmallWindowSize({
+        width: ref2.current!.clientWidth,
+        height: ref2.current!.clientHeight,
+      });
 
     // fps calculation
     fpsInterval = 1000 / targetFps;
@@ -150,29 +167,75 @@ export default function MissionMenu() {
     <div className="flex full-size bg-green-500 p-2 border-solid border-2 border-black">
       {!gameOver ? (
         <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
-          {colors.map((v, i) => {
+          <div
+            ref={ref1}
+            className={
+              "flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3"
+            }
+          >
+            {modules[0] == 0 && <CLIModule />}
+            {modules[0] == 1 && (
+              <MapModule
+                width={bigWindowSize.width}
+                height={bigWindowSize.height}
+                focused={true}
+              />
+            )}
+            {modules[0] == 2 && (
+              <RaycastingModule2
+                width={bigWindowSize.width}
+                height={bigWindowSize.height}
+                focused={true}
+              />
+            )}
+            {modules[0] == 3 && (
+              <div
+                className="flex full-size full-center text-xl text-black font-bold"
+                style={{
+                  backgroundColor:
+                    "rgb(" +
+                    (150 + 100 * Math.sin(frameCountState / 20)) +
+                    "," +
+                    30 +
+                    "," +
+                    30 +
+                    ")",
+                }}
+              >
+                SIGNAL LOST
+              </div>
+            )}
+          </div>
+
+          {Array(3).map((v, i) => {
             return (
               <div
-                ref={i == 0 ? ref1 : ref2}
-                key={i}
-                className={`flex flex-col full-size full-center border-solid border-2 border-black
-             ${i == focusedModule ? "row-span-4 col-span-3 -order-1" : ""}`}
-                style={{ backgroundColor: v }}
-                onClick={
-                  i == focusedModule
-                    ? () => {}
-                    : () => {
-                        moduleFocus[focusedModule] = 0;
-                        moduleFocus[i] = 1;
-                        setFocusedModule(i);
-                      }
+                ref={i == 0 ? ref2 : ""}
+                className={
+                  "flex flex-col full-size full-center border-solid border-2 border-black"
                 }
+                onClick={() => {
+                  let aux = modules[0];
+                  modules[0] = modules[i + 1];
+                  modules[i + 1] = aux;
+                }}
               >
-                {i == 0 && <CLIModule />}
-                {i == 1 && <MapModule moduleIndex={1} />}
-                {i == 2 && <Bruh moduleIndex={2} photo={true} />}
-                {/* {i == 3 && <Bruh moduleIndex={3} photo={false} />} */}
-                {i == 3 && (
+                {modules[i + 1] == 0 && <CLIModule />}
+                {modules[i + 1] == 1 && (
+                  <MapModule
+                    width={smallWindowSize.width}
+                    height={smallWindowSize.height}
+                    focused={false}
+                  />
+                )}
+                {modules[i + 1] == 2 && (
+                  <RaycastingModule2
+                    width={smallWindowSize.width}
+                    height={smallWindowSize.height}
+                    focused={false}
+                  />
+                )}
+                {modules[i + 1] == 3 && (
                   <div
                     className="flex full-size full-center text-xl text-black font-bold"
                     style={{

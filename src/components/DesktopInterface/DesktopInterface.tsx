@@ -5,7 +5,6 @@ import "../../utils/GameVariables";
 import {
   mapsArray,
   miniMap,
-  moduleFocus,
   player,
   raycastingPhoto,
 } from "../../utils/GameVariables";
@@ -16,11 +15,11 @@ const x = -1;
 
 const someMaps = [
   [
-    [1, 1, 1, 1, 1],
-    [1, x, 0, 0, 1],
-    [1, 0, 1, 0, 1],
-    [1, 0, 0, p, 1],
-    [1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, x, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, p, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
   ],
 ];
 
@@ -69,17 +68,13 @@ export default function DesktopInterface() {
       showingPosition: 0, // frames displaying position
     });
 
-    moduleFocus.map((v, i) => {
-      moduleFocus[i] = [1, 0, 0, 0][i];
-    });
-
     Object.assign(
       {
         trigger: false,
         cover: 0,
         photo: Array<ScreenStrip>(),
       },
-      raycastingPhoto,
+      raycastingPhoto
     );
 
     Object.assign(
@@ -90,7 +85,7 @@ export default function DesktopInterface() {
         drawingOffsetY: 0,
         scale: 15,
       },
-      miniMap,
+      miniMap
     );
   };
 
@@ -110,10 +105,10 @@ export default function DesktopInterface() {
                     loadMap(i);
                     setPlaying(true);
                   }}
-                  className="flex flex-col w-content h-20 border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
+                  className="flex flex-col w-content w-16 h-20 border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
                 >
                   <div className="flex w-full h-full bg-blue-500"></div>
-                  <div className="flex justify-center">bruh {i}</div>
+                  <div className="flex justify-center">{i}</div>
                 </div>
               );
             })}
