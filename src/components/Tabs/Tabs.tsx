@@ -16,15 +16,15 @@ export default function Tabs(props: TabsProps) {
   };
 
   return (
-    <div className="flex flex-col full-size">
+    <div className="flex flex-col full-size overflow-y-hidden">
       {/* ----- TAB TITLES ----- */}
-      <div className="flex border-b-2 border-gray-300 gap-x-2">
+      <div className="flex border-b-2 bg-green-500 border-black gap-x-2">
         {props.tabsArray!.map((tab, i) => (
           <button
             key={i}
             className={`${
-              activeTab === i ? "bg-black text-white" : "text-black"
-            } flex-1 text-gray-700 font-medium py-2 duration-500`}
+              activeTab === i ? "bg-black text-green-500" : "text-black"
+            } flex-1 font-medium py-2`}
             onClick={(e) => handleClick(e, i)}
           >
             {tab.props.id}
@@ -36,7 +36,7 @@ export default function Tabs(props: TabsProps) {
       {props.tabsArray!.map((tab, i) => {
         if (i === activeTab) {
           return (
-            <div key={i} className="flex full-size">
+            <div key={i} className="flex full-size pb-12">
               {tab}
             </div>
           );

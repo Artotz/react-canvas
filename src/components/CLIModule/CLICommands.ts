@@ -35,7 +35,16 @@ export const checkCommands = (cmd: string) => {
 };
 
 const moveFunction = (options: string[]) => {
-  const fixedAngle = Math.round(player.rot / (Math.PI / 2));
+  const clampAux = player.rot % (2 * Math.PI);
+
+  const angleAux =
+    clampAux < 0
+      ? 2 * Math.PI + clampAux
+      : clampAux >= 2 * Math.PI
+        ? clampAux - 2 * Math.PI
+        : clampAux;
+
+  const fixedAngle = Math.round(angleAux / (Math.PI / 2));
 
   let fixedDir = { x: [1, 0, -1, 0][fixedAngle], y: [0, 1, 0, -1][fixedAngle] };
   console.log(
@@ -47,9 +56,9 @@ const moveFunction = (options: string[]) => {
     fixedDir,
   );
 
-  console.log(options);
+  //console.log(options);
 
-  moveTimeoutFunction(10, fixedDir, 1);
+  moveTimeoutFunction(10, fixedDir, options[0] == "backward" ? -1 : 1);
 
   return "Moving . . .";
 };
@@ -96,16 +105,16 @@ const moveTimeoutFunction = (
 };
 
 const turnFunction = (options: string[]) => {
-  turnTimeoutFunction(10);
+  turnTimeoutFunction(10, options[0] == "left" ? -1 : 1);
 
   return "Turning . . .";
 };
 
-const turnTimeoutFunction = (step: number) => {
-  player.rot += Math.PI / 2 / 10;
+const turnTimeoutFunction = (step: number, dir: number) => {
+  player.rot += (dir * Math.PI) / 2 / 10;
 
   if (step > 1) {
-    setTimeout(turnTimeoutFunction, 50, step - 1);
+    setTimeout(turnTimeoutFunction, 50, step - 1, dir);
   } else {
     player.rot = Math.round(player.rot / (Math.PI / 2)) * (Math.PI / 2);
     console.log(player.rot / (2 * Math.PI));

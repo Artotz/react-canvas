@@ -61,7 +61,7 @@ export default function MissionMenu() {
     player.rot += player.dir * player.rotSpeed;
     // player.rot =
     //   player.rot < 0
-    //     ? 2 * Math.PI - player.rot
+    //     ? 2 * Math.PI + player.rot
     //     : player.rot >= 2 * Math.PI
     //     ? player.rot - 2 * Math.PI
     //     : player.rot;

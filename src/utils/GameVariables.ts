@@ -74,3 +74,8 @@ export const raycastingPhoto = {
   cover: 0,
   photo: Array<ScreenStrip>(),
 };
+
+export var money = 0;
+export const addMoney = (amount: number) => {
+  money += amount;
+};

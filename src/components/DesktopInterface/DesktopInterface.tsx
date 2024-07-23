@@ -10,6 +10,7 @@ import {
   raycastingPhoto,
 } from "../../utils/GameVariables";
 import { ScreenStrip } from "../RaycastingModule/RaycastingPhotoModule";
+import StoreMenu from "../StoreMenu/StoreMenu";
 
 const p = -666;
 const x = -1;
@@ -23,6 +24,8 @@ const someMaps = [
     [1, 1, 1, 1, 1, 1, 1, 1],
   ],
 ];
+
+var app = "";
 
 export default function DesktopInterface() {
   const [playing, setPlaying] = useState(false);
@@ -98,13 +101,14 @@ export default function DesktopInterface() {
       <div className="flex w-full h-full gap-4 p-4">
         {/* BUTTONS */}
         <div className="grid grid-rows-6 grid-flow-col h-full gap-4">
-          {Array(7)
+          {Array(1)
             .fill(0)
             .map((v, i) => {
               return (
                 <div
                   key={i}
                   onClick={() => {
+                    app = "mission";
                     loadMap(i);
                     setPlaying(true);
                   }}
@@ -115,6 +119,17 @@ export default function DesktopInterface() {
                 </div>
               );
             })}
+
+          <div
+            onClick={() => {
+              app = "store";
+              setPlaying(true);
+            }}
+            className="flex flex-col w-content w-16 h-20 border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
+          >
+            <div className="flex w-full h-full bg-blue-500"></div>
+            <div className="flex justify-center">store</div>
+          </div>
         </div>
       </div>
 
@@ -127,14 +142,16 @@ export default function DesktopInterface() {
 
       {/* APPLICATIONS' WINDOWS */}
       {playing == true && (
+        // ----- FULLSCREEN INVISIBLE OVERLAY -----
         <div className="absolute full-size p-8 pb-16 z-999">
+          {/* ----- APPLICATION WINDOW ----- */}
           <div className="flex flex-col full-size bg-green-500 border-solid border-2 border-green-500">
+            {/* ----- WINDOW NAME BAR ----- */}
             <div className="flex w-full h-12 p-2 justify-between border-solid border-2 border-black">
-              <div className="flex text-xl text-black font-bold">
-                mission.exe
-              </div>
+              <div className="flex text-xl text-black font-bold">{app}.exe</div>
               <div
                 onClick={() => {
+                  app = "";
                   setPlaying(false);
                 }}
                 className="flex px-2 border-solid border-2 border-black text-black hover:bg-black hover:text-green-500 cursor-pointer select-none"
@@ -142,8 +159,11 @@ export default function DesktopInterface() {
                 X
               </div>
             </div>
-            <div className="flex full-size overflow-y-hidden">
-              <MissionMenu />
+
+            {/* ----- APPLICATION ----- */}
+            <div className="flex full-size overflow-y-hidden bg-black">
+              {app == "mission" && <MissionMenu />}
+              {app == "store" && <StoreMenu />}
             </div>
           </div>
         </div>
