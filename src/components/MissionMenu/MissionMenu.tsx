@@ -50,7 +50,7 @@ export default function MissionMenu() {
   // ----- PLAYER MOVEMENT -----
 
   //KEYBINDING HOOK
-  //useKeybindings();
+  useKeybindings();
 
   const move = () => {
     // Player will move this far along
@@ -59,12 +59,12 @@ export default function MissionMenu() {
 
     // Add rotation if player is rotating (player.dir != 0)
     player.rot += player.dir * player.rotSpeed;
-    player.rot =
-      player.rot < 0
-        ? 2 * Math.PI - player.rot
-        : player.rot >= 2 * Math.PI
-          ? player.rot - 2 * Math.PI
-          : player.rot;
+    // player.rot =
+    //   player.rot < 0
+    //     ? 2 * Math.PI - player.rot
+    //     : player.rot >= 2 * Math.PI
+    //     ? player.rot - 2 * Math.PI
+    //     : player.rot;
 
     // console.log(player.rot / (2 * Math.PI));
     // Calculate new player position with simple trigonometry
@@ -215,7 +215,9 @@ export default function MissionMenu() {
               <div
                 ref={i == 0 ? ref2 : null}
                 key={i + 1 + keyAux}
-                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${colors[i + 1]}]`}
+                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
+                  colors[i + 1]
+                }]`}
                 onClick={() => {
                   let aux = modules[0];
                   modules[0] = modules[i + 1];

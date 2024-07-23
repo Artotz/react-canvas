@@ -11,12 +11,12 @@ export type RaycastingModule2Props = {
   focused: boolean;
 };
 
-type ScreenStrip = { height: number; color: string };
+type ScreenStrip = { height: number; color: string; texX: number };
 
 export default function RaycastingModule2({
   width = 0,
   height = 0,
-  _numRays = 100,
+  _numRays = 300,
   _fov = 60,
   _targetFps = 30,
   focused = false,
@@ -32,10 +32,14 @@ export default function RaycastingModule2({
 
   // ----- CANVAS -----
 
-  const screenSize = { width: width, height: height };
+  const screenSize = { width: 480, height: 270 };
+  //const screenSize = { width: width, height: height };
 
   var raycastCanvas: HTMLCanvasElement | null;
   var raycastCtx: CanvasRenderingContext2D;
+
+  var greystoneWall = document.createElement("img");
+  greystoneWall.src = "src/assets/greystone.png";
 
   // ----- FUN ZONE -----
 
@@ -69,6 +73,7 @@ export default function RaycastingModule2({
       let strip = {
         height: 100,
         color: "black",
+        texX: 0,
       };
 
       _screenStrips.push(strip);
@@ -87,7 +92,7 @@ export default function RaycastingModule2({
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist,
+        rayScreenPos * rayScreenPos + viewDist * viewDist
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -98,7 +103,7 @@ export default function RaycastingModule2({
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++,
+        stripIdx++
       );
     }
 
@@ -122,7 +127,7 @@ export default function RaycastingModule2({
     var xHit = 0; // the x and y coord of where the ray hit the block
     var yHit = 0;
 
-    var textureX; // the x-coord on the texture of the block, ie. what part of the texture are we going to render
+    var textureX = 0; // the x-coord on the texture of the block, ie. what part of the texture are we going to render
     var wallX: number; // the (x,y) map coords of the block
     var wallY: number;
 
@@ -138,6 +143,7 @@ export default function RaycastingModule2({
     var x = right ? Math.ceil(player.x) : Math.floor(player.x); // starting horizontal position, at one of the edges of the current map block
     var y = player.y + (x - player.x) * slope; // starting vertical position. We add the small horizontal step we just made, multiplied by the slope.
 
+    // if on one side
     let color = "grey";
 
     while (
@@ -197,6 +203,7 @@ export default function RaycastingModule2({
           textureX = x % 1;
           if (up) textureX = 1 - textureX;
 
+          // if on the other side
           color = "darkgray";
         }
         break;
@@ -236,6 +243,7 @@ export default function RaycastingModule2({
 
       strip.height = height;
       strip.color = color;
+      strip.texX = textureX;
     }
   };
 
@@ -247,38 +255,62 @@ export default function RaycastingModule2({
     castRays();
 
     let canvasHeight = raycastCtx.canvas.height;
-    //raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
+    raycastCtx.clearRect(0, 0, 10000, 10000);
 
-    raycastCtx.fillStyle = "#336";
-    raycastCtx.beginPath();
-    raycastCtx.rect(0, 0, raycastCtx.canvas.width, canvasHeight / 2);
-    raycastCtx.fill();
+    // // sky
+    // raycastCtx.fillStyle = "#336";
+    // raycastCtx.beginPath();
+    // raycastCtx.rect(0, 0, raycastCtx.canvas.width, canvasHeight / 2);
+    // raycastCtx.fill();
 
-    raycastCtx.fillStyle = "#663";
-    raycastCtx.beginPath();
-    raycastCtx.rect(
-      0,
-      canvasHeight / 2,
-      raycastCtx.canvas.width,
-      canvasHeight / 2,
-    );
-    raycastCtx.fill();
+    // // ground
+    // raycastCtx.fillStyle = "#663";
+    // raycastCtx.beginPath();
+    // raycastCtx.rect(
+    //   0,
+    //   canvasHeight / 2,
+    //   raycastCtx.canvas.width,
+    //   canvasHeight / 2
+    // );
+    // raycastCtx.fill();
 
     // screen strips
     for (let i = 0; i < _screenStrips.length; i++) {
-      raycastCtx.fillStyle = _screenStrips[i].color;
-      if (i == 0 || i == _screenStrips.length - 1)
-        raycastCtx.fillStyle = "#F00";
-      raycastCtx.beginPath();
-      raycastCtx.rect(
-        Math.floor(i * stripWidth),
-        canvasHeight / 2 - _screenStrips[i].height / 2,
-        Math.ceil(stripWidth),
-        _screenStrips[i].height,
+      // raycastCtx.fillStyle = _screenStrips[i].color;
+      // if (i == 0 || i == _screenStrips.length - 1)
+      //   raycastCtx.fillStyle = "#F00";
+      // raycastCtx.beginPath();
+      // raycastCtx.rect(
+      //   Math.floor(i * stripWidth),
+      //   canvasHeight / 2 - _screenStrips[i].height / 2,
+      //   Math.ceil(stripWidth),
+      //   _screenStrips[i].height
+      // );
+      // raycastCtx.fill();
+
+      // DRAWING THE TEXTURES
+      raycastCtx.drawImage(
+        greystoneWall, // source image
+
+        (64 - Math.ceil(stripWidth)) * _screenStrips[i].texX, // The x coordinate where to start clipping
+
+        0, // The y coordinate where to start clipping
+
+        stripWidth, // The width of the clipped image
+
+        64, // The height of the clipped image
+
+        i * stripWidth, // The x coordinate where to place the image on the canvas
+
+        canvasHeight / 2 - _screenStrips[i].height / 2, // The y coordinate where to place the image on the canvas
+
+        stripWidth, // The width of the image to use (stretch or reduce the image)
+
+        _screenStrips[i].height // The height of the image to use (stretch or reduce the image)
       );
-      raycastCtx.fill();
     }
 
+    // frames
     raycastCtx.fillStyle = "red";
     raycastCtx.beginPath();
     raycastCtx.fillText("Frames: " + frameCount, 10, 10);
@@ -291,9 +323,15 @@ export default function RaycastingModule2({
 
     // initializing the raycastCanvas
     raycastCanvas = document.getElementById(
-      "raycastCanvas",
+      "raycastCanvas"
     ) as HTMLCanvasElement;
     raycastCtx = raycastCanvas!.getContext("2d")!;
+
+    if (focused) raycastCtx.scale(1.25, 1.25);
+    else raycastCtx.scale(0.8, 0.8);
+
+    console.log(width);
+    console.log(width / screenSize.width);
 
     // initializing the screen strips
     initScreen();
@@ -350,8 +388,8 @@ export default function RaycastingModule2({
       <div
         style={{
           position: "relative",
-          width: screenSize.width + "px",
-          height: screenSize.height + "px",
+          width: width + "px",
+          height: height + "px",
           border: "2px solid blue",
         }}
       >
@@ -360,8 +398,8 @@ export default function RaycastingModule2({
           style={{
             position: "absolute",
           }}
-          width={screenSize.width}
-          height={screenSize.height}
+          width={width}
+          height={height}
         />
       </div>
     </div>

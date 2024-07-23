@@ -1,6 +1,7 @@
 import { ScreenStrip } from "../components/RaycastingModule/RaycastingPhotoModule";
 import { CommandLineType } from "../components/CLIModule/CLIModule";
 
+// random default values for reasons
 export const mapsArray = {
   missionMap: [
     [1, 1, 1, 1],
@@ -55,8 +56,10 @@ export const twoPI = Math.PI * 2;
 
 //export const raycastingRays: { x: number; y: number }[] = [];
 
+// state for CLIModule
 export const commandHistory: CommandLineType[] = [];
 
+// state for MapModule
 export const miniMap = {
   offsetX: 0,
   offsetY: 0,
@@ -65,6 +68,7 @@ export const miniMap = {
   scale: 15,
 };
 
+// state for RaycastingModule (Photo Mode)
 export const raycastingPhoto = {
   trigger: false,
   cover: 0,
