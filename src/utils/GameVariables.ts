@@ -33,8 +33,11 @@ export type Player = {
   speed: number;
   moveSpeed: number;
   rotSpeed: number;
+
   // other stuff
+  maxFuel: number;
   fuel: number;
+  maxHp: number;
   hp: number;
   showingPosition: number;
 };
@@ -47,7 +50,11 @@ export const player: Player = {
   speed: 0, // is the playing moving forward (speed = 1) or backwards (speed = -1).
   moveSpeed: 0.05, // how far (in map units) does the player move each step/update
   rotSpeed: (6 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
+
+  // other stuff
+  maxFuel: 100, // max battery whatever
   fuel: 100, // battery whatever
+  maxHp: 100, // max durability
   hp: 100, // durability
   showingPosition: 0, // frames displaying position
 };
@@ -75,6 +82,10 @@ export const raycastingPhoto = {
   photo: Array<ScreenStrip>(),
 };
 
+// state for Score (?)
+// export const mission = { result: "" };
+
+// Money duh
 export var money = 0;
 export const addMoney = (amount: number) => {
   money += amount;

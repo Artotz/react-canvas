@@ -10,40 +10,38 @@ export type CommandLineType = {
   textRollingIndex: number;
 };
 
-export default function CLIModule() {
+export default function CLIModule({ focused = false, welcome = true }) {
   //var text = LoremIpsum;
-  var delay = 50;
+  var delay = welcome ? 100 : 200;
   var username = "C:\\Users\\artotz>";
   var historyIndex = 0;
 
   const [reloadAux, setReloadAux] = useState(0);
 
-  const addCommand = () => {
-    var input: HTMLInputElement;
-    input = document.getElementById("input")! as HTMLInputElement;
-
-    const trimmedInput = input.value.trim();
-
-    console.log(trimmedInput);
-
-    if (input.value.match(/[^\s]/g) != null) {
-      commandHistory.unshift({
-        command: trimmedInput,
-        text: checkCommands(trimmedInput),
-        currentText: "",
-        textRollingIndex: -1,
-      });
-
-      console.log(input.value);
-
-      input.value = "";
-    }
+  const addCommand = (_command: string) => {
+    commandHistory.unshift({
+      command: _command,
+      text: checkCommands(_command),
+      currentText: "",
+      textRollingIndex: -1,
+    });
   };
 
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    addCommand();
+    var input: HTMLInputElement;
+    input = document.getElementById("input")! as HTMLInputElement;
+
+    const trimmedInput = input.value.trim();
+    // console.log(trimmedInput);
+    // console.log(input.value);
+
+    if (trimmedInput.match(/[^\s]/g) != null) {
+      addCommand(trimmedInput);
+
+      input.value = "";
+    }
   };
 
   const rollText = () => {
@@ -55,8 +53,8 @@ export default function CLIModule() {
         if (_cmds[0].textRollingIndex < _cmds[0].text.length - 1)
           setTimeout(rollText, delay);
       }
-
-      setReloadAux(Math.random());
+      console.log(reloadAux);
+      //setReloadAux(reloadAux - 1);
     }
   };
 
@@ -139,9 +137,9 @@ export default function CLIModule() {
   };
 
   useEffect(() => {
-    document.addEventListener("keydown", bindingsKeyDown);
+    if (focused) document.addEventListener("keydown", bindingsKeyDown);
     return () => {
-      document.removeEventListener("keydown", bindingsKeyDown);
+      if (focused) document.removeEventListener("keydown", bindingsKeyDown);
     };
   }, []);
 
@@ -151,8 +149,6 @@ export default function CLIModule() {
       onClick={(e: any) => {
         e.preventDefault();
 
-        document.getElementById("input")!.focus();
-
         return false;
       }}
       className="flex full-size overflow-y-hidden"
@@ -160,34 +156,36 @@ export default function CLIModule() {
       <div className="flex flex-col-reverse full-size bg-black select-none p-2 overflow-y-scroll no-scrollbar">
         {/* <div className="flex flex-col-reverse full-size bg-black select-none border-green-500 border-solid border-2 p-2 overflow-y-scroll no-scrollbar"> */}
         {/* ----- INPUT ----- */}
-        <form
-          className="flex m-0 px-2 border-green-500 border-solid border-2 text-green-500"
-          onSubmit={onSubmitForm}
-        >
-          {username}
-          <input
-            id="input"
-            type="text"
-            spellCheck="false"
-            autoFocus
-            onPaste={(e: any) => {
-              e.preventDefault();
-              return false;
-            }}
-            onCut={(e: any) => {
-              e.preventDefault();
-              return false;
-            }}
-            onDrop={(e: any) => {
-              e.preventDefault();
-              return false;
-            }}
-            className="flex flex-row w-full h-content px-2 pointer-events-none focus:outline-none bg-black"
-          ></input>
-          {/* <button onClick={addCommand} className="flex bg-white px-2">
+        {focused && (
+          <form
+            className="flex m-0 px-2 border-green-500 border-solid border-2 text-green-500"
+            onSubmit={onSubmitForm}
+          >
+            {username}
+            <input
+              id="input"
+              type="text"
+              spellCheck="false"
+              autoFocus
+              onPaste={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+              onCut={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+              onDrop={(e: any) => {
+                e.preventDefault();
+                return false;
+              }}
+              className="flex flex-row w-full h-content px-2 pointer-events-none focus:outline-none bg-black"
+            ></input>
+            {/* <button onClick={addCommand} className="flex bg-white px-2">
           send
         </button> */}
-        </form>
+          </form>
+        )}
 
         {/* ----- COMMANDS ----- */}
         {commandHistory.map((v, i) => {
@@ -196,15 +194,17 @@ export default function CLIModule() {
               key={i == 0 ? reloadAux : i}
               className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
             >
-              <div className="flex">{`${username} ${v.command}`}</div>
+              {v.command != "" && `${username} ${v.command} \n`}
               {i == 0 ? v.currentText + " <" : v.text + " <"}
             </div>
           );
         })}
 
-        <div className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2">
-          <div className="flex">{'Welcome!\nTry "help" for commands.'}</div>
-        </div>
+        {welcome && (
+          <div className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2">
+            <div className="flex">{'Welcome!\nTry "help" for commands.'}</div>
+          </div>
+        )}
       </div>
     </div>
   );

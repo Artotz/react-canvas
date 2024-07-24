@@ -146,7 +146,7 @@ export default function MapModule({
 
   const draw = () => {
     setFrameCountState(frameCount);
-    //console.log(frameCountState);
+    // console.log(frameCountState);
     // console.log(screenSize);
 
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);

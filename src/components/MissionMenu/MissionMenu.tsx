@@ -1,6 +1,11 @@
 import { createRef, useEffect, useState } from "react";
 import { useKeybindings } from "../../hooks/useKeybindings";
-import { player, mapsArray } from "../../utils/GameVariables";
+import {
+  player,
+  mapsArray,
+  commandHistory,
+  mission,
+} from "../../utils/GameVariables";
 import CLIModule from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import Bruh from "../RaycastingModule/Bruh";
@@ -12,8 +17,9 @@ import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
 export default function MissionMenu() {
   const [modules, setModules] = useState([0, 1, 2, 3]);
 
-  const [youWon, setYouWon] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
+  const [gameOverState, setGameOverState] = useState(false);
+  var gameOver = false;
+  var youWon = false;
 
   const ref1 = createRef<HTMLDivElement>();
   const ref2 = createRef<HTMLDivElement>();
@@ -34,10 +40,8 @@ export default function MissionMenu() {
     "#ff5",
   ]);
 
-  var frameBruh = 0;
+  var frameCount = 0;
   const [frameCountState, setFrameCountState] = useState(0);
-
-  const [keyAux, setKeyAux] = useState(0);
 
   // ----- FPS CALCULATION -----
   var targetFps: number = 30,
@@ -80,14 +84,14 @@ export default function MissionMenu() {
     if (
       mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -1
     ) {
-      setYouWon(true);
-      setGameOver(true);
+      youWon = true;
+      endGame();
     }
 
     player.fuel -= 0.025;
     player.showingPosition -= player.showingPosition > 0 ? 1 : 0;
 
-    if (player.fuel <= 0 || player.hp <= 0) setGameOver(true);
+    if (player.fuel <= 0 || player.hp <= 0) endGame();
   };
 
   const isBlocking = (x: number, y: number) => {
@@ -102,7 +106,19 @@ export default function MissionMenu() {
   // ----- GAME LOGIC -----
 
   const missionLogic = () => {
-    move();
+    if (!gameOver) move();
+  };
+
+  const endGame = () => {
+    //     let commandsUsed = commandHistory.length;
+
+    //     mission.result = ` ----- MISSION RESULT -----
+    // This mission came to it's end in ${frameCount} frames.
+    // You have ${player.hp} hp left.
+    // You used ${commandsUsed} commands.`;
+
+    gameOver = true;
+    setGameOverState(true);
   };
 
   // ----- RENDERING -----
@@ -142,8 +158,8 @@ export default function MissionMenu() {
         // drawing the frames
         // draw();
 
-        frameBruh++;
-        setFrameCountState(frameBruh);
+        frameCount++;
+        setFrameCountState(frameCount);
       }
     };
     render();
@@ -162,21 +178,17 @@ export default function MissionMenu() {
       width: ref2.current!.clientWidth,
       height: ref2.current!.clientHeight,
     });
-
-    setKeyAux(Math.random());
-    console.log("keyaux: " + keyAux);
   }, [ref1.current?.clientWidth, ref2.current?.clientWidth]);
 
   return (
     <div className="flex full-size bg-green-500 p-2 border-solid border-2 border-black">
-      {!gameOver ? (
+      {!gameOverState ? (
         <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
           <div
             ref={ref1}
-            key={keyAux}
             className={`flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3 bg-[${colors[0]}]`}
           >
-            {modules[0] == 0 && <CLIModule />}
+            {modules[0] == 0 && <CLIModule focused={true} />}
             {modules[0] == 1 && (
               <MapModule
                 width={bigWindowSize.width}
@@ -213,8 +225,8 @@ export default function MissionMenu() {
           {[0, 1, 2].map((v, i) => {
             return (
               <div
+                key={i}
                 ref={i == 0 ? ref2 : null}
-                key={i + 1 + keyAux}
                 className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
                   colors[i + 1]
                 }]`}
@@ -224,7 +236,7 @@ export default function MissionMenu() {
                   modules[i + 1] = aux;
                 }}
               >
-                {modules[i + 1] == 0 && <CLIModule />}
+                {modules[i + 1] == 0 && <CLIModule focused={false} />}
                 {modules[i + 1] == 1 && (
                   <MapModule
                     width={smallWindowSize.width}
@@ -262,7 +274,7 @@ export default function MissionMenu() {
         </div>
       ) : (
         <div className="flex full-size full-center bg-black text-green-500">
-          {youWon ? "parebens bola" : "jogou mto"}
+          <CLIModule focused={false} welcome={false} />
         </div>
       )}
     </div>
