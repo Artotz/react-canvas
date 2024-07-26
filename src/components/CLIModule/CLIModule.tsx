@@ -6,17 +6,15 @@ import { LoremIpsum } from "./LoremIpsum";
 export type CommandLineType = {
   command: string;
   text: string;
-  currentText: string;
-  textRollingIndex: number;
 };
 
 export default function CLIModule({ focused = false, welcome = true }) {
   //var text = LoremIpsum;
-  var delay = welcome ? 100 : 200;
+  var delay = welcome ? 100 : 100;
   var username = "C:\\Users\\artotz>";
   var historyIndex = 0;
 
-  const [reloadAux, setReloadAux] = useState(0);
+  const [currentText, setCurrentText] = useState("");
 
   const addCommand = (_command: string) => {
     commandHistory.unshift({
@@ -44,21 +42,11 @@ export default function CLIModule({ focused = false, welcome = true }) {
     }
   };
 
-  const rollText = () => {
-    if (commandHistory.length > 0) {
-      let _cmds = [...commandHistory];
+  const rollText = () => {};
 
-      if (_cmds[0].textRollingIndex < _cmds[0].text.length - 1) {
-        _cmds[0].currentText += _cmds[0].text[++_cmds[0].textRollingIndex];
-        if (_cmds[0].textRollingIndex < _cmds[0].text.length - 1)
-          setTimeout(rollText, delay);
-      }
-      console.log(reloadAux);
-      //setReloadAux(reloadAux - 1);
-    }
-  };
-
-  useEffect(rollText, [commandHistory.length]);
+  useEffect(() => {
+    rollText;
+  }, [commandHistory.length]);
 
   const bindingsKeyDown = (e: KeyboardEvent) => {
     e = e || window.event;
@@ -191,11 +179,11 @@ export default function CLIModule({ focused = false, welcome = true }) {
         {commandHistory.map((v, i) => {
           return (
             <div
-              key={i == 0 ? reloadAux : i}
+              key={i}
               className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
             >
               {v.command != "" && `${username} ${v.command} \n`}
-              {i == 0 ? v.currentText + " <" : v.text + " <"}
+              {i == 0 ? currentText + " <" : v.text + " <"}
             </div>
           );
         })}

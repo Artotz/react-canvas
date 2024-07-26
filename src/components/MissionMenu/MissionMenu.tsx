@@ -89,6 +89,8 @@ export default function MissionMenu() {
     }
 
     player.fuel -= 0.025;
+    player.fuel = player.fuel < 0 ? 0 : player.fuel;
+
     player.showingPosition -= player.showingPosition > 0 ? 1 : 0;
 
     if (player.fuel <= 0 || player.hp <= 0) endGame();
@@ -110,12 +112,19 @@ export default function MissionMenu() {
   };
 
   const endGame = () => {
-    //     let commandsUsed = commandHistory.length;
+    let commandsUsed = commandHistory.length;
+    commandHistory.length = 0;
 
-    //     mission.result = ` ----- MISSION RESULT -----
-    // This mission came to it's end in ${frameCount} frames.
-    // You have ${player.hp} hp left.
-    // You used ${commandsUsed} commands.`;
+    mission.result = ` ----- MISSION RESULT -----
+This mission came to it's end in ${frameCount} frames.
+You have ${player.hp} hp left.
+You have ${player.fuel.toFixed(2)} fuel left.
+You used ${commandsUsed} commands.`;
+
+    commandHistory.push({
+      command: "",
+      text: mission.result,
+    });
 
     gameOver = true;
     setGameOverState(true);

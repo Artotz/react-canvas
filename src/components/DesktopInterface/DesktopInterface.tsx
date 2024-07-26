@@ -17,11 +17,14 @@ const x = -1;
 
 const someMaps = [
   [
-    [1, 1, 1, 1, 1, 1, 1, 1],
-    [1, x, 0, 0, 0, 0, 0, 1],
-    [1, 0, 1, 0, p, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, p, 0, 1, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, x, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
 ];
 
@@ -67,8 +70,12 @@ export default function DesktopInterface() {
       speed: 0, // is the playing moving forward (speed = 1) or backwards (speed = -1).
       moveSpeed: 0.05, // how far (in map units) does the player move each step/update
       rotSpeed: (6 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
+
+      // other stuff
+      maxFuel: 100, // max battery whatever
       fuel: 100, // battery whatever
-      hp: 100, // durability
+      maxHp: 20, // max durability
+      hp: 20, // durability
       showingPosition: 0, // frames displaying position
     });
 

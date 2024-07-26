@@ -4,6 +4,7 @@ import {
   mapsArray,
   miniMap,
   player,
+  spriteExample,
 } from "../../utils/GameVariables";
 
 export type MapModuleProps = {
@@ -119,7 +120,25 @@ export default function MapModule({
     objectCtx.closePath();
     objectCtx.stroke();
 
-    // player position meme
+    objectCtx.beginPath();
+    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+    objectCtx.lineTo(
+      (player.x + Math.cos(player.rot - Math.PI / 6)) * miniMap.scale,
+      (player.y + Math.sin(player.rot - Math.PI / 6)) * miniMap.scale,
+    );
+    objectCtx.closePath();
+    objectCtx.stroke();
+
+    objectCtx.beginPath();
+    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+    objectCtx.lineTo(
+      (player.x + Math.cos(player.rot + Math.PI / 6)) * miniMap.scale,
+      (player.y + Math.sin(player.rot + Math.PI / 6)) * miniMap.scale,
+    );
+    objectCtx.closePath();
+    objectCtx.stroke();
+
+    // player position glow
     // arbitrary numbers watch out
     objectCtx.fillStyle = "red";
     objectCtx.beginPath();
@@ -184,7 +203,30 @@ export default function MapModule({
     // }
 
     drawMiniMap();
-    if (player.showingPosition > 0) drawPlayer();
+    // if (player.showingPosition > 0) drawPlayer()
+
+    objectCtx.strokeStyle = "blue";
+    objectCtx.beginPath();
+    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+    objectCtx.lineTo(
+      spriteExample.x * miniMap.scale,
+      spriteExample.y * miniMap.scale,
+    );
+    objectCtx.closePath();
+    objectCtx.stroke();
+
+    objectCtx.fillStyle = "blue";
+    objectCtx.beginPath();
+    objectCtx.arc(
+      spriteExample.x * miniMap.scale,
+      spriteExample.y * miniMap.scale,
+      0.25 * miniMap.scale,
+      0,
+      2 * Math.PI,
+    );
+    objectCtx.fill();
+
+    drawPlayer();
 
     mapCtx.setTransform(1, 0, 0, 1, 0, 0);
     objectCtx.setTransform(1, 0, 0, 1, 0, 0);

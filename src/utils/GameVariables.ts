@@ -54,9 +54,15 @@ export const player: Player = {
   // other stuff
   maxFuel: 100, // max battery whatever
   fuel: 100, // battery whatever
-  maxHp: 100, // max durability
-  hp: 100, // durability
+  maxHp: 20, // max durability
+  hp: 20, // durability
   showingPosition: 0, // frames displaying position
+};
+
+export const spriteExample = {
+  x: 4.5,
+  y: 2.5,
+  width: 0.25,
 };
 
 export const twoPI = Math.PI * 2;
@@ -83,7 +89,7 @@ export const raycastingPhoto = {
 };
 
 // state for Score (?)
-// export const mission = { result: "" };
+export const mission = { result: "" };
 
 // Money duh
 export var money = 0;
