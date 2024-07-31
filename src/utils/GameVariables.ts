@@ -60,7 +60,7 @@ export const player: Player = {
 };
 
 export const spriteExample = {
-  x: 4.5,
+  x: 2.5,
   y: 2.5,
   width: 0.25,
 };

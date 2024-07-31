@@ -20,25 +20,39 @@ type ScreenStrip = { height: number; color: string; texX: number };
 export default function RaycastingModule2({
   width = 0,
   height = 0,
-  _fov = 60,
+  _fov = 90,
   _targetFps = 30,
   focused = false,
 }: RaycastingModule2Props) {
   // ----- VARIABLES -----
 
   var frameCount = 0;
-  const [frameCountState, setFrameCountState] = useState(0);
 
   // ----- CANVAS -----
 
-  const screenSize = { width: 480, height: 360 };
+  const screenSize = { width: 240, height: 180 };
   //const screenSize = { width: width, height: height };
 
   var raycastCanvas: HTMLCanvasElement | null;
   var raycastCtx: CanvasRenderingContext2D;
 
-  var greystoneWall = new Image();
+  const greystoneWall = new Image();
   greystoneWall.src = "src/assets/greystone.png";
+
+  greystoneWall.onload = () => {
+    var tempCanvas = document.createElement("canvas");
+    var tempCtx = tempCanvas.getContext("2d");
+
+    tempCtx?.drawImage(greystoneWall, 0, 0);
+
+    floorData = tempCtx?.getImageData(0, 0, 64, 64)!;
+
+    // why is this called multiple times?
+    // console.log("bruh");
+  };
+
+  var floorData = new ImageData(64, 64);
+  var mode7Image: ImageData;
 
   // ----- FUN ZONE -----
 
@@ -48,11 +62,12 @@ export default function RaycastingModule2({
   var _screenStrips: ScreenStrip[] = Array(numRays);
   var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
 
-  // const stripWidth = Math.ceil(screenWidth / numRays);
   const stripWidth = screenSize.width / numRays;
-  //const fovHalf = fov / 2;
+  const fovHalf = fov / 2;
 
   const viewDist = screenSize.width / 2 / Math.tan(fov / 2);
+
+  const wallHeight = 1;
 
   // ----- MEMES -----
 
@@ -232,7 +247,7 @@ export default function RaycastingModule2({
       // "real" wall height in the game world is 1 unit, the distance from the player to the screen is viewDist,
       // thus the height on the screen is equal to wall_height_real * viewDist / dist
 
-      var height = Math.round((0.75 * viewDist) / dist);
+      var height = Math.round((wallHeight * viewDist) / dist);
 
       // width is the same, but we have to stretch the texture to a factor of stripWidth to make it fill the strip correctly
       //var width = height * stripWidth;
@@ -245,79 +260,133 @@ export default function RaycastingModule2({
       strip.color = color;
       strip.texX = textureX;
 
+      // optimization ?
       zBuffer[stripIdx] = { type: "wall", i: stripIdx, dist: dist };
     }
+  };
+
+  // ----- FLOOR AND CEILING ( MODE 7 ) -----
+
+  const mode7 = () => {
+    let _x = 0,
+      _y = 0,
+      z = -screenSize.height / 2;
+
+    const texSize = 64,
+      scale = 4,
+      _sin = Math.sin(player.rot + Math.PI / 4),
+      _cos = Math.cos(player.rot + Math.PI / 4),
+      // MAGIC NUMBER 3 WORKED FUCK IT
+      // somehow related to fov and wall height
+      _playerX = -player.x * 3 / wallHeight,
+      _playerY = player.y * 3 / wallHeight;
+
+    for (let y = 0; y < screenSize.height; y++) {
+      for (let x = 0; x < screenSize.width; x++) {
+        // Y -----
+        _y = ((screenSize.width - x) * _cos - x * _sin) / z;
+        _y += z < 0 ? _playerY : -_playerY;
+        _y = Math.abs(_y);
+
+        _y *= texSize / scale;
+        _y %= texSize;
+        _y = ~~_y;
+
+        // X -----
+        _x = ((screenSize.width - x) * _sin + x * _cos) / z;
+        _x += z < 0 ? _playerX : -_playerX;
+        _x = Math.abs(_x);
+
+        _x *= texSize / scale;
+        _x %= texSize;
+        _x = ~~_x;
+
+        // The data from an image consists of an array of size width * height * 4,
+        // where the values in order are the R, G, B and A of a single pixel.
+
+        // Below is the (kinda annoying) method to acess each one.
+        // if (y < screenSize.height / 2) {
+        //   // r
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+        //     floorData.data[_x * 4 + _y * texSize * 4] / 2;
+        //   // g
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+        //     floorData.data[_x * 4 + _y * texSize * 4 + 1] / 2;
+        //   // b
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+        //     floorData.data[_x * 4 + _y * texSize * 4 + 2] / 2;
+        //   // a
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        // }
+        // else {
+        // r
+        mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+          floorData.data[_x * 4 + _y * texSize * 4];
+        // g
+        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+          floorData.data[_x * 4 + _y * texSize * 4 + 1];
+        // b
+        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+          floorData.data[_x * 4 + _y * texSize * 4 + 2];
+        // a
+        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        // }
+      }
+
+      z++;
+    }
+    raycastCtx.putImageData(mode7Image, 0, 0);
   };
 
   // ----- DRAWING -----
 
   const draw = () => {
-    setFrameCountState(frameCount);
-
     castRays();
-
-    // fix this
+    // SCALING -----
+    // fix this for scaling
     let canvasHeight = raycastCtx.canvas.height;
-    raycastCtx.clearRect(0, 0, 10000, 10000);
+    raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
 
-    raycastCtx.strokeStyle = "red";
-    raycastCtx.strokeRect(0, 0, screenSize.width, screenSize.height);
+    // FLOOR AND CEILING
+    mode7();
 
-    // // sky
-    // raycastCtx.fillStyle = "#336";
-    // raycastCtx.beginPath();
-    // raycastCtx.rect(0, 0, raycastCtx.canvas.width, canvasHeight / 2);
-    // raycastCtx.fill();
-
-    // // ground
-    // raycastCtx.fillStyle = "#663";
-    // raycastCtx.beginPath();
-    // raycastCtx.rect(
-    //   0,
-    //   canvasHeight / 2,
-    //   raycastCtx.canvas.width,
-    //   canvasHeight / 2
-    // );
-    // raycastCtx.fill();
-
-    // angle in radians
+    // SPRITES -----
+    // angle between player and sprite
     var angleRadians = Math.atan2(
       spriteExample.y - player.y,
       spriteExample.x - player.x,
     );
 
-    let bruh = ((player.rot - angleRadians + twoPI / 2) % twoPI) - twoPI / 2;
-    bruh = bruh < -twoPI / 2 ? bruh + twoPI : bruh;
+    // angle difference
+    let angleDiff =
+      ((player.rot - angleRadians + twoPI / 2) % twoPI) - twoPI / 2;
+    angleDiff = angleDiff < -twoPI / 2 ? angleDiff + twoPI : angleDiff;
 
+    // sprite distance
+    // fix the corners problem ( the distance is measured from the center of the sprite )
     let spriteDist = Math.sqrt(
       (spriteExample.y - player.y) * (spriteExample.y - player.y) +
-        (spriteExample.x - player.x) * (spriteExample.x - player.x),
+      (spriteExample.x - player.x) * (spriteExample.x - player.x),
     );
 
+    // inserting sprite in zBuffer
     let _zBuffer = [...zBuffer, { type: "sprite", i: -1, dist: spriteDist }];
     _zBuffer.sort((a, b) => b.dist - a.dist);
 
     //console.log(spriteDist);
+    // SPRITES (END)-----
 
+    // DRAWING THE TEXTURES -----
     // screen strips
-    let auxMeme = Math.min(frameCount * 2, _zBuffer.length);
-    // let auxMeme = _zBuffer.length;
-    for (let i = 0; i < auxMeme; i++) {
-      // raycastCtx.fillStyle = _screenStrips[i].color;
-      // if (i == 0 || i == _screenStrips.length - 1)
-      //   raycastCtx.fillStyle = "#F00";
-      // raycastCtx.beginPath();
-      // raycastCtx.rect(
-      //   Math.floor(i * stripWidth),
-      //   canvasHeight / 2 - _screenStrips[i].height / 2,
-      //   Math.ceil(stripWidth),
-      //   _screenStrips[i].height
-      // );
-      // raycastCtx.fill();
 
+    // let auxMeme = Math.min(frameCount * 2, _zBuffer.length);
+    let auxMeme = _zBuffer.length;
+    // let auxMeme = 0;
+
+    for (let i = 0; i < auxMeme; i++) {
       // DRAWING THE TEXTURES
       // TODO: use texture pixel colors
-      if (_zBuffer[i].type == "wall")
+      if (_zBuffer[i].type == "wall") {
         raycastCtx.drawImage(
           greystoneWall, // source image
 
@@ -337,17 +406,36 @@ export default function RaycastingModule2({
 
           _screenStrips[_zBuffer[i].i].height, // The height of the image to use (stretch or reduce the image)
         );
-      else if (Math.abs(bruh) < fov / 2 + Math.PI / 12) {
+
+        // different colors for x and y walls
+        if (_screenStrips[_zBuffer[i].i].color == "grey") {
+          raycastCtx.fillStyle = "rgba(0,0,0,0.5)"
+          raycastCtx.fillRect(
+            _zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
+
+            canvasHeight / 2 - _screenStrips[_zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+
+            stripWidth, // The width of the image to use (stretch or reduce the image)
+
+            _screenStrips[_zBuffer[i].i].height, // The height of the image to use (stretch or reduce the image)
+          );
+        }
+      }
+      // DRAWING SPRITES
+      // if angle difference is less than half the fov plus a little extra because
+      // the calculation is based on the center of the sprite
+      // (actually, fix this to get the border of the sprite)
+      else if (Math.abs(angleDiff) < fov / 2 + Math.PI / 12) {
         raycastCtx.fillStyle = "red";
 
-        const offsetXAux = (bruh / fov) * 2;
+        const offsetXAux = (angleDiff / fov) * 2;
 
         let sizeAux = Math.round((0.5 * viewDist) / spriteDist);
 
         raycastCtx.fillRect(
           screenSize.width / 2 -
-            (screenSize.width / 2) * offsetXAux -
-            sizeAux / 2,
+          (screenSize.width / 2) * offsetXAux -
+          sizeAux / 2,
           canvasHeight / 2 - sizeAux / 2,
           sizeAux,
           sizeAux,
@@ -355,9 +443,7 @@ export default function RaycastingModule2({
       }
     }
 
-    // console.log(bruh.toFixed(2));
-
-    // frames
+    // FRAMES -----
     raycastCtx.fillStyle = "red";
     raycastCtx.beginPath();
     raycastCtx.fillText("fps: " + fps, 10, 20);
@@ -374,21 +460,21 @@ export default function RaycastingModule2({
     ) as HTMLCanvasElement;
     raycastCtx = raycastCanvas!.getContext("2d")!;
 
-    raycastCtx.font = "20px monospace";
+    mode7Image = raycastCtx.createImageData(
+      screenSize.width,
+      screenSize.height,
+    );
 
-    console.log(greystoneWall);
+    raycastCtx.font = "20px monospace";
 
     // scaling test
     // if (focused) raycastCtx.scale(1.25, 1.25);
     // else raycastCtx.scale(0.8, 0.8);
 
-    console.log(width);
-    console.log(width / screenSize.width);
-
     // initializing the screen strips
     initScreen();
 
-    draw();
+    //draw();
 
     // fps calculation
     fpsInterval = 1000 / targetFps;
@@ -396,7 +482,6 @@ export default function RaycastingModule2({
     startTime = then;
 
     console.log("RaycastingModule2");
-    console.log(screenSize);
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
@@ -450,6 +535,7 @@ export default function RaycastingModule2({
           id="raycastCanvas"
           style={{
             position: "absolute",
+            border: "2px solid red",
           }}
           width={screenSize.width}
           height={screenSize.height}

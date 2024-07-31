@@ -119,7 +119,9 @@ export default function MissionMenu() {
 This mission came to it's end in ${frameCount} frames.
 You have ${player.hp} hp left.
 You have ${player.fuel.toFixed(2)} fuel left.
-You used ${commandsUsed} commands.`;
+You used ${commandsUsed} commands.
+
+This mission final result was registered as a ${youWon ? "success" : "failure"}.`;
 
     commandHistory.push({
       command: "",
