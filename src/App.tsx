@@ -1,5 +1,6 @@
 import CLIModule from "./components/CLIModule/CLIModule";
 import DesktopInterface from "./components/DesktopInterface/DesktopInterface";
+import GameHandler from "./components/GameHandler/GameHandler";
 import MainMenu from "./components/MainMenu/MainMenu";
 import MissionMenu from "./components/MissionMenu/MissionMenu";
 import StoreMenu from "./components/StoreMenu/StoreMenu";
@@ -14,6 +15,7 @@ export default function App() {
       //   e.stopPropagation();
       // }}
     >
+      {/* <GameHandler /> */}
       <DesktopInterface />
       {/* <MainMenu /> */}
       {/* <CLIModule /> */}

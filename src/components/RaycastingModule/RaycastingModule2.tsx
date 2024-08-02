@@ -30,7 +30,7 @@ export default function RaycastingModule2({
 
   // ----- CANVAS -----
 
-  const screenSize = { width: 240, height: 180 };
+  const screenSize = { width: 480, height: 360 };
   //const screenSize = { width: width, height: height };
 
   var raycastCanvas: HTMLCanvasElement | null;
@@ -65,7 +65,7 @@ export default function RaycastingModule2({
   const stripWidth = screenSize.width / numRays;
   const fovHalf = fov / 2;
 
-  const viewDist = screenSize.width / 2 / Math.tan(fov / 2);
+  const viewDist = screenSize.width / 2 / Math.tan(fovHalf);
 
   const wallHeight = 1;
 
@@ -107,7 +107,7 @@ export default function RaycastingModule2({
       // The distance from the viewer to the point
       // on the screen, simply Pythagoras.
       var rayViewDist = Math.sqrt(
-        rayScreenPos * rayScreenPos + viewDist * viewDist,
+        rayScreenPos * rayScreenPos + viewDist * viewDist
       );
 
       // The angle of the ray, relative to the viewing direction
@@ -118,7 +118,7 @@ export default function RaycastingModule2({
         // Add the players viewing direction
         // to get the angle in world space
         player.rot + rayAngle,
-        stripIdx++,
+        stripIdx++
       );
     }
 
@@ -278,8 +278,8 @@ export default function RaycastingModule2({
       _cos = Math.cos(player.rot + Math.PI / 4),
       // MAGIC NUMBER 3 WORKED FUCK IT
       // somehow related to fov and wall height
-      _playerX = -player.x * 3 / wallHeight,
-      _playerY = player.y * 3 / wallHeight;
+      _playerX = (-player.x * 3) / wallHeight,
+      _playerY = (player.y * 3) / wallHeight;
 
     for (let y = 0; y < screenSize.height; y++) {
       for (let x = 0; x < screenSize.width; x++) {
@@ -354,7 +354,7 @@ export default function RaycastingModule2({
     // angle between player and sprite
     var angleRadians = Math.atan2(
       spriteExample.y - player.y,
-      spriteExample.x - player.x,
+      spriteExample.x - player.x
     );
 
     // angle difference
@@ -366,7 +366,7 @@ export default function RaycastingModule2({
     // fix the corners problem ( the distance is measured from the center of the sprite )
     let spriteDist = Math.sqrt(
       (spriteExample.y - player.y) * (spriteExample.y - player.y) +
-      (spriteExample.x - player.x) * (spriteExample.x - player.x),
+        (spriteExample.x - player.x) * (spriteExample.x - player.x)
     );
 
     // inserting sprite in zBuffer
@@ -404,12 +404,12 @@ export default function RaycastingModule2({
 
           stripWidth, // The width of the image to use (stretch or reduce the image)
 
-          _screenStrips[_zBuffer[i].i].height, // The height of the image to use (stretch or reduce the image)
+          _screenStrips[_zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
         );
 
         // different colors for x and y walls
         if (_screenStrips[_zBuffer[i].i].color == "grey") {
-          raycastCtx.fillStyle = "rgba(0,0,0,0.5)"
+          raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
           raycastCtx.fillRect(
             _zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
@@ -417,7 +417,7 @@ export default function RaycastingModule2({
 
             stripWidth, // The width of the image to use (stretch or reduce the image)
 
-            _screenStrips[_zBuffer[i].i].height, // The height of the image to use (stretch or reduce the image)
+            _screenStrips[_zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
           );
         }
       }
@@ -425,7 +425,7 @@ export default function RaycastingModule2({
       // if angle difference is less than half the fov plus a little extra because
       // the calculation is based on the center of the sprite
       // (actually, fix this to get the border of the sprite)
-      else if (Math.abs(angleDiff) < fov / 2 + Math.PI / 12) {
+      else if (Math.abs(angleDiff) < fovHalf + Math.PI / 12) {
         raycastCtx.fillStyle = "red";
 
         const offsetXAux = (angleDiff / fov) * 2;
@@ -434,11 +434,11 @@ export default function RaycastingModule2({
 
         raycastCtx.fillRect(
           screenSize.width / 2 -
-          (screenSize.width / 2) * offsetXAux -
-          sizeAux / 2,
+            (screenSize.width / 2) * offsetXAux -
+            sizeAux / 2,
           canvasHeight / 2 - sizeAux / 2,
           sizeAux,
-          sizeAux,
+          sizeAux
         );
       }
     }
@@ -456,13 +456,13 @@ export default function RaycastingModule2({
 
     // initializing the raycastCanvas
     raycastCanvas = document.getElementById(
-      "raycastCanvas",
+      "raycastCanvas"
     ) as HTMLCanvasElement;
     raycastCtx = raycastCanvas!.getContext("2d")!;
 
     mode7Image = raycastCtx.createImageData(
       screenSize.width,
-      screenSize.height,
+      screenSize.height
     );
 
     raycastCtx.font = "20px monospace";

@@ -11,6 +11,7 @@ import {
 } from "../../utils/GameVariables";
 import { ScreenStrip } from "../RaycastingModule/RaycastingPhotoModule";
 import StoreMenu from "../StoreMenu/StoreMenu";
+import LoginMenu from "../LoginMenu/LoginMenu";
 
 const p = -666;
 const x = -1;
@@ -108,6 +109,7 @@ export default function DesktopInterface() {
       <div className="flex w-full h-full gap-4 p-4">
         {/* BUTTONS */}
         <div className="grid grid-rows-6 grid-flow-col h-full gap-4">
+          {/* ----- MISSIONS ----- */}
           {Array(1)
             .fill(0)
             .map((v, i) => {
@@ -127,6 +129,7 @@ export default function DesktopInterface() {
               );
             })}
 
+          {/* ----- STORE ----- */}
           <div
             onClick={() => {
               app = "store";
@@ -136,6 +139,18 @@ export default function DesktopInterface() {
           >
             <div className="flex w-full h-full bg-blue-500"></div>
             <div className="flex justify-center">store</div>
+          </div>
+
+          {/* ----- STORAGE ----- */}
+          <div
+            onClick={() => {
+              app = "storage";
+              setPlaying(true);
+            }}
+            className="flex flex-col w-content w-16 h-20 border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
+          >
+            <div className="flex w-full h-full bg-blue-500"></div>
+            <div className="flex justify-center">storage</div>
           </div>
         </div>
       </div>
@@ -171,6 +186,7 @@ export default function DesktopInterface() {
             <div className="flex full-size overflow-y-hidden bg-black">
               {app == "mission" && <MissionMenu />}
               {app == "store" && <StoreMenu />}
+              {app == "storage" && <LoginMenu />}
             </div>
           </div>
         </div>
