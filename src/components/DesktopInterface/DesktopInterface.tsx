@@ -9,7 +9,7 @@ import {
   player,
   raycastingPhoto,
 } from "../../utils/GameVariables";
-import { ScreenStrip } from "../RaycastingModule/RaycastingPhotoModule";
+import { ScreenStrip } from "../RaycastingModule/RaycastingModule2";
 import StoreMenu from "../StoreMenu/StoreMenu";
 import LoginMenu from "../LoginMenu/LoginMenu";
 
@@ -20,7 +20,7 @@ const someMaps = [
   [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, p, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, p, 1, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],

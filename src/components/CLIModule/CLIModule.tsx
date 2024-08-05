@@ -11,7 +11,7 @@ export type CommandLineType = {
 export default function CLIModule({ focused = false, welcome = true }) {
   //var text = LoremIpsum;
   var delay = welcome ? 100 : 100;
-  var username = "C:\\Users\\artotz>";
+  const userShellText = "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;
 
   const [currentText, setCurrentText] = useState("");
@@ -42,7 +42,7 @@ export default function CLIModule({ focused = false, welcome = true }) {
     }
   };
 
-  const rollText = () => {};
+  const rollText = () => { };
 
   useEffect(() => {
     rollText;
@@ -137,6 +137,9 @@ export default function CLIModule({ focused = false, welcome = true }) {
       onClick={(e: any) => {
         e.preventDefault();
 
+        if (document.getElementById("input"))
+          document.getElementById("input")!.focus();
+
         return false;
       }}
       className="flex full-size overflow-y-hidden"
@@ -149,7 +152,7 @@ export default function CLIModule({ focused = false, welcome = true }) {
             className="flex m-0 px-2 border-green-500 border-solid border-2 text-green-500"
             onSubmit={onSubmitForm}
           >
-            {username}
+            {userShellText}
             <input
               id="input"
               type="text"
@@ -182,8 +185,9 @@ export default function CLIModule({ focused = false, welcome = true }) {
               key={i}
               className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
             >
-              {v.command != "" && `${username} ${v.command} \n`}
-              {i == 0 ? currentText + " <" : v.text + " <"}
+              {v.command != "" && `${userShellText} ${v.command} \n`}
+              {/* {i == 0 ? currentText + " <" : v.text + " <"} */}
+              {v.text + " <"}
             </div>
           );
         })}

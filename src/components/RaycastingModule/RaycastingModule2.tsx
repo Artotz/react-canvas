@@ -1,4 +1,4 @@
-import { createRef, useEffect, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 
 import {
   mapsArray,
@@ -10,19 +10,25 @@ import {
 export type RaycastingModule2Props = {
   width?: number;
   height?: number;
+  canvasWidth?: number;
+  canvasHeight?: number;
   _fov?: number;
   _targetFps?: number;
   focused: boolean;
+  photo?: boolean;
 };
 
-type ScreenStrip = { height: number; color: string; texX: number };
+export type ScreenStrip = { height: number; color: string; texX: number };
 
 export default function RaycastingModule2({
   width = 0,
   height = 0,
+  canvasWidth = 0,
+  canvasHeight = 0,
   _fov = 90,
   _targetFps = 30,
   focused = false,
+  photo = false,
 }: RaycastingModule2Props) {
   // ----- VARIABLES -----
 
@@ -30,14 +36,18 @@ export default function RaycastingModule2({
 
   // ----- CANVAS -----
 
-  const screenSize = { width: 480, height: 360 };
+  const screenSize = { width: canvasWidth, height: canvasHeight };
   //const screenSize = { width: width, height: height };
+
+  const canvasRef = createRef<HTMLCanvasElement>();
 
   var raycastCanvas: HTMLCanvasElement | null;
   var raycastCtx: CanvasRenderingContext2D;
 
   const greystoneWall = new Image();
-  greystoneWall.src = "src/assets/greystone.png";
+  // greystoneWall.src = "src/assets/greystone.png";
+  greystoneWall.src = "src/assets/asdf.png";
+  const texSize = 16;
 
   greystoneWall.onload = () => {
     var tempCanvas = document.createElement("canvas");
@@ -45,14 +55,16 @@ export default function RaycastingModule2({
 
     tempCtx?.drawImage(greystoneWall, 0, 0);
 
-    floorData = tempCtx?.getImageData(0, 0, 64, 64)!;
+    floorData = tempCtx?.getImageData(0, 0, texSize, texSize)!;
 
     // why is this called multiple times?
     // console.log("bruh");
   };
 
-  var floorData = new ImageData(64, 64);
+  var floorData = new ImageData(texSize, texSize);
   var mode7Image: ImageData;
+
+  const scale = width / screenSize.width;
 
   // ----- FUN ZONE -----
 
@@ -272,8 +284,7 @@ export default function RaycastingModule2({
       _y = 0,
       z = -screenSize.height / 2;
 
-    const texSize = 64,
-      scale = 4,
+    const scale = 3,
       _sin = Math.sin(player.rot + Math.PI / 4),
       _cos = Math.cos(player.rot + Math.PI / 4),
       // MAGIC NUMBER 3 WORKED FUCK IT
@@ -288,6 +299,8 @@ export default function RaycastingModule2({
         _y += z < 0 ? _playerY : -_playerY;
         _y = Math.abs(_y);
 
+        let meme = ~~(_y / scale);
+
         _y *= texSize / scale;
         _y %= texSize;
         _y = ~~_y;
@@ -296,6 +309,8 @@ export default function RaycastingModule2({
         _x = ((screenSize.width - x) * _sin + x * _cos) / z;
         _x += z < 0 ? _playerX : -_playerX;
         _x = Math.abs(_x);
+
+        // let meme = ~~(_x / scale);
 
         _x *= texSize / scale;
         _x %= texSize;
@@ -327,7 +342,7 @@ export default function RaycastingModule2({
           floorData.data[_x * 4 + _y * texSize * 4 + 1];
         // b
         mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 2];
+          floorData.data[_x * 4 + _y * texSize * 4 + 2] / (meme % 2 == 0 ? 1 : 2);
         // a
         mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
         // }
@@ -366,11 +381,11 @@ export default function RaycastingModule2({
     // fix the corners problem ( the distance is measured from the center of the sprite )
     let spriteDist = Math.sqrt(
       (spriteExample.y - player.y) * (spriteExample.y - player.y) +
-        (spriteExample.x - player.x) * (spriteExample.x - player.x)
+      (spriteExample.x - player.x) * (spriteExample.x - player.x)
     );
 
     // inserting sprite in zBuffer
-    let _zBuffer = [...zBuffer, { type: "sprite", i: -1, dist: spriteDist }];
+    let _zBuffer = [...zBuffer, { type: "sprite", i: -1, dist: spriteDist - 0.5 }];
     _zBuffer.sort((a, b) => b.dist - a.dist);
 
     //console.log(spriteDist);
@@ -390,13 +405,13 @@ export default function RaycastingModule2({
         raycastCtx.drawImage(
           greystoneWall, // source image
 
-          Math.floor(64 * _screenStrips[_zBuffer[i].i].texX), // The x coordinate where to start clipping
+          Math.floor(texSize * _screenStrips[_zBuffer[i].i].texX), // The x coordinate where to start clipping
 
           0, // The y coordinate where to start clipping
 
           stripWidth, // The width of the clipped image
 
-          64, // The height of the clipped image
+          texSize, // The height of the clipped image
 
           _zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
@@ -421,6 +436,7 @@ export default function RaycastingModule2({
           );
         }
       }
+
       // DRAWING SPRITES
       // if angle difference is less than half the fov plus a little extra because
       // the calculation is based on the center of the sprite
@@ -430,12 +446,14 @@ export default function RaycastingModule2({
 
         const offsetXAux = (angleDiff / fov) * 2;
 
+        // spriteDist != zBuffer dist (hands in fps game inside walls remember)
+        // 0.5 maybe be too close dunno <<<
         let sizeAux = Math.round((0.5 * viewDist) / spriteDist);
 
         raycastCtx.fillRect(
           screenSize.width / 2 -
-            (screenSize.width / 2) * offsetXAux -
-            sizeAux / 2,
+          (screenSize.width / 2) * offsetXAux -
+          sizeAux / 2,
           canvasHeight / 2 - sizeAux / 2,
           sizeAux,
           sizeAux
@@ -446,7 +464,7 @@ export default function RaycastingModule2({
     // FRAMES -----
     raycastCtx.fillStyle = "red";
     raycastCtx.beginPath();
-    raycastCtx.fillText("fps: " + fps, 10, 20);
+    // raycastCtx.fillText("fps: " + fps, 10, 10);
   };
 
   // ----- USE EFFECT -----
@@ -455,10 +473,10 @@ export default function RaycastingModule2({
     let animationFrameId: number;
 
     // initializing the raycastCanvas
-    raycastCanvas = document.getElementById(
-      "raycastCanvas"
-    ) as HTMLCanvasElement;
+    raycastCanvas = canvasRef.current;
     raycastCtx = raycastCanvas!.getContext("2d")!;
+
+    raycastCtx.imageSmoothingEnabled = false;
 
     mode7Image = raycastCtx.createImageData(
       screenSize.width,
@@ -469,7 +487,7 @@ export default function RaycastingModule2({
 
     // scaling test
     // if (focused) raycastCtx.scale(1.25, 1.25);
-    // else raycastCtx.scale(0.8, 0.8);
+    // else raycastCtx.scale(0.25, 0.25);
 
     // initializing the screen strips
     initScreen();
@@ -527,15 +545,18 @@ export default function RaycastingModule2({
           position: "relative",
           width: width + "px",
           height: height + "px",
-          border: "2px solid blue",
+          // border: "2px solid blue",
           backgroundColor: "black",
         }}
       >
         <canvas
-          id="raycastCanvas"
+          ref={canvasRef}
           style={{
+            transform: "scale(" + scale + ")",
+            left: width / 2 - screenSize.width / 2,
+            top: height / 2 - screenSize.height / 2,
             position: "absolute",
-            border: "2px solid red",
+            // border: "2px solid red",
           }}
           width={screenSize.width}
           height={screenSize.height}

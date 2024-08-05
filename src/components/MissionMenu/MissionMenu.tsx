@@ -8,8 +8,6 @@ import {
 } from "../../utils/GameVariables";
 import CLIModule from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
-import Bruh from "../RaycastingModule/Bruh";
-import RaycastingModule from "../RaycastingModule/RaycastingModule";
 import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
 
 //TODO: SYNC THE UPDATES FROM MODULES
@@ -51,6 +49,26 @@ export default function MissionMenu() {
     then: number,
     elapsed: number;
 
+  // ----- JSX ELEMENTS ------
+
+  const signalLost = () => {
+    return (<div
+      className="flex full-size full-center text-xl text-black font-bold"
+      style={{
+        backgroundColor:
+          "rgb(" +
+          (150 + 100 * Math.sin(frameCountState / 20)) +
+          "," +
+          30 +
+          "," +
+          30 +
+          ")",
+      }}
+    >
+      SIGNAL LOST
+    </div>)
+  }
+
   // ----- PLAYER MOVEMENT -----
 
   //KEYBINDING HOOK
@@ -88,8 +106,8 @@ export default function MissionMenu() {
       endGame();
     }
 
-    player.fuel -= 0.025;
-    player.fuel = player.fuel < 0 ? 0 : player.fuel;
+    // player.fuel -= 0.025;
+    // player.fuel = player.fuel < 0 ? 0 : player.fuel;
 
     player.showingPosition -= player.showingPosition > 0 ? 1 : 0;
 
@@ -211,25 +229,19 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
+                canvasWidth={20}
+                canvasHeight={20}
                 focused={true}
               />
             )}
             {modules[0] == 3 && (
-              <div
-                className="flex full-size full-center text-xl text-black font-bold"
-                style={{
-                  backgroundColor:
-                    "rgb(" +
-                    (150 + 100 * Math.sin(frameCountState / 20)) +
-                    "," +
-                    30 +
-                    "," +
-                    30 +
-                    ")",
-                }}
-              >
-                SIGNAL LOST
-              </div>
+              <RaycastingModule2
+                width={bigWindowSize.width}
+                height={bigWindowSize.height}
+                canvasWidth={200}
+                canvasHeight={200}
+                focused={false}
+              />
             )}
           </div>
 
@@ -238,9 +250,8 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
               <div
                 key={i}
                 ref={i == 0 ? ref2 : null}
-                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
-                  colors[i + 1]
-                }]`}
+                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${colors[i + 1]
+                  }]`}
                 onClick={() => {
                   let aux = modules[0];
                   modules[0] = modules[i + 1];
@@ -259,25 +270,19 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
+                    canvasWidth={20}
+                    canvasHeight={20}
                     focused={false}
                   />
                 )}
                 {modules[i + 1] == 3 && (
-                  <div
-                    className="flex full-size full-center text-xl text-black font-bold"
-                    style={{
-                      backgroundColor:
-                        "rgb(" +
-                        (150 + 100 * Math.sin(frameCountState / 20)) +
-                        "," +
-                        30 +
-                        "," +
-                        30 +
-                        ")",
-                    }}
-                  >
-                    SIGNAL LOST
-                  </div>
+                  <RaycastingModule2
+                    width={smallWindowSize.width}
+                    height={smallWindowSize.height}
+                    canvasWidth={200}
+                    canvasHeight={200}
+                    focused={false}
+                  />
                 )}
               </div>
             );

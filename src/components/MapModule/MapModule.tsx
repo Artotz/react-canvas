@@ -123,8 +123,8 @@ export default function MapModule({
     objectCtx.beginPath();
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
-      (player.x + Math.cos(player.rot - Math.PI / 6)) * miniMap.scale,
-      (player.y + Math.sin(player.rot - Math.PI / 6)) * miniMap.scale,
+      (player.x + Math.cos(player.rot - Math.PI / 4)) * miniMap.scale,
+      (player.y + Math.sin(player.rot - Math.PI / 4)) * miniMap.scale,
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -132,8 +132,8 @@ export default function MapModule({
     objectCtx.beginPath();
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
-      (player.x + Math.cos(player.rot + Math.PI / 6)) * miniMap.scale,
-      (player.y + Math.sin(player.rot + Math.PI / 6)) * miniMap.scale,
+      (player.x + Math.cos(player.rot + Math.PI / 4)) * miniMap.scale,
+      (player.y + Math.sin(player.rot + Math.PI / 4)) * miniMap.scale,
     );
     objectCtx.closePath();
     objectCtx.stroke();
