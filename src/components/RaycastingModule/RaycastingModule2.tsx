@@ -3,6 +3,8 @@ import { createRef, useEffect, useRef, useState } from "react";
 import {
   mapsArray,
   player,
+  raycastingPhoto,
+  raycastingRays,
   spriteExample,
   twoPI,
 } from "../../utils/GameVariables";
@@ -28,7 +30,7 @@ export default function RaycastingModule2({
   _fov = 90,
   _targetFps = 30,
   focused = false,
-  photo = false,
+  photo,
 }: RaycastingModule2Props) {
   // ----- VARIABLES -----
 
@@ -243,7 +245,8 @@ export default function RaycastingModule2({
       //drawRay(xHit, yHit);
 
       // draw rays
-      //raycastingRays[stripIdx] = { x: xHit, y: yHit };
+      if (photo)
+        raycastingRays[stripIdx] = { x: xHit, y: yHit };
 
       var strip = _screenStrips[stripIdx];
 
@@ -310,7 +313,7 @@ export default function RaycastingModule2({
         _x += z < 0 ? _playerX : -_playerX;
         _x = Math.abs(_x);
 
-        // let meme = ~~(_x / scale);
+        let meme2 = ~~(_x / scale);
 
         _x *= texSize / scale;
         _x %= texSize;
@@ -320,32 +323,52 @@ export default function RaycastingModule2({
         // where the values in order are the R, G, B and A of a single pixel.
 
         // Below is the (kinda annoying) method to acess each one.
-        // if (y < screenSize.height / 2) {
-        //   // r
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-        //     floorData.data[_x * 4 + _y * texSize * 4] / 2;
-        //   // g
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-        //     floorData.data[_x * 4 + _y * texSize * 4 + 1] / 2;
-        //   // b
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-        //     floorData.data[_x * 4 + _y * texSize * 4 + 2] / 2;
-        //   // a
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
-        // }
-        // else {
-        // r
-        mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-          floorData.data[_x * 4 + _y * texSize * 4];
-        // g
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 1];
-        // b
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 2] / (meme % 2 == 0 ? 1 : 2);
-        // a
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
-        // }
+        // (amazing breakthrough: meme and meme2 are the x and y coords for a tileset)
+        if (!photo) {
+          let bruh = floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10 +
+            floorData.data[_x * 4 + _y * texSize * 4 + 1] - (meme2 - 1) * 10 +
+            floorData.data[_x * 4 + _y * texSize * 4 + 2];
+
+          // r
+          mode7Image.data[x * 4 + y * mode7Image.width * 4] = bruh / 3;
+          ;
+          // g
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] = bruh / 3;
+          ;
+          // b
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] = bruh / 3;
+          ;
+          // a
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+
+        } else {
+          if (y < screenSize.height / 2) {
+            // r
+            mode7Image.data[x * 4 + y * mode7Image.width * 4] = 255 -
+              floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
+            // g
+            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] = 255 -
+              floorData.data[_x * 4 + _y * texSize * 4 + 1] - (meme2 - 1) * 10;
+            // b
+            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] = 255 -
+              floorData.data[_x * 4 + _y * texSize * 4 + 2];
+            // a
+            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+          }
+          else {
+            // r
+            mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+              floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
+            // g
+            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+              floorData.data[_x * 4 + _y * texSize * 4 + 1] - (meme2 - 1) * 10;
+            // b
+            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+              floorData.data[_x * 4 + _y * texSize * 4 + 2];
+            // a
+            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+          }
+        }
       }
 
       z++;
@@ -356,11 +379,11 @@ export default function RaycastingModule2({
   // ----- DRAWING -----
 
   const draw = () => {
-    castRays();
-    // SCALING -----
-    // fix this for scaling
     let canvasHeight = raycastCtx.canvas.height;
     raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
+
+    // WALLS
+    castRays();
 
     // FLOOR AND CEILING
     mode7();
@@ -385,6 +408,8 @@ export default function RaycastingModule2({
     );
 
     // inserting sprite in zBuffer
+    // spriteDist != zBuffer dist (hands in fps game inside walls remember)
+    // todo: 0.5 maybe be too close dunno <<<
     let _zBuffer = [...zBuffer, { type: "sprite", i: -1, dist: spriteDist - 0.5 }];
     _zBuffer.sort((a, b) => b.dist - a.dist);
 
@@ -405,7 +430,7 @@ export default function RaycastingModule2({
         raycastCtx.drawImage(
           greystoneWall, // source image
 
-          Math.floor(texSize * _screenStrips[_zBuffer[i].i].texX), // The x coordinate where to start clipping
+          ~~(texSize * _screenStrips[_zBuffer[i].i].texX), // The x coordinate where to start clipping
 
           0, // The y coordinate where to start clipping
 
@@ -440,14 +465,13 @@ export default function RaycastingModule2({
       // DRAWING SPRITES
       // if angle difference is less than half the fov plus a little extra because
       // the calculation is based on the center of the sprite
-      // (actually, fix this to get the border of the sprite)
+      // todo: (actually, fix this to get the border of the sprite) <<<
       else if (Math.abs(angleDiff) < fovHalf + Math.PI / 12) {
         raycastCtx.fillStyle = "red";
 
         const offsetXAux = (angleDiff / fov) * 2;
 
-        // spriteDist != zBuffer dist (hands in fps game inside walls remember)
-        // 0.5 maybe be too close dunno <<<
+        // size = 0.5
         let sizeAux = Math.round((0.5 * viewDist) / spriteDist);
 
         raycastCtx.fillRect(
@@ -461,10 +485,12 @@ export default function RaycastingModule2({
       }
     }
 
+
     // FRAMES -----
     raycastCtx.fillStyle = "red";
     raycastCtx.beginPath();
-    // raycastCtx.fillText("fps: " + fps, 10, 10);
+    if (canvasWidth > 100)
+      raycastCtx.fillText("fps: " + fps, 10, 30);
   };
 
   // ----- USE EFFECT -----
@@ -483,23 +509,19 @@ export default function RaycastingModule2({
       screenSize.height
     );
 
-    raycastCtx.font = "20px monospace";
-
-    // scaling test
-    // if (focused) raycastCtx.scale(1.25, 1.25);
-    // else raycastCtx.scale(0.25, 0.25);
+    raycastCtx.font = "30px monospace";
 
     // initializing the screen strips
     initScreen();
-
-    //draw();
 
     // fps calculation
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
 
-    console.log("RaycastingModule2");
+    draw();
+
+    console.log(photo ? "RaycastingPhotoModule2" : "RaycastingModule2");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);

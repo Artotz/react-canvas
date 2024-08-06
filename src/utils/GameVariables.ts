@@ -1,4 +1,4 @@
-import { ScreenStrip } from "../components/RaycastingModule/RaycastingPhotoModule";
+import { ScreenStrip } from "../components/RaycastingModule/RaycastingModule2";
 import { CommandLineType } from "../components/CLIModule/CLIModule";
 
 // random default values for reasons
@@ -67,7 +67,7 @@ export const spriteExample = {
 
 export const twoPI = Math.PI * 2;
 
-//export const raycastingRays: { x: number; y: number }[] = [];
+export const raycastingRays: { x: number; y: number }[] = [];
 
 // state for CLIModule
 export const commandHistory: CommandLineType[] = [];

@@ -31,6 +31,8 @@ export default function MissionMenu() {
     height: 0,
   });
 
+  const raycastResolution1 = { width: 32, height: 24 }, raycastResolution2 = { width: 320, height: 240 };
+
   const [colors, setColors] = useState<string[]>([
     "#5f5",
     "#555",
@@ -229,8 +231,9 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
-                canvasWidth={20}
-                canvasHeight={20}
+                canvasWidth={raycastResolution1.width}
+                canvasHeight={raycastResolution1.height}
+                _targetFps={5}
                 focused={true}
               />
             )}
@@ -238,9 +241,10 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
-                canvasWidth={200}
-                canvasHeight={200}
+                canvasWidth={raycastResolution2.width}
+                canvasHeight={raycastResolution2.height}
                 focused={false}
+                photo={true}
               />
             )}
           </div>
@@ -270,8 +274,9 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
-                    canvasWidth={20}
-                    canvasHeight={20}
+                    canvasWidth={raycastResolution1.width}
+                    canvasHeight={raycastResolution1.height}
+                    _targetFps={5}
                     focused={false}
                   />
                 )}
@@ -279,9 +284,10 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
-                    canvasWidth={200}
-                    canvasHeight={200}
+                    canvasWidth={raycastResolution2.width}
+                    canvasHeight={raycastResolution2.height}
                     focused={false}
+                    photo={true}
                   />
                 )}
               </div>

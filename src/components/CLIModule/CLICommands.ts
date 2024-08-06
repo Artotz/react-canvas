@@ -77,8 +77,8 @@ const moveTimeoutFunction = (
   // illegal move one step ahead
   if (
     mapsArray.missionMap[
-      //
-      Math.floor(newPos.y)
+    //
+    Math.floor(newPos.y)
     ][Math.floor(newPos.x)] > 0
   ) {
     // You were wrong. Go back.
@@ -174,7 +174,7 @@ export const commands: Command[] = [
     title: "photo",
     options: [""],
     functionCall: (options: string[]) => {
-      raycastingPhoto.trigger = true;
+      raycastingPhoto.cover = 100;
 
       return "Acessing camera . . .";
     },

@@ -14,14 +14,13 @@ export default function CLIModule({ focused = false, welcome = true }) {
   const userShellText = "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;
 
-  const [currentText, setCurrentText] = useState("");
+  var currentTextIndex = 0;
+  const [currentTextState, setCurrentTextState] = useState("");
 
   const addCommand = (_command: string) => {
     commandHistory.unshift({
       command: _command,
       text: checkCommands(_command),
-      currentText: "",
-      textRollingIndex: -1,
     });
   };
 
@@ -42,10 +41,19 @@ export default function CLIModule({ focused = false, welcome = true }) {
     }
   };
 
-  const rollText = () => { };
-
   useEffect(() => {
-    rollText;
+    setCurrentTextState("");
+
+    function tick() {
+      if (commandHistory.length > 0 && currentTextIndex < commandHistory[0].text.length) {
+        setCurrentTextState(prev => prev + commandHistory[0].text[currentTextIndex]);
+        currentTextIndex++;
+      }
+    }
+
+    let addChar = setInterval(tick, delay);
+    return () => clearInterval(addChar);
+
   }, [commandHistory.length]);
 
   const bindingsKeyDown = (e: KeyboardEvent) => {
@@ -186,8 +194,8 @@ export default function CLIModule({ focused = false, welcome = true }) {
               className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
             >
               {v.command != "" && `${userShellText} ${v.command} \n`}
-              {/* {i == 0 ? currentText + " <" : v.text + " <"} */}
-              {v.text + " <"}
+              {i == 0 ? currentTextState + " <" : v.text + " <"}
+              {/* {v.text + " <"} */}
             </div>
           );
         })}

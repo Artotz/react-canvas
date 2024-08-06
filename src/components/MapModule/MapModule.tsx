@@ -4,6 +4,7 @@ import {
   mapsArray,
   miniMap,
   player,
+  raycastingRays,
   spriteExample,
 } from "../../utils/GameVariables";
 
@@ -29,7 +30,6 @@ export default function MapModule({
   var objectCtx: CanvasRenderingContext2D;
 
   var frameCount = 0;
-  const [frameCountState, setFrameCountState] = useState(0);
 
   // ----- SIZING HELL -----
 
@@ -49,7 +49,7 @@ export default function MapModule({
     then: number,
     elapsed: number;
 
-  const [fpsState, setFpsState] = useState(0);
+  var fps = 0;
 
   // ----- DRAWING -----
 
@@ -164,10 +164,6 @@ export default function MapModule({
   };
 
   const draw = () => {
-    setFrameCountState(frameCount);
-    // console.log(frameCountState);
-    // console.log(screenSize);
-
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
 
@@ -198,9 +194,9 @@ export default function MapModule({
     objectCtx.translate(miniMap.drawingOffsetX, miniMap.drawingOffsetY);
 
     // draw rays
-    // for (var i = 0; i < raycastingRays.length; i++) {
-    //   drawRay(raycastingRays[i].x, raycastingRays[i].y);
-    // }
+    for (var i = 0; i < raycastingRays.length; i++) {
+      drawRay(raycastingRays[i].x, raycastingRays[i].y);
+    }
 
     drawMiniMap();
     // if (player.showingPosition > 0) drawPlayer()
@@ -233,7 +229,7 @@ export default function MapModule({
 
     mapCtx.fillStyle = "red";
     mapCtx.beginPath();
-    mapCtx.fillText("Frames: " + frameCount, 10, 10);
+    mapCtx.fillText("fps: " + fps, 10, 20);
   };
 
   // ----- MOUSE -----
@@ -333,12 +329,14 @@ export default function MapModule({
     objectCanvas = document.getElementById("objectCanvas") as HTMLCanvasElement;
     objectCtx = objectCanvas!.getContext("2d")!;
 
-    draw();
+    mapCtx.font = "20px monospace";
 
     // fps calculation
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
+
+    draw();
 
     console.log("MapModule");
 
@@ -363,7 +361,7 @@ export default function MapModule({
         var currentFps =
           Math.round((1000 / (sinceStart / ++frameCount)) * 100) / 100;
 
-        setFpsState(currentFps);
+        fps = currentFps;
 
         // drawing the frames
         draw();
@@ -380,7 +378,6 @@ export default function MapModule({
 
   return (
     <div className="flex flex-col full-size overflow-hidden text-white bg-gray-500">
-      {/* frames: {frameCountState} fps: {fpsState} */}
       <div
         style={{
           position: "relative",
