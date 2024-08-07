@@ -245,8 +245,7 @@ export default function RaycastingModule2({
       //drawRay(xHit, yHit);
 
       // draw rays
-      if (photo)
-        raycastingRays[stripIdx] = { x: xHit, y: yHit };
+      if (photo) raycastingRays[stripIdx] = { x: xHit, y: yHit };
 
       var strip = _screenStrips[stripIdx];
 
@@ -287,7 +286,7 @@ export default function RaycastingModule2({
       _y = 0,
       z = -screenSize.height / 2;
 
-    const scale = 3,
+    const _scale = 3,
       _sin = Math.sin(player.rot + Math.PI / 4),
       _cos = Math.cos(player.rot + Math.PI / 4),
       // MAGIC NUMBER 3 WORKED FUCK IT
@@ -302,9 +301,9 @@ export default function RaycastingModule2({
         _y += z < 0 ? _playerY : -_playerY;
         _y = Math.abs(_y);
 
-        let meme = ~~(_y / scale);
+        let meme = ~~(_y / _scale);
 
-        _y *= texSize / scale;
+        _y *= texSize / _scale;
         _y %= texSize;
         _y = ~~_y;
 
@@ -313,9 +312,9 @@ export default function RaycastingModule2({
         _x += z < 0 ? _playerX : -_playerX;
         _x = Math.abs(_x);
 
-        let meme2 = ~~(_x / scale);
+        let meme2 = ~~(_x / _scale);
 
-        _x *= texSize / scale;
+        _x *= texSize / _scale;
         _x %= texSize;
         _x = ~~_x;
 
@@ -324,52 +323,38 @@ export default function RaycastingModule2({
 
         // Below is the (kinda annoying) method to acess each one.
         // (amazing breakthrough: meme and meme2 are the x and y coords for a tileset)
-        if (!photo) {
-          let bruh = floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10 +
-            floorData.data[_x * 4 + _y * texSize * 4 + 1] - (meme2 - 1) * 10 +
-            floorData.data[_x * 4 + _y * texSize * 4 + 2];
 
-          // r
-          mode7Image.data[x * 4 + y * mode7Image.width * 4] = bruh / 3;
-          ;
-          // g
-          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] = bruh / 3;
-          ;
-          // b
-          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] = bruh / 3;
-          ;
-          // a
-          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        // flashlight effect is composed of a Z-Index darkening combined with an edges of X darkening
+        // let flashlightEffect = -1.5 *255 *(1 -Math.abs(z)/(screenSize.height/2)) - 0.75 * 255 * Math.abs(x-screenSize.width/2)/(screenSize.width/2);
 
-        } else {
-          if (y < screenSize.height / 2) {
-            // r
-            mode7Image.data[x * 4 + y * mode7Image.width * 4] = 255 -
-              floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
-            // g
-            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] = 255 -
-              floorData.data[_x * 4 + _y * texSize * 4 + 1] - (meme2 - 1) * 10;
-            // b
-            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] = 255 -
-              floorData.data[_x * 4 + _y * texSize * 4 + 2];
-            // a
-            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
-          }
-          else {
-            // r
-            mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-              floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
-            // g
-            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-              floorData.data[_x * 4 + _y * texSize * 4 + 1] - (meme2 - 1) * 10;
-            // b
-            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-              floorData.data[_x * 4 + _y * texSize * 4 + 2];
-            // a
-            mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
-          }
-        }
+        // if (y < screenSize.height / 2) {
+        //   // r
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+        //     255 - floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
+        //   // g
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+        //     255 -
+        //     floorData.data[_x * 4 + _y * texSize * 4 + 1] -
+        //     (meme2 - 1) * 10;
+        //   // b
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+        //     255 - floorData.data[_x * 4 + _y * texSize * 4 + 2];
+        //   // a
+        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        // } else {
+        // r
+        mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+          floorData.data[_x * 4 + _y * texSize * 4];
+        // g
+        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+          floorData.data[_x * 4 + _y * texSize * 4 + 1];
+        // b
+        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+          floorData.data[_x * 4 + _y * texSize * 4 + 2];
+        // a
+        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
       }
+      // }
 
       z++;
     }
@@ -404,13 +389,16 @@ export default function RaycastingModule2({
     // fix the corners problem ( the distance is measured from the center of the sprite )
     let spriteDist = Math.sqrt(
       (spriteExample.y - player.y) * (spriteExample.y - player.y) +
-      (spriteExample.x - player.x) * (spriteExample.x - player.x)
+        (spriteExample.x - player.x) * (spriteExample.x - player.x)
     );
 
     // inserting sprite in zBuffer
     // spriteDist != zBuffer dist (hands in fps game inside walls remember)
     // todo: 0.5 maybe be too close dunno <<<
-    let _zBuffer = [...zBuffer, { type: "sprite", i: -1, dist: spriteDist - 0.5 }];
+    let _zBuffer = [
+      ...zBuffer,
+      { type: "sprite", i: -1, dist: spriteDist - 0.5 },
+    ];
     _zBuffer.sort((a, b) => b.dist - a.dist);
 
     //console.log(spriteDist);
@@ -476,8 +464,8 @@ export default function RaycastingModule2({
 
         raycastCtx.fillRect(
           screenSize.width / 2 -
-          (screenSize.width / 2) * offsetXAux -
-          sizeAux / 2,
+            (screenSize.width / 2) * offsetXAux -
+            sizeAux / 2,
           canvasHeight / 2 - sizeAux / 2,
           sizeAux,
           sizeAux
@@ -485,12 +473,10 @@ export default function RaycastingModule2({
       }
     }
 
-
     // FRAMES -----
     raycastCtx.fillStyle = "red";
     raycastCtx.beginPath();
-    if (canvasWidth > 100)
-      raycastCtx.fillText("fps: " + fps, 10, 30);
+    if (canvasWidth > 100) raycastCtx.fillText("fps: " + fps, 10, 30);
   };
 
   // ----- USE EFFECT -----

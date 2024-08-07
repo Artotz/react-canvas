@@ -1,4 +1,12 @@
-import { mapsArray, player, raycastingPhoto } from "../../utils/GameVariables";
+import {
+  mapsArray,
+  moving,
+  player,
+  raycastingPhoto,
+  setMoving,
+} from "../../utils/GameVariables";
+
+const totalSteps = 50 / 5;
 
 type Command = {
   title: string;
@@ -35,14 +43,18 @@ export const checkCommands = (cmd: string) => {
 };
 
 const moveFunction = (options: string[]) => {
+  if (moving) return "Already moving!";
+
+  setMoving(true);
+
   const clampAux = player.rot % (2 * Math.PI);
 
   const angleAux =
     clampAux < 0
       ? 2 * Math.PI + clampAux
       : clampAux >= 2 * Math.PI
-        ? clampAux - 2 * Math.PI
-        : clampAux;
+      ? clampAux - 2 * Math.PI
+      : clampAux;
 
   const fixedAngle = Math.round(angleAux / (Math.PI / 2));
 
@@ -53,12 +65,12 @@ const moveFunction = (options: string[]) => {
     "\nangle: ",
     fixedAngle,
     "\ndir: ",
-    fixedDir,
+    fixedDir
   );
 
   //console.log(options);
 
-  moveTimeoutFunction(10, fixedDir, options[0] == "backward" ? -1 : 1);
+  moveTimeoutFunction(totalSteps, fixedDir, options[0] == "backward" ? -1 : 1);
 
   return "Moving . . .";
 };
@@ -66,24 +78,24 @@ const moveFunction = (options: string[]) => {
 const moveTimeoutFunction = (
   step: number,
   dir: { x: number; y: number },
-  sign: number,
+  sign: number
 ) => {
   // arbitrary 10 step program watch out
   let newPos = {
-    x: player.x + (sign * dir.x) / 10,
-    y: player.y + (sign * dir.y) / 10,
+    x: player.x + (sign * dir.x) / totalSteps,
+    y: player.y + (sign * dir.y) / totalSteps,
   };
 
   // illegal move one step ahead
   if (
     mapsArray.missionMap[
-    //
-    Math.floor(newPos.y)
+      //
+      Math.floor(newPos.y)
     ][Math.floor(newPos.x)] > 0
   ) {
     // You were wrong. Go back.
     player.hp -= 10;
-    setTimeout(moveTimeoutFunction, 50, 4, dir, -sign);
+    setTimeout(moveTimeoutFunction, 50, totalSteps / 2 - 1, dir, -sign);
   }
   //legal move
   else {
@@ -93,31 +105,38 @@ const moveTimeoutFunction = (
     if (step > 1) {
       setTimeout(moveTimeoutFunction, 50, step - 1, dir, sign);
     } else {
-      // player.x = Math.floor(player.x) + 0.5;
-      // player.y = Math.floor(player.y) + 0.5;
+      player.x = Math.floor(player.x) + 0.5;
+      player.y = Math.floor(player.y) + 0.5;
 
-      // player.x = parseFloat(player.x.toFixed(1));
-      // player.y = parseFloat(player.y.toFixed(1));
+      player.x = parseFloat(player.x.toFixed(1));
+      player.y = parseFloat(player.y.toFixed(1));
 
       console.log("x: ", player.x, "y: ", player.y);
+
+      setMoving(false);
     }
   }
 };
 
 const turnFunction = (options: string[]) => {
-  turnTimeoutFunction(10, options[0] == "left" ? -1 : 1);
+  if (moving) return "Already moving!";
+
+  setMoving(true);
+
+  turnTimeoutFunction(totalSteps, options[0] == "left" ? -1 : 1);
 
   return "Turning . . .";
 };
 
 const turnTimeoutFunction = (step: number, dir: number) => {
-  player.rot += (dir * Math.PI) / 2 / 10;
+  player.rot += (dir * Math.PI) / 2 / totalSteps;
 
   if (step > 1) {
     setTimeout(turnTimeoutFunction, 50, step - 1, dir);
   } else {
     player.rot = Math.round(player.rot / (Math.PI / 2)) * (Math.PI / 2);
     console.log(player.rot / (2 * Math.PI));
+    setMoving(false);
   }
 };
 
@@ -150,13 +169,33 @@ export const commands: Command[] = [
     title: "scan",
     options: [""],
     functionCall: (options: string[]) => {
-      let radarPos = {
-        x: Math.floor(player.x + Math.cos(player.rot) * 1),
-        y: Math.floor(player.y + Math.sin(player.rot) * 1),
-      };
+      // let radarPos = {
+      //   x: ~~(player.x + Math.cos(player.rot) * 1),
+      //   y: ~~(player.y + Math.sin(player.rot) * 1),
+      // };
 
-      mapsArray.viewingMap[radarPos.y][radarPos.x] =
-        mapsArray.missionMap[radarPos.y][radarPos.x];
+      // mapsArray.viewingMap[radarPos.y][radarPos.x] =
+      //   mapsArray.missionMap[radarPos.y][radarPos.x];
+
+      // CROSS
+      mapsArray.viewingMap[~~player.y - 1][~~player.x] =
+        mapsArray.missionMap[~~player.y - 1][~~player.x];
+      mapsArray.viewingMap[~~player.y + 1][~~player.x] =
+        mapsArray.missionMap[~~player.y + 1][~~player.x];
+      mapsArray.viewingMap[~~player.y][~~player.x - 1] =
+        mapsArray.missionMap[~~player.y][~~player.x - 1];
+      mapsArray.viewingMap[~~player.y][~~player.x + 1] =
+        mapsArray.missionMap[~~player.y][~~player.x + 1];
+
+      // DIAGONALS
+      mapsArray.viewingMap[~~player.y - 1][~~player.x - 1] =
+        mapsArray.missionMap[~~player.y - 1][~~player.x - 1];
+      mapsArray.viewingMap[~~player.y - 1][~~player.x + 1] =
+        mapsArray.missionMap[~~player.y - 1][~~player.x + 1];
+      mapsArray.viewingMap[~~player.y + 1][~~player.x - 1] =
+        mapsArray.missionMap[~~player.y + 1][~~player.x - 1];
+      mapsArray.viewingMap[~~player.y + 1][~~player.x + 1] =
+        mapsArray.missionMap[~~player.y + 1][~~player.x + 1];
 
       return "Scanning . . .";
     },

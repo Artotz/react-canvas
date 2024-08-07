@@ -67,7 +67,7 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale,
+            miniMap.scale
           );
         }
 
@@ -78,21 +78,23 @@ export default function MapModule({
             x * miniMap.scale,
             y * miniMap.scale,
             miniMap.scale,
-            miniMap.scale,
+            miniMap.scale
           );
         }
       }
     }
 
-    objectCtx.strokeStyle = "black";
-    objectCtx.beginPath();
-    objectCtx.rect(
-      0,
-      0,
-      mapsArray.mapsWidth * miniMap.scale,
-      mapsArray.mapsHeight * miniMap.scale,
-    );
-    objectCtx.stroke();
+    // map outline
+
+    // objectCtx.strokeStyle = "black";
+    // objectCtx.beginPath();
+    // objectCtx.rect(
+    //   0,
+    //   0,
+    //   mapsArray.mapsWidth * miniMap.scale,
+    //   mapsArray.mapsHeight * miniMap.scale
+    // );
+    // objectCtx.stroke();
   };
 
   const drawPlayer = () => {
@@ -105,7 +107,7 @@ export default function MapModule({
       player.y * miniMap.scale,
       0.25 * miniMap.scale,
       0,
-      2 * Math.PI,
+      2 * Math.PI
     );
     objectCtx.fill();
 
@@ -115,7 +117,7 @@ export default function MapModule({
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot)) * miniMap.scale,
-      (player.y + Math.sin(player.rot)) * miniMap.scale,
+      (player.y + Math.sin(player.rot)) * miniMap.scale
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -124,7 +126,7 @@ export default function MapModule({
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot - Math.PI / 4)) * miniMap.scale,
-      (player.y + Math.sin(player.rot - Math.PI / 4)) * miniMap.scale,
+      (player.y + Math.sin(player.rot - Math.PI / 4)) * miniMap.scale
     );
     objectCtx.closePath();
     objectCtx.stroke();
@@ -133,24 +135,26 @@ export default function MapModule({
     objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
     objectCtx.lineTo(
       (player.x + Math.cos(player.rot + Math.PI / 4)) * miniMap.scale,
-      (player.y + Math.sin(player.rot + Math.PI / 4)) * miniMap.scale,
+      (player.y + Math.sin(player.rot + Math.PI / 4)) * miniMap.scale
     );
     objectCtx.closePath();
     objectCtx.stroke();
 
     // player position glow
     // arbitrary numbers watch out
-    objectCtx.fillStyle = "red";
-    objectCtx.beginPath();
-    objectCtx.arc(
-      // draw a dot at the current player position
-      player.x * miniMap.scale,
-      player.y * miniMap.scale,
-      (25 - (player.showingPosition % 25)) * miniMap.scale,
-      0,
-      2 * Math.PI,
-    );
-    objectCtx.stroke();
+    if (player.showingPosition > 0) {
+      objectCtx.fillStyle = "red";
+      objectCtx.beginPath();
+      objectCtx.arc(
+        // draw a dot at the current player position
+        player.x * miniMap.scale,
+        player.y * miniMap.scale,
+        (25 - (player.showingPosition % 25)) * miniMap.scale,
+        0,
+        2 * Math.PI
+      );
+      objectCtx.stroke();
+    }
   };
 
   const drawRay = (rayX: number, rayY: number) => {
@@ -194,35 +198,35 @@ export default function MapModule({
     objectCtx.translate(miniMap.drawingOffsetX, miniMap.drawingOffsetY);
 
     // draw rays
-    for (var i = 0; i < raycastingRays.length; i++) {
-      drawRay(raycastingRays[i].x, raycastingRays[i].y);
-    }
+    // for (var i = 0; i < raycastingRays.length; i++) {
+    //   drawRay(raycastingRays[i].x, raycastingRays[i].y);
+    // }
 
     drawMiniMap();
-    // if (player.showingPosition > 0) drawPlayer()
+    if (player.showingPosition > 0) drawPlayer();
 
-    objectCtx.strokeStyle = "blue";
-    objectCtx.beginPath();
-    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
-    objectCtx.lineTo(
-      spriteExample.x * miniMap.scale,
-      spriteExample.y * miniMap.scale,
-    );
-    objectCtx.closePath();
-    objectCtx.stroke();
+    // SPRITE EXAMPLE
 
-    objectCtx.fillStyle = "blue";
-    objectCtx.beginPath();
-    objectCtx.arc(
-      spriteExample.x * miniMap.scale,
-      spriteExample.y * miniMap.scale,
-      0.25 * miniMap.scale,
-      0,
-      2 * Math.PI,
-    );
-    objectCtx.fill();
+    // objectCtx.strokeStyle = "blue";
+    // objectCtx.beginPath();
+    // objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+    // objectCtx.lineTo(
+    //   spriteExample.x * miniMap.scale,
+    //   spriteExample.y * miniMap.scale,
+    // );
+    // objectCtx.closePath();
+    // objectCtx.stroke();
 
-    drawPlayer();
+    // objectCtx.fillStyle = "blue";
+    // objectCtx.beginPath();
+    // objectCtx.arc(
+    //   spriteExample.x * miniMap.scale,
+    //   spriteExample.y * miniMap.scale,
+    //   0.25 * miniMap.scale,
+    //   0,
+    //   2 * Math.PI,
+    // );
+    // objectCtx.fill();
 
     mapCtx.setTransform(1, 0, 0, 1, 0, 0);
     objectCtx.setTransform(1, 0, 0, 1, 0, 0);
@@ -273,10 +277,10 @@ export default function MapModule({
     if (e.buttons == 1) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
         ),
       };
       if (
@@ -291,10 +295,10 @@ export default function MapModule({
     } else if (e.buttons == 2) {
       let click = {
         x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale,
+          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
         ),
         y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale,
+          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
         ),
       };
       if (
@@ -383,22 +387,22 @@ export default function MapModule({
           position: "relative",
           width: screenSize.width + "px",
           height: screenSize.height + "px",
-          border: "2px solid blue",
+          // border: "2px solid blue",
         }}
         onMouseDown={(e) => {
-          handleMouseDown(e);
+          if (focused) handleMouseDown(e);
         }}
         onMouseUp={(e) => {
-          handleMouseUp(e);
+          if (focused) handleMouseUp(e);
         }}
         onMouseLeave={(e) => {
-          handleMouseUp(e);
+          if (focused) handleMouseUp(e);
         }}
         onMouseMove={(e) => {
-          handleMouseMove(e);
+          if (focused) handleMouseMove(e);
         }}
         onWheel={(e) => {
-          handleMouseWheel(e);
+          if (focused) handleMouseWheel(e);
         }}
       >
         <canvas

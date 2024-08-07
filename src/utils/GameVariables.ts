@@ -69,10 +69,23 @@ export const twoPI = Math.PI * 2;
 
 export const raycastingRays: { x: number; y: number }[] = [];
 
-// state for CLIModule
+// ----- STATES FOR MODULES -----
+// ------------------------------
+
+// ----- State for CLIModule -----
 export const commandHistory: CommandLineType[] = [];
 
-// state for MapModule
+export var currentText = "";
+export const setCurrentText = (value: string) => {
+  currentText = value;
+};
+
+export var moving = false;
+export const setMoving = (value: boolean) => {
+  moving = value;
+};
+
+// ----- State for MapModule -----
 export const miniMap = {
   offsetX: 0,
   offsetY: 0,
@@ -81,17 +94,17 @@ export const miniMap = {
   scale: 15,
 };
 
-// state for RaycastingModule (Photo Mode)
+// ----- State for RaycastingModule (Photo Mode) -----
 export const raycastingPhoto = {
   trigger: false,
   cover: 0,
   photo: Array<ScreenStrip>(),
 };
 
-// state for Score (?)
+// ----- State for Score (?) -----
 export const mission = { result: "" };
 
-// Money duh
+// ----- Money duh -----
 export var money = 0;
 export const addMoney = (amount: number) => {
   money += amount;

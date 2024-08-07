@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
-import { commandHistory } from "../../utils/GameVariables";
+import { useEffect, useRef, useState } from "react";
+import {
+  commandHistory,
+  currentText,
+  setCurrentText,
+} from "../../utils/GameVariables";
 import { checkCommands, commands } from "./CLICommands";
 import { LoremIpsum } from "./LoremIpsum";
 
@@ -11,11 +15,11 @@ export type CommandLineType = {
 export default function CLIModule({ focused = false, welcome = true }) {
   //var text = LoremIpsum;
   var delay = welcome ? 100 : 100;
-  const userShellText = "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
+  const userShellText =
+    "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;
 
-  var currentTextIndex = 0;
-  const [currentTextState, setCurrentTextState] = useState("");
+  // const [currentTextState, setCurrentTextState] = useState("");
 
   const addCommand = (_command: string) => {
     commandHistory.unshift({
@@ -26,6 +30,14 @@ export default function CLIModule({ focused = false, welcome = true }) {
 
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (
+      commandHistory.length > 0 &&
+      commandHistory[0].text.length > currentText.length
+    )
+      return;
+
+    setCurrentText("");
 
     var input: HTMLInputElement;
     input = document.getElementById("input")! as HTMLInputElement;
@@ -41,19 +53,22 @@ export default function CLIModule({ focused = false, welcome = true }) {
     }
   };
 
-  useEffect(() => {
-    setCurrentTextState("");
+  // useEffect(() => {
+  //   setCurrentTextState(currentText);
+  // }, [currentText]);
 
+  useEffect(() => {
     function tick() {
-      if (commandHistory.length > 0 && currentTextIndex < commandHistory[0].text.length) {
-        setCurrentTextState(prev => prev + commandHistory[0].text[currentTextIndex]);
-        currentTextIndex++;
+      if (
+        commandHistory.length > 0 &&
+        currentText.length < commandHistory[0].text.length
+      ) {
+        setCurrentText(commandHistory[0].text.slice(0, currentText.length + 1));
       }
     }
 
     let addChar = setInterval(tick, delay);
     return () => clearInterval(addChar);
-
   }, [commandHistory.length]);
 
   const bindingsKeyDown = (e: KeyboardEvent) => {
@@ -194,7 +209,7 @@ export default function CLIModule({ focused = false, welcome = true }) {
               className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2"
             >
               {v.command != "" && `${userShellText} ${v.command} \n`}
-              {i == 0 ? currentTextState + " <" : v.text + " <"}
+              {i == 0 ? currentText + " <" : v.text + " <"}
               {/* {v.text + " <"} */}
             </div>
           );

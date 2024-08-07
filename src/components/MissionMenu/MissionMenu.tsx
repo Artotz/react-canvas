@@ -31,7 +31,8 @@ export default function MissionMenu() {
     height: 0,
   });
 
-  const raycastResolution1 = { width: 32, height: 24 }, raycastResolution2 = { width: 320, height: 240 };
+  const raycastResolution1 = { width: 64, height: 48 },
+    raycastResolution2 = { width: 320, height: 240 };
 
   const [colors, setColors] = useState<string[]>([
     "#5f5",
@@ -54,27 +55,29 @@ export default function MissionMenu() {
   // ----- JSX ELEMENTS ------
 
   const signalLost = () => {
-    return (<div
-      className="flex full-size full-center text-xl text-black font-bold"
-      style={{
-        backgroundColor:
-          "rgb(" +
-          (150 + 100 * Math.sin(frameCountState / 20)) +
-          "," +
-          30 +
-          "," +
-          30 +
-          ")",
-      }}
-    >
-      SIGNAL LOST
-    </div>)
-  }
+    return (
+      <div
+        className="flex full-size full-center text-xl text-black font-bold"
+        style={{
+          backgroundColor:
+            "rgb(" +
+            (150 + 100 * Math.sin(frameCountState / 20)) +
+            "," +
+            30 +
+            "," +
+            30 +
+            ")",
+        }}
+      >
+        SIGNAL LOST
+      </div>
+    );
+  };
 
   // ----- PLAYER MOVEMENT -----
 
   //KEYBINDING HOOK
-  useKeybindings();
+  // useKeybindings();
 
   const move = () => {
     // Player will move this far along
@@ -135,13 +138,24 @@ export default function MissionMenu() {
     let commandsUsed = commandHistory.length;
     commandHistory.length = 0;
 
+    let scannedWalls = 0;
+
+    for (var y = 0; y < mapsArray.mapsHeight; y++) {
+      for (var x = 0; x < mapsArray.mapsWidth; x++) {
+        if (mapsArray.drawingMap[y][x] == 1) scannedWalls++;
+      }
+    }
+
     mission.result = ` ----- MISSION RESULT -----
 This mission came to it's end in ${frameCount} frames.
-You have ${player.hp} hp left.
-You have ${player.fuel.toFixed(2)} fuel left.
+You have ${(player.hp / player.maxHp).toFixed(2)}% hp left.
+You have ${(player.fuel / player.maxFuel).toFixed(2)} fuel left.
+You scanned ${scannedWalls} walls.
 You used ${commandsUsed} commands.
 
-This mission final result was registered as a ${youWon ? "success" : "failure"}.`;
+This mission final result was registered as a ${
+      youWon ? "success" : "failure"
+    }.`;
 
     commandHistory.push({
       command: "",
@@ -233,7 +247,7 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
                 height={bigWindowSize.height}
                 canvasWidth={raycastResolution1.width}
                 canvasHeight={raycastResolution1.height}
-                _targetFps={5}
+                _targetFps={1}
                 focused={true}
               />
             )}
@@ -254,8 +268,9 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
               <div
                 key={i}
                 ref={i == 0 ? ref2 : null}
-                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${colors[i + 1]
-                  }]`}
+                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
+                  colors[i + 1]
+                }]`}
                 onClick={() => {
                   let aux = modules[0];
                   modules[0] = modules[i + 1];
@@ -276,7 +291,7 @@ This mission final result was registered as a ${youWon ? "success" : "failure"}.
                     height={smallWindowSize.height}
                     canvasWidth={raycastResolution1.width}
                     canvasHeight={raycastResolution1.height}
-                    _targetFps={5}
+                    _targetFps={1}
                     focused={false}
                   />
                 )}
