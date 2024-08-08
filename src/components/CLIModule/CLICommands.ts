@@ -3,8 +3,10 @@ import {
   moving,
   player,
   raycastingPhoto,
+  setCurrentText,
   setMoving,
 } from "../../utils/GameVariables";
+import { addSudoCommand } from "./CLIModule";
 
 const totalSteps = 50 / 5;
 
@@ -95,6 +97,9 @@ const moveTimeoutFunction = (
   ) {
     // You were wrong. Go back.
     player.hp -= 10;
+
+    addSudoCommand({ command: "", text: "Collision detected!" });
+
     setTimeout(moveTimeoutFunction, 50, totalSteps / 2 - 1, dir, -sign);
   }
   //legal move
@@ -216,6 +221,13 @@ export const commands: Command[] = [
       raycastingPhoto.cover = 100;
 
       return "Acessing camera . . .";
+    },
+  },
+  {
+    title: "abort",
+    options: [""],
+    functionCall: (options: string[]) => {
+      return "Aborting . . .";
     },
   },
   {

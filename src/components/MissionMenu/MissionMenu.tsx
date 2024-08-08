@@ -6,13 +6,14 @@ import {
   commandHistory,
   mission,
 } from "../../utils/GameVariables";
-import CLIModule from "../CLIModule/CLIModule";
+import CLIModule, { addSudoCommand } from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
+import { currentMap, unlockedMaps } from "../DesktopInterface/DesktopInterface";
 
 //TODO: SYNC THE UPDATES FROM MODULES
 
-export default function MissionMenu() {
+export default function MissionMenu({ quitMission = () => {} }) {
   const [modules, setModules] = useState([0, 1, 2, 3]);
 
   const [gameOverState, setGameOverState] = useState(false);
@@ -111,8 +112,8 @@ export default function MissionMenu() {
       endGame();
     }
 
-    // player.fuel -= 0.025;
-    // player.fuel = player.fuel < 0 ? 0 : player.fuel;
+    // player.fuel -= 0.025 * 100;
+    player.fuel = player.fuel < 0 ? 0 : player.fuel;
 
     player.showingPosition -= player.showingPosition > 0 ? 1 : 0;
 
@@ -135,32 +136,37 @@ export default function MissionMenu() {
   };
 
   const endGame = () => {
-    let commandsUsed = commandHistory.length;
-    commandHistory.length = 0;
+    let commandsUsed = 0;
+    commandHistory.map((v) => {
+      if (v.command != "") commandsUsed++;
+    });
+    //commandHistory.length = 0;
 
     let scannedWalls = 0;
 
     for (var y = 0; y < mapsArray.mapsHeight; y++) {
       for (var x = 0; x < mapsArray.mapsWidth; x++) {
-        if (mapsArray.drawingMap[y][x] == 1) scannedWalls++;
+        if (mapsArray.viewingMap[y][x] == 1) scannedWalls++;
       }
     }
 
     mission.result = ` ----- MISSION RESULT -----
 This mission came to it's end in ${frameCount} frames.
-You have ${(player.hp / player.maxHp).toFixed(2)}% hp left.
-You have ${(player.fuel / player.maxFuel).toFixed(2)} fuel left.
-You scanned ${scannedWalls} walls.
-You used ${commandsUsed} commands.
+You have ${((player.hp / player.maxHp) * 100).toFixed(2)}% hp left.
+You have ${((player.fuel / player.maxFuel) * 100).toFixed(2)}% fuel left.
+You scanned ${scannedWalls} wall${scannedWalls != 1 ? "s" : ""}.
+You used ${commandsUsed} command${commandsUsed != 1 ? "s" : ""}.
 
 This mission final result was registered as a ${
       youWon ? "success" : "failure"
     }.`;
 
-    commandHistory.push({
+    addSudoCommand({
       command: "",
       text: mission.result,
     });
+
+    if (youWon) unlockedMaps[currentMap + 1] = true;
 
     gameOver = true;
     setGameOverState(true);
@@ -227,21 +233,26 @@ This mission final result was registered as a ${
 
   return (
     <div className="flex full-size bg-green-500 p-2 border-solid border-2 border-black">
-      {!gameOverState ? (
-        <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
-          <div
-            ref={ref1}
-            className={`flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3 bg-[${colors[0]}]`}
-          >
-            {modules[0] == 0 && <CLIModule focused={true} />}
-            {modules[0] == 1 && (
+      <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
+        <div
+          ref={ref1}
+          className={`flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3 bg-[${colors[0]}]`}
+        >
+          {modules[0] == 0 && (
+            <CLIModule focused={true} quitMission={quitMission} />
+          )}
+          {modules[0] == 1 &&
+            (!gameOverState ? (
               <MapModule
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
                 focused={true}
               />
-            )}
-            {modules[0] == 2 && (
+            ) : (
+              signalLost()
+            ))}
+          {modules[0] == 2 &&
+            (!gameOverState ? (
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
@@ -250,8 +261,11 @@ This mission final result was registered as a ${
                 _targetFps={1}
                 focused={true}
               />
-            )}
-            {modules[0] == 3 && (
+            ) : (
+              signalLost()
+            ))}
+          {modules[0] == 3 &&
+            (!gameOverState ? (
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
@@ -260,32 +274,40 @@ This mission final result was registered as a ${
                 focused={false}
                 photo={true}
               />
-            )}
-          </div>
+            ) : (
+              signalLost()
+            ))}
+        </div>
 
-          {[0, 1, 2].map((v, i) => {
-            return (
-              <div
-                key={i}
-                ref={i == 0 ? ref2 : null}
-                className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
-                  colors[i + 1]
-                }]`}
-                onClick={() => {
-                  let aux = modules[0];
-                  modules[0] = modules[i + 1];
-                  modules[i + 1] = aux;
-                }}
-              >
-                {modules[i + 1] == 0 && <CLIModule focused={false} />}
-                {modules[i + 1] == 1 && (
+        {[0, 1, 2].map((v, i) => {
+          return (
+            <div
+              key={i}
+              ref={i == 0 ? ref2 : null}
+              className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
+                colors[i + 1]
+              }]`}
+              onClick={() => {
+                let aux = modules[0];
+                modules[0] = modules[i + 1];
+                modules[i + 1] = aux;
+              }}
+            >
+              {modules[i + 1] == 0 && (
+                <CLIModule focused={false} quitMission={quitMission} />
+              )}
+              {modules[i + 1] == 1 &&
+                (!gameOverState ? (
                   <MapModule
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
                     focused={false}
                   />
-                )}
-                {modules[i + 1] == 2 && (
+                ) : (
+                  signalLost()
+                ))}
+              {modules[i + 1] == 2 &&
+                (!gameOverState ? (
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
@@ -294,8 +316,11 @@ This mission final result was registered as a ${
                     _targetFps={1}
                     focused={false}
                   />
-                )}
-                {modules[i + 1] == 3 && (
+                ) : (
+                  signalLost()
+                ))}
+              {modules[i + 1] == 3 &&
+                (!gameOverState ? (
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
@@ -304,16 +329,13 @@ This mission final result was registered as a ${
                     focused={false}
                     photo={true}
                   />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="flex full-size full-center bg-black text-green-500">
-          <CLIModule focused={false} welcome={false} />
-        </div>
-      )}
+                ) : (
+                  signalLost()
+                ))}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -12,21 +12,27 @@ export type CommandLineType = {
   text: string;
 };
 
-export default function CLIModule({ focused = false, welcome = true }) {
+export const addSudoCommand = (_command: CommandLineType) => {
+  setCurrentText("");
+  commandHistory.unshift(_command);
+};
+
+const addCommand = (_command: string) => {
+  setCurrentText("");
+  commandHistory.unshift({
+    command: _command,
+    text: checkCommands(_command),
+  });
+};
+
+export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
-  var delay = welcome ? 100 : 100;
+  var delay = 100;
   const userShellText =
     "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;
 
   // const [currentTextState, setCurrentTextState] = useState("");
-
-  const addCommand = (_command: string) => {
-    commandHistory.unshift({
-      command: _command,
-      text: checkCommands(_command),
-    });
-  };
 
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -36,8 +42,6 @@ export default function CLIModule({ focused = false, welcome = true }) {
       commandHistory[0].text.length > currentText.length
     )
       return;
-
-    setCurrentText("");
 
     var input: HTMLInputElement;
     input = document.getElementById("input")! as HTMLInputElement;
@@ -53,21 +57,23 @@ export default function CLIModule({ focused = false, welcome = true }) {
     }
   };
 
-  // useEffect(() => {
-  //   setCurrentTextState(currentText);
-  // }, [currentText]);
-
   useEffect(() => {
+    let addChar = setInterval(tick, delay);
+
     function tick() {
-      if (
-        commandHistory.length > 0 &&
-        currentText.length < commandHistory[0].text.length
-      ) {
-        setCurrentText(commandHistory[0].text.slice(0, currentText.length + 1));
+      if (commandHistory.length > 0) {
+        if (currentText.length < commandHistory[0].text.length) {
+          setCurrentText(
+            commandHistory[0].text.slice(0, currentText.length + 1)
+          );
+        } else {
+          clearInterval(addChar);
+          console.log("meme acabou");
+          if (commandHistory[0].command == "abort") quitMission();
+        }
       }
     }
 
-    let addChar = setInterval(tick, delay);
     return () => clearInterval(addChar);
   }, [commandHistory.length]);
 
@@ -83,7 +89,9 @@ export default function CLIModule({ focused = false, welcome = true }) {
         let input1 = document.getElementById("input")! as HTMLInputElement;
 
         let aux1 = [""];
-        commandHistory.map((v) => aux1.push(v.command));
+        commandHistory.map((v) => {
+          if (v.command != "") aux1.push(v.command);
+        });
 
         historyIndex += historyIndex < aux1.length - 1 ? 1 : 0;
 
@@ -96,7 +104,9 @@ export default function CLIModule({ focused = false, welcome = true }) {
         let input2 = document.getElementById("input")! as HTMLInputElement;
 
         let aux2 = [""];
-        commandHistory.map((v) => aux2.push(v.command));
+        commandHistory.map((v) => {
+          if (v.command != "") aux2.push(v.command);
+        });
 
         historyIndex -= historyIndex > 0 ? 1 : 0;
 
@@ -214,12 +224,6 @@ export default function CLIModule({ focused = false, welcome = true }) {
             </div>
           );
         })}
-
-        {welcome && (
-          <div className="flex flex-col w-full h-content px-2 text-left text-wrap break-all text-green-500 whitespace-pre border-green-500 border-solid border-2">
-            <div className="flex">{'Welcome!\nTry "help" for commands.'}</div>
-          </div>
-        )}
       </div>
     </div>
   );
