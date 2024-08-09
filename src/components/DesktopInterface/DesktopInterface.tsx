@@ -1,51 +1,15 @@
-import { useEffect, useState } from "react";
-import MissionMenu from "../MissionMenu/MissionMenu";
+import { useState } from "react";
 
 import "../../utils/GameVariables";
 import {
-  commandHistory,
-  mapsArray,
-  miniMap,
-  player,
-  raycastingPhoto,
-  setMoving,
+  changeCurrentMap,
+  resetMap,
+  unlockedMaps,
 } from "../../utils/GameVariables";
-import { ScreenStrip } from "../RaycastingModule/RaycastingModule2";
+import MissionMenu from "../MissionMenu/MissionMenu";
 import StoreMenu from "../StoreMenu/StoreMenu";
 import LoginMenu from "../LoginMenu/LoginMenu";
-import { addSudoCommand } from "../CLIModule/CLIModule";
 
-const p = -666;
-const x = -1;
-
-const someMaps = [
-  [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, p, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, x, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  ],
-  [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, p, 1, 0, 0, 0, 0, 0, 0, 1],
-    [1, x, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  ],
-];
-
-export const unlockedMaps = Array(someMaps.length);
-unlockedMaps.fill(false);
-unlockedMaps[0] = true;
-
-export var currentMap = 0;
 var app = "";
 
 export default function DesktopInterface() {
@@ -53,81 +17,10 @@ export default function DesktopInterface() {
 
   const loadMap = (_map: number) => {
     if (unlockedMaps[_map]) {
-      currentMap = _map;
-      mapsArray.missionMap = someMaps[_map];
+      changeCurrentMap(_map);
       resetMap();
       setPlaying(true);
     }
-  };
-
-  const resetMap = () => {
-    mapsArray.mapsHeight = mapsArray.missionMap.length;
-    mapsArray.mapsWidth = mapsArray.missionMap[0].length;
-
-    mapsArray.viewingMap.length = 0;
-    mapsArray.drawingMap.length = 0;
-
-    let startingPosition = { x: 1.5, y: 1.5 };
-
-    for (let i = 0; i < mapsArray.mapsHeight; i++) {
-      for (let j = 0; j < mapsArray.mapsWidth; j++) {
-        if (mapsArray.missionMap[i][j] == -666)
-          startingPosition = { x: j, y: i };
-      }
-
-      let arr = Array<number>(mapsArray.mapsWidth);
-      arr.fill(0);
-      mapsArray.viewingMap.push([...arr]);
-      mapsArray.drawingMap.push([...arr]);
-    }
-
-    // console.log(mapsArray.missionMap);
-    // console.log(mapsArray.drawingMap);
-
-    Object.assign(player, {
-      x: startingPosition.x + 0.5, // current x, y position
-      y: startingPosition.y + 0.5,
-      dir: 0, // the direction that the player is turning, either -1 for left or 1 for right.
-      rot: 0, // the current angle of rotation
-      speed: 0, // is the playing moving forward (speed = 1) or backwards (speed = -1).
-      //moveSpeed: 0.05, // how far (in map units) does the player move each step/update
-      //rotSpeed: (6 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
-
-      // other stuff
-      //maxFuel: 100, // max battery whatever
-      fuel: player.maxFuel, // battery whatever
-      //maxHp: 20, // max durability
-      hp: player.maxHp, // durability
-      showingPosition: 0, // frames displaying position
-    });
-
-    commandHistory.length = 0;
-    addSudoCommand({
-      command: "",
-      text: 'Welcome!\nTry "help" for commands.',
-    });
-
-    setMoving(false);
-
-    Object.assign(
-      {
-        trigger: false,
-        cover: 0,
-        photo: Array<ScreenStrip>(),
-      },
-      raycastingPhoto
-    );
-
-    Object.assign(
-      {
-        offsetX: 0,
-        offsetY: 0,
-        drawingOffsetX: 0,
-        drawingOffsetY: 0,
-        scale: 15,
-      },
-      miniMap
-    );
   };
 
   const quitMission = () => {
@@ -142,7 +35,7 @@ export default function DesktopInterface() {
         {/* BUTTONS */}
         <div className="grid grid-rows-6 grid-flow-col h-full gap-4">
           {/* ----- MISSIONS ----- */}
-          {someMaps.map((v, i) => {
+          {unlockedMaps.map((v, i) => {
             return (
               <div
                 key={i}
@@ -210,7 +103,8 @@ export default function DesktopInterface() {
           {/* ----- APPLICATION WINDOW ----- */}
           <div className="flex flex-col full-size bg-green-500 border-solid border-2 border-green-500">
             {/* ----- WINDOW NAME BAR ----- */}
-            {app != "mission" && (
+            {/* {app != "mission" && ( */}
+            {true && (
               <div className="flex w-full h-12 p-2 justify-between border-solid border-2 border-black">
                 <div className="flex text-xl text-black font-bold">
                   {app}.exe

@@ -5,20 +5,23 @@ import {
   mapsArray,
   commandHistory,
   mission,
+  currentMap,
+  unlockedMaps,
 } from "../../utils/GameVariables";
 import CLIModule, { addSudoCommand } from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
-import { currentMap, unlockedMaps } from "../DesktopInterface/DesktopInterface";
+import PhotoModule from "../PhotoModule/PhotoModule";
 
 //TODO: SYNC THE UPDATES FROM MODULES
+
+var youWon = false;
 
 export default function MissionMenu({ quitMission = () => {} }) {
   const [modules, setModules] = useState([0, 1, 2, 3]);
 
   const [gameOverState, setGameOverState] = useState(false);
   var gameOver = false;
-  var youWon = false;
 
   const ref1 = createRef<HTMLDivElement>();
   const ref2 = createRef<HTMLDivElement>();
@@ -71,6 +74,14 @@ export default function MissionMenu({ quitMission = () => {} }) {
         }}
       >
         SIGNAL LOST
+      </div>
+    );
+  };
+
+  const connectionEnded = () => {
+    return (
+      <div className="flex full-size full-center text-xl bg-black text-green-500 font-bold">
+        CONNECTION ENDED
       </div>
     );
   };
@@ -248,6 +259,8 @@ This mission final result was registered as a ${
                 height={bigWindowSize.height}
                 focused={true}
               />
+            ) : youWon ? (
+              connectionEnded()
             ) : (
               signalLost()
             ))}
@@ -261,19 +274,21 @@ This mission final result was registered as a ${
                 _targetFps={1}
                 focused={true}
               />
+            ) : youWon ? (
+              connectionEnded()
             ) : (
               signalLost()
             ))}
           {modules[0] == 3 &&
             (!gameOverState ? (
-              <RaycastingModule2
+              <PhotoModule
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
-                canvasWidth={raycastResolution2.width}
-                canvasHeight={raycastResolution2.height}
-                focused={false}
-                photo={true}
+                canvasWidth={raycastResolution1.width}
+                canvasHeight={raycastResolution1.height}
               />
+            ) : youWon ? (
+              connectionEnded()
             ) : (
               signalLost()
             ))}
@@ -303,6 +318,8 @@ This mission final result was registered as a ${
                     height={smallWindowSize.height}
                     focused={false}
                   />
+                ) : youWon ? (
+                  connectionEnded()
                 ) : (
                   signalLost()
                 ))}
@@ -316,19 +333,21 @@ This mission final result was registered as a ${
                     _targetFps={1}
                     focused={false}
                   />
+                ) : youWon ? (
+                  connectionEnded()
                 ) : (
                   signalLost()
                 ))}
               {modules[i + 1] == 3 &&
                 (!gameOverState ? (
-                  <RaycastingModule2
+                  <PhotoModule
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
-                    canvasWidth={raycastResolution2.width}
-                    canvasHeight={raycastResolution2.height}
-                    focused={false}
-                    photo={true}
+                    canvasWidth={raycastResolution1.width}
+                    canvasHeight={raycastResolution1.height}
                   />
+                ) : youWon ? (
+                  connectionEnded()
                 ) : (
                   signalLost()
                 ))}

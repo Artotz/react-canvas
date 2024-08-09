@@ -157,10 +157,10 @@ export const commands: Command[] = [
     functionCall: turnFunction,
   },
   {
-    title: "stability",
+    title: "durability",
     options: [""],
     functionCall: (options: string[]) => {
-      return "Stability: " + player.hp.toFixed(2);
+      return "Durability: " + player.hp.toFixed(2);
     },
   },
   {
@@ -215,10 +215,10 @@ export const commands: Command[] = [
     },
   },
   {
-    title: "photo",
+    title: "camera",
     options: [""],
     functionCall: (options: string[]) => {
-      raycastingPhoto.cover = 100;
+      raycastingPhoto.trigger = true;
 
       return "Acessing camera . . .";
     },

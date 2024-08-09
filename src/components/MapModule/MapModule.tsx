@@ -340,8 +340,6 @@ export default function MapModule({
     then = window.performance.now();
     startTime = then;
 
-    draw();
-
     console.log("MapModule");
 
     const render = () => {

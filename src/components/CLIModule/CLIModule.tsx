@@ -66,10 +66,11 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
           setCurrentText(
             commandHistory[0].text.slice(0, currentText.length + 1)
           );
-        } else {
-          clearInterval(addChar);
-          console.log("meme acabou");
-          if (commandHistory[0].command == "abort") quitMission();
+          if (currentText.length == commandHistory[0].text.length) {
+            clearInterval(addChar);
+            console.log("meme acabou");
+            if (commandHistory[0].command == "abort") quitMission();
+          }
         }
       }
     }
@@ -158,6 +159,8 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
   };
 
   useEffect(() => {
+    console.log("CLIModule");
+
     if (focused) document.addEventListener("keydown", bindingsKeyDown);
     return () => {
       if (focused) document.removeEventListener("keydown", bindingsKeyDown);

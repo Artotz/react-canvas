@@ -5,7 +5,6 @@ import {
   player,
   raycastingPhoto,
   raycastingRays,
-  spriteExample,
   twoPI,
 } from "../../utils/GameVariables";
 
@@ -364,14 +363,19 @@ export default function RaycastingModule2({
   // ----- DRAWING -----
 
   const draw = () => {
-    let canvasHeight = raycastCtx.canvas.height;
-    raycastCtx.clearRect(0, 0, raycastCtx.canvas.width, canvasHeight);
+    raycastCtx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // WALLS
     castRays();
 
     // FLOOR AND CEILING
     mode7();
+
+    const spriteExample = {
+      x: 2.5,
+      y: 2.5,
+      width: 0.25,
+    };
 
     // SPRITES -----
     // angle between player and sprite
@@ -486,7 +490,7 @@ export default function RaycastingModule2({
 
     // initializing the raycastCanvas
     raycastCanvas = canvasRef.current;
-    raycastCtx = raycastCanvas!.getContext("2d")!;
+    raycastCtx = raycastCanvas!.getContext("2d", { willReadFrequently: true })!;
 
     raycastCtx.imageSmoothingEnabled = false;
 
@@ -504,8 +508,6 @@ export default function RaycastingModule2({
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
-
-    draw();
 
     console.log(photo ? "RaycastingPhotoModule2" : "RaycastingModule2");
 
@@ -534,6 +536,17 @@ export default function RaycastingModule2({
 
         // drawing the frames
         draw();
+
+        if (raycastingPhoto.trigger) {
+          raycastingPhoto.trigger = false;
+          raycastingPhoto.photo = raycastCtx.getImageData(
+            0,
+            0,
+            screenSize.width,
+            screenSize.height
+          );
+          raycastingPhoto.cover = 100;
+        }
       }
     };
     render();
