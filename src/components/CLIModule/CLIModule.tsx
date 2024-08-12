@@ -17,17 +17,25 @@ export const addSudoCommand = (_command: CommandLineType) => {
   commandHistory.unshift(_command);
 };
 
-const addCommand = (_command: string) => {
+export const addCommand = (_command: string): boolean => {
+  if (
+    commandHistory.length > 0 &&
+    commandHistory[0].text.length > currentText.length
+  )
+    return false;
+
   setCurrentText("");
   commandHistory.unshift({
     command: _command,
     text: checkCommands(_command),
   });
+
+  return true;
 };
 
 export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
-  var delay = 100;
+  var delay = 10;
   const userShellText =
     "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;
@@ -37,12 +45,6 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
   const onSubmitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (
-      commandHistory.length > 0 &&
-      commandHistory[0].text.length > currentText.length
-    )
-      return;
-
     var input: HTMLInputElement;
     input = document.getElementById("input")! as HTMLInputElement;
 
@@ -51,9 +53,7 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
     // console.log(input.value);
 
     if (trimmedInput.match(/[^\s]/g) != null) {
-      addCommand(trimmedInput);
-
-      input.value = "";
+      if (addCommand(trimmedInput)) input.value = "";
     }
   };
 

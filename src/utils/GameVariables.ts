@@ -42,7 +42,6 @@ export type Player = {
   fuel: number;
   maxHp: number;
   hp: number;
-  showingPosition: number;
 };
 
 export const player: Player = {
@@ -59,7 +58,6 @@ export const player: Player = {
   fuel: 100, // battery whatever
   maxHp: 20, // max durability
   hp: 20, // durability
-  showingPosition: 0, // frames displaying position
 };
 
 export const twoPI = Math.PI * 2;
@@ -89,9 +87,19 @@ export const miniMap = {
   drawingOffsetX: 0,
   drawingOffsetY: 0,
   scale: 15,
+  showingPosition: 0,
 };
 
 // ----- State for RaycastingModule (Photo Mode) -----
+
+export var rayCastingVideo = 0;
+export const decreaseRayCastingVideo = () => {
+  rayCastingVideo -= rayCastingVideo > 0 ? 1 : 0;
+};
+export const setMaxRayCastingVideo = () => {
+  rayCastingVideo = 100;
+};
+
 export const raycastingPhoto = {
   trigger: false,
   cover: 0,
@@ -107,7 +115,7 @@ export const addMoney = (amount: number) => {
   money += amount;
 };
 
-// ----- daskdhjaskjdas -----
+// ----- Map Management -----
 export const resetMap = () => {
   mapsArray.mapsHeight = mapsArray.missionMap.length;
   mapsArray.mapsWidth = mapsArray.missionMap[0].length;
@@ -186,9 +194,20 @@ export const changeCurrentMap = (_map: number) => {
 };
 
 const p = -666;
-const x = -1;
+const x = -420;
+const o = -1;
 
 export const someMaps = [
+  [
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, p, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, x, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  ],
   [
     [1, 1, 1, 1],
     [1, p, x, 1],
@@ -199,7 +218,7 @@ export const someMaps = [
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, p, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, p, o, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, x, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],

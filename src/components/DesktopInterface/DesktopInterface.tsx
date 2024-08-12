@@ -5,64 +5,52 @@ import {
   changeCurrentMap,
   resetMap,
   unlockedMaps,
+  someMaps,
 } from "../../utils/GameVariables";
 import MissionMenu from "../MissionMenu/MissionMenu";
 import StoreMenu from "../StoreMenu/StoreMenu";
-import LoginMenu from "../LoginMenu/LoginMenu";
-
-var app = "";
 
 export default function DesktopInterface() {
   const [playing, setPlaying] = useState(false);
+  const [app, setApp] = useState("");
 
   const loadMap = (_map: number) => {
     if (unlockedMaps[_map]) {
       changeCurrentMap(_map);
       resetMap();
+
+      setApp("mission");
       setPlaying(true);
     }
   };
 
   const quitMission = () => {
     setPlaying(false);
-    app = "";
+    setApp("");
   };
 
   return (
     <div className="flex flex-col w-full h-full bg-black justify-center items-center text-green-500 overflow-y-hidden">
       {/* DESKTOP */}
       <div className="flex w-full h-full gap-4 p-4">
-        {/* BUTTONS */}
+        {/* APPS */}
         <div className="grid grid-rows-6 grid-flow-col h-full gap-4">
-          {/* ----- MISSIONS ----- */}
-          {unlockedMaps.map((v, i) => {
-            return (
-              <div
-                key={i}
-                onClick={() => {
-                  app = "mission";
-                  loadMap(i);
-                }}
-                className={`flex flex-col w-content h-fit border-green-500 border-solid border-2 justify-center items-center select-none p-2 gap-2 ${
-                  unlockedMaps[i]
-                    ? "cursor-pointer hover:bg-green-500 hover:text-black"
-                    : "cursor-not-allowed"
-                }`}
-              >
-                <div
-                  className={`flex w-8 h-8 ${
-                    unlockedMaps[i] ? "bg-blue-500" : "bg-red-500"
-                  }`}
-                ></div>
-                <div className="flex justify-center">lvl {i}</div>
-              </div>
-            );
-          })}
+          {/* ----- MISSIONS MENU ----- */}
+          <div
+            onClick={() => {
+              setApp("missionsFolder");
+              setPlaying(true);
+            }}
+            className="flex flex-col w-content h-fit border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
+          >
+            <div className="flex w-8 h-8 bg-blue-500"></div>
+            <div className="flex justify-center">missions</div>
+          </div>
 
           {/* ----- STORE ----- */}
           <div
             onClick={() => {
-              app = "store";
+              setApp("store");
               setPlaying(true);
             }}
             className="flex flex-col w-content h-fit border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
@@ -74,7 +62,7 @@ export default function DesktopInterface() {
           {/* ----- STORAGE ----- */}
           <div
             onClick={() => {
-              app = "storage";
+              setApp("storage");
               setPlaying(true);
             }}
             className="flex flex-col w-content h-fit border-green-500 border-solid border-2 hover:bg-green-500 hover:text-black justify-center items-center cursor-pointer select-none p-2 gap-2"
@@ -96,7 +84,7 @@ export default function DesktopInterface() {
       {playing == true && (
         // ----- FULLSCREEN INVISIBLE OVERLAY -----
         <div
-          className={`absolute full-size z-999 top-[000] duration-200 ${
+          className={`absolute full-size z-999 top-[000] ${
             app == "mission" ? "" : "p-8 pb-16"
           }`}
         >
@@ -113,7 +101,7 @@ export default function DesktopInterface() {
                   <div
                     className="flex px-2 border-solid border-2 border-black text-black hover:bg-black hover:text-green-500 font-bold cursor-pointer select-none"
                     onClick={() => {
-                      app = "";
+                      setApp("");
                       setPlaying(false);
                     }}
                   >
@@ -126,8 +114,40 @@ export default function DesktopInterface() {
             {/* ----- APPLICATION ----- */}
             <div className="flex full-size overflow-y-hidden bg-black">
               {app == "mission" && <MissionMenu quitMission={quitMission} />}
+              {app == "missionsFolder" && (
+                <div className="flex w-full h-full gap-4 p-4">
+                  {/* BUTTONS */}
+                  <div className="grid grid-rows-6 grid-flow-col h-full gap-4">
+                    {/* ----- MISSIONS ----- */}
+                    {someMaps.map((v, i) => {
+                      return (
+                        <div
+                          key={i}
+                          onClick={() => {
+                            loadMap(i);
+                          }}
+                          className={`flex flex-col w-content h-fit border-green-500 border-solid border-2 justify-center items-center select-none p-2 gap-2 ${
+                            unlockedMaps[i]
+                              ? "cursor-pointer hover:bg-green-500 hover:text-black"
+                              : "cursor-not-allowed"
+                          }`}
+                        >
+                          <div
+                            className={`flex w-8 h-8 ${
+                              unlockedMaps[i] ? "bg-blue-500" : "bg-red-500"
+                            }`}
+                          ></div>
+                          <div className="flex justify-center">lvl {i}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {app == "store" && <StoreMenu />}
-              {app == "storage" && <LoginMenu />}
+              {app == "storage" && (
+                <div className="flex full-size full-center"> vazio </div>
+              )}
             </div>
           </div>
         </div>

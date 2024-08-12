@@ -7,21 +7,23 @@ import {
   mission,
   currentMap,
   unlockedMaps,
+  miniMap,
 } from "../../utils/GameVariables";
 import CLIModule, { addSudoCommand } from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
 import PhotoModule from "../PhotoModule/PhotoModule";
+import RaycastingPhotoModule2 from "../RaycastingModule/RaycastingPhotoModule2";
 
-//TODO: SYNC THE UPDATES FROM MODULES
-
-var youWon = false;
+//TODO: SYNC THE UPDATES FROM MODULES (?)
 
 export default function MissionMenu({ quitMission = () => {} }) {
   const [modules, setModules] = useState([0, 1, 2, 3]);
 
-  const [gameOverState, setGameOverState] = useState(false);
   var gameOver = false;
+  const [gameOverState, setGameOverState] = useState(false);
+  var youWon = false;
+  const [youWonState, setYouWonState] = useState(false);
 
   const ref1 = createRef<HTMLDivElement>();
   const ref2 = createRef<HTMLDivElement>();
@@ -35,7 +37,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
     height: 0,
   });
 
-  const raycastResolution1 = { width: 64, height: 48 },
+  const raycastResolution1 = { width: 128, height: 96 },
     raycastResolution2 = { width: 320, height: 240 };
 
   const [colors, setColors] = useState<string[]>([
@@ -57,6 +59,11 @@ export default function MissionMenu({ quitMission = () => {} }) {
     elapsed: number;
 
   // ----- JSX ELEMENTS ------
+
+  const results = () => {
+    if (!youWonState) return signalLost();
+    else return connectionEnded();
+  };
 
   const signalLost = () => {
     return (
@@ -92,41 +99,44 @@ export default function MissionMenu({ quitMission = () => {} }) {
   // useKeybindings();
 
   const move = () => {
-    // Player will move this far along
-    // the current direction vector
-    var moveStep = player.speed * player.moveSpeed;
+    // // Player will move this far along
+    // // the current direction vector
+    // var moveStep = player.speed * player.moveSpeed;
 
-    // Add rotation if player is rotating (player.dir != 0)
-    player.rot += player.dir * player.rotSpeed;
-    // player.rot =
-    //   player.rot < 0
-    //     ? 2 * Math.PI + player.rot
-    //     : player.rot >= 2 * Math.PI
-    //     ? player.rot - 2 * Math.PI
-    //     : player.rot;
+    // // Add rotation if player is rotating (player.dir != 0)
+    // player.rot += player.dir * player.rotSpeed;
+    // // player.rot =
+    // //   player.rot < 0
+    // //     ? 2 * Math.PI + player.rot
+    // //     : player.rot >= 2 * Math.PI
+    // //     ? player.rot - 2 * Math.PI
+    // //     : player.rot;
 
-    // console.log(player.rot / (2 * Math.PI));
-    // Calculate new player position with simple trigonometry
-    var newX = player.x + Math.cos(player.rot) * moveStep;
-    var newY = player.y + Math.sin(player.rot) * moveStep;
+    // // console.log(player.rot / (2 * Math.PI));
+    // // Calculate new player position with simple trigonometry
+    // var newX = player.x + Math.cos(player.rot) * moveStep;
+    // var newY = player.y + Math.sin(player.rot) * moveStep;
 
-    if (isBlocking(newX, newY)) return;
+    // if (isBlocking(newX, newY)) return;
 
-    // Set new position
-    player.x = newX;
-    player.y = newY;
+    // // Set new position
+    // player.x = newX;
+    // player.y = newY;
 
     if (
-      mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -1
+      mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -420
     ) {
       youWon = true;
+      setYouWonState(true);
       endGame();
     }
+
+    mapsArray.missionMap[4][3] = 1 + Math.sin(frameCount);
 
     // player.fuel -= 0.025 * 100;
     player.fuel = player.fuel < 0 ? 0 : player.fuel;
 
-    player.showingPosition -= player.showingPosition > 0 ? 1 : 0;
+    miniMap.showingPosition -= miniMap.showingPosition > 0 ? 1 : 0;
 
     if (player.fuel <= 0 || player.hp <= 0) endGame();
   };
@@ -259,10 +269,8 @@ This mission final result was registered as a ${
                 height={bigWindowSize.height}
                 focused={true}
               />
-            ) : youWon ? (
-              connectionEnded()
             ) : (
-              signalLost()
+              results()
             ))}
           {modules[0] == 2 &&
             (!gameOverState ? (
@@ -271,26 +279,22 @@ This mission final result was registered as a ${
                 height={bigWindowSize.height}
                 canvasWidth={raycastResolution1.width}
                 canvasHeight={raycastResolution1.height}
-                _targetFps={1}
+                _targetFps={5}
                 focused={true}
               />
-            ) : youWon ? (
-              connectionEnded()
             ) : (
-              signalLost()
+              results()
             ))}
           {modules[0] == 3 &&
             (!gameOverState ? (
-              <PhotoModule
+              <RaycastingPhotoModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
-                canvasWidth={raycastResolution1.width}
-                canvasHeight={raycastResolution1.height}
+                canvasWidth={raycastResolution2.width}
+                canvasHeight={raycastResolution2.height}
               />
-            ) : youWon ? (
-              connectionEnded()
             ) : (
-              signalLost()
+              results()
             ))}
         </div>
 
@@ -318,10 +322,8 @@ This mission final result was registered as a ${
                     height={smallWindowSize.height}
                     focused={false}
                   />
-                ) : youWon ? (
-                  connectionEnded()
                 ) : (
-                  signalLost()
+                  results()
                 ))}
               {modules[i + 1] == 2 &&
                 (!gameOverState ? (
@@ -330,26 +332,22 @@ This mission final result was registered as a ${
                     height={smallWindowSize.height}
                     canvasWidth={raycastResolution1.width}
                     canvasHeight={raycastResolution1.height}
-                    _targetFps={1}
+                    _targetFps={5}
                     focused={false}
                   />
-                ) : youWon ? (
-                  connectionEnded()
                 ) : (
-                  signalLost()
+                  results()
                 ))}
               {modules[i + 1] == 3 &&
                 (!gameOverState ? (
-                  <PhotoModule
+                  <RaycastingPhotoModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
-                    canvasWidth={raycastResolution1.width}
-                    canvasHeight={raycastResolution1.height}
+                    canvasWidth={raycastResolution2.width}
+                    canvasHeight={raycastResolution2.height}
                   />
-                ) : youWon ? (
-                  connectionEnded()
                 ) : (
-                  signalLost()
+                  results()
                 ))}
             </div>
           );

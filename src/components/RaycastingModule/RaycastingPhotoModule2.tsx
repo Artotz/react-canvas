@@ -1,40 +1,30 @@
 import { createRef, useEffect, useRef, useState } from "react";
 
 import {
-  decreaseRayCastingVideo,
   mapsArray,
   player,
-  rayCastingVideo,
   raycastingPhoto,
-  raycastingRays,
   twoPI,
 } from "../../utils/GameVariables";
-import { addCommand } from "../CLIModule/CLIModule";
 
-type RaycastingModule2Props = {
+type RaycastingPhotoModule2Props = {
   width?: number;
   height?: number;
   canvasWidth?: number;
   canvasHeight?: number;
   _fov?: number;
-  _targetFps?: number;
-  focused: boolean;
 };
 
 export type ScreenStrip = { height: number; color: string; texX: number };
 
-export default function RaycastingModule2({
+export default function RaycastingPhotoModule2({
   width = 0,
   height = 0,
   canvasWidth = 0,
   canvasHeight = 0,
   _fov = 90,
-  _targetFps = 30,
-  focused = false,
-}: RaycastingModule2Props) {
+}: RaycastingPhotoModule2Props) {
   // ----- VARIABLES -----
-
-  var frameCount = 0;
 
   // ----- CANVAS -----
 
@@ -46,35 +36,19 @@ export default function RaycastingModule2({
   var raycastCanvas: HTMLCanvasElement | null;
   var raycastCtx: CanvasRenderingContext2D;
 
-  const greystoneWall = new Image();
-  // greystoneWall.src = "src/assets/greystone.png";
-  greystoneWall.src = "src/assets/asdf.png";
+  const scale = width / screenSize.width;
+
   const texSize = 16;
-
-  greystoneWall.onload = () => {
-    var tempCanvas = document.createElement("canvas");
-    var tempCtx = tempCanvas.getContext("2d");
-
-    tempCtx?.drawImage(greystoneWall, 0, 0);
-
-    floorData = tempCtx?.getImageData(0, 0, texSize, texSize)!;
-
-    // why is this called multiple times?
-    // console.log("bruh");
-  };
-
+  const greystoneWall = new Image();
   var floorData = new ImageData(texSize, texSize);
   var mode7Image: ImageData;
 
-  const scale = width / screenSize.width;
+  const [loadingState, setLoadingState] = useState(true);
 
   // ----- FUN ZONE -----
 
   const numRays = screenSize.width;
   const fov = (_fov * Math.PI) / 180;
-
-  var _screenStrips: ScreenStrip[] = Array(numRays);
-  var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
 
   const stripWidth = screenSize.width / numRays;
   const fovHalf = fov / 2;
@@ -83,16 +57,10 @@ export default function RaycastingModule2({
 
   const wallHeight = 1;
 
-  // ----- MEMES -----
+  // STRIPS
 
-  var targetFps: number = _targetFps,
-    fpsInterval: number,
-    startTime: number,
-    now: number,
-    then: number,
-    elapsed: number;
-
-  var fps = 0;
+  var _screenStrips: ScreenStrip[] = Array(numRays);
+  var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
 
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
@@ -101,7 +69,7 @@ export default function RaycastingModule2({
     for (var i = 0; i < numRays; i++) {
       let strip = {
         height: 100,
-        color: "red",
+        color: "blue",
         texX: 0,
       };
 
@@ -173,8 +141,7 @@ export default function RaycastingModule2({
     var y = player.y + (x - player.x) * slope; // starting vertical position. We add the small horizontal step we just made, multiplied by the slope.
 
     // if on one side
-    let color = "black";
-    let wallValue = -1;
+    let color = "grey";
 
     while (
       x >= 0 &&
@@ -197,8 +164,6 @@ export default function RaycastingModule2({
         xHit = x; // save the coordinates of the hit. We only really use these to draw the rays on minimap.
         yHit = y;
 
-        color = "gray";
-        wallValue = mapsArray.missionMap[wallY][wallX];
         break;
       }
       x += dX;
@@ -237,7 +202,6 @@ export default function RaycastingModule2({
 
           // if on the other side
           color = "darkgray";
-          wallValue = mapsArray.missionMap[wallY][wallX];
         }
         break;
       }
@@ -249,7 +213,7 @@ export default function RaycastingModule2({
       //drawRay(xHit, yHit);
 
       // draw rays
-      raycastingRays[stripIdx] = { x: xHit, y: yHit };
+      // raycastingRays[stripIdx] = { x: xHit, y: yHit };
 
       var strip = _screenStrips[stripIdx];
 
@@ -265,7 +229,7 @@ export default function RaycastingModule2({
       // "real" wall height in the game world is 1 unit, the distance from the player to the screen is viewDist,
       // thus the height on the screen is equal to wall_height_real * viewDist / dist
 
-      var height = Math.round(((wallHeight - wallValue / 2) * viewDist) / dist);
+      var height = Math.round((wallHeight * viewDist) / dist);
 
       // width is the same, but we have to stretch the texture to a factor of stripWidth to make it fill the strip correctly
       //var width = height * stripWidth;
@@ -278,7 +242,7 @@ export default function RaycastingModule2({
       strip.color = color;
       strip.texX = textureX;
 
-      // optimization ?
+      // todo: optimization ?
       zBuffer[stripIdx] = { type: "wall", i: stripIdx, dist: dist };
     }
   };
@@ -363,28 +327,25 @@ export default function RaycastingModule2({
       z++;
     }
     raycastCtx.putImageData(mode7Image, 0, 0);
+    console.log(floorData.data);
   };
 
   // ----- DRAWING -----
 
   const draw = () => {
     raycastCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    draw2();
 
-    if (rayCastingVideo > 0) {
-      decreaseRayCastingVideo();
-
-      draw2();
+    if (raycastingPhoto.trigger) {
+      raycastingPhoto.trigger = false;
+      raycastingPhoto.photo = raycastCtx.getImageData(
+        0,
+        0,
+        screenSize.width,
+        screenSize.height
+      );
+      raycastingPhoto.cover = 100;
     }
-    // HUD -----
-    raycastCtx.fillStyle = "red";
-    raycastCtx.beginPath();
-    if (canvasWidth > 100) raycastCtx.fillText("fps: " + fps, 10, 30);
-    raycastCtx.fillRect(
-      0,
-      screenSize.height - 2,
-      (screenSize.width * rayCastingVideo) / 100,
-      2
-    );
   };
 
   const draw2 = () => {
@@ -501,55 +462,29 @@ export default function RaycastingModule2({
     }
   };
 
-  // ----- KEYBINDINGS -----
-
-  const bindingsKeyDown = (e: KeyboardEvent) => {
-    e = e || window.event;
-
-    // Which key was pressed?
-    console.log(e.key);
-
-    switch (e.key.toLowerCase()) {
-      case "arrowup":
-        e.preventDefault();
-        addCommand("move foward");
-        break;
-
-      case "arrowdown":
-        e.preventDefault();
-        addCommand("move backward");
-        break;
-
-      case "arrowleft":
-        e.preventDefault();
-        addCommand("turn left");
-        break;
-
-      case "arrowright":
-        e.preventDefault();
-        addCommand("turn right");
-        break;
-
-      case " ":
-        e.preventDefault();
-        addCommand("capture");
-        break;
-
-      default:
-        break;
-    }
-  };
-
   // ----- USE EFFECT -----
 
   useEffect(() => {
-    let animationFrameId: number;
-
     // initializing the raycastCanvas
     raycastCanvas = canvasRef.current;
     raycastCtx = raycastCanvas!.getContext("2d", { willReadFrequently: true })!;
 
     raycastCtx.imageSmoothingEnabled = false;
+
+    // greystoneWall.src = "src/assets/greystone.png";
+    greystoneWall.src = "src/assets/asdf.png";
+
+    greystoneWall.onload = () => {
+      var tempCanvas = document.createElement("canvas");
+      var tempCtx = tempCanvas.getContext("2d");
+
+      tempCtx?.drawImage(greystoneWall, 0, 0);
+
+      floorData = tempCtx?.getImageData(0, 0, texSize, texSize)!;
+
+      setLoadingState(false);
+      // draw();
+    };
 
     mode7Image = raycastCtx.createImageData(
       screenSize.width,
@@ -561,47 +496,7 @@ export default function RaycastingModule2({
     // initializing the screen strips
     initScreen();
 
-    // fps calculation
-    fpsInterval = 1000 / targetFps;
-    then = window.performance.now();
-    startTime = then;
-
-    console.log("RaycastingModule2");
-
-    const render = () => {
-      animationFrameId = window.requestAnimationFrame(render);
-
-      // game logic
-
-      // calc elapsed time since last loop
-
-      now = window.performance.now();
-      elapsed = now - then;
-
-      // if enough time has elapsed, draw the next frame
-
-      if (elapsed > fpsInterval) {
-        // Get ready for next frame by setting then=now, but also adjust for your
-        // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
-        then = now - (elapsed % fpsInterval);
-
-        var sinceStart = now - startTime;
-        var currentFps =
-          Math.round((1000 / (sinceStart / ++frameCount)) * 100) / 100;
-
-        fps = currentFps;
-
-        draw();
-      }
-    };
-    render();
-
-    if (focused) document.addEventListener("keydown", bindingsKeyDown);
-
-    return () => {
-      window.cancelAnimationFrame(animationFrameId);
-      if (focused) document.removeEventListener("keydown", bindingsKeyDown);
-    };
+    console.log("RaycastingPhotoModule2");
   }, []);
 
   // ----- HTML -----
@@ -630,6 +525,22 @@ export default function RaycastingModule2({
           width={screenSize.width}
           height={screenSize.height}
         />
+        {loadingState && (
+          <div
+            style={{
+              transform: "scale(" + scale + ")",
+              width: screenSize.width,
+              height: screenSize.height,
+              backgroundColor: "black",
+              left: width / 2 - screenSize.width / 2,
+              top: height / 2 - screenSize.height / 2,
+              position: "absolute",
+              // border: "2px solid red",
+            }}
+          >
+            loading...
+          </div>
+        )}
       </div>
     </div>
   );

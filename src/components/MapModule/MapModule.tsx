@@ -5,7 +5,6 @@ import {
   miniMap,
   player,
   raycastingRays,
-  spriteExample,
 } from "../../utils/GameVariables";
 
 export type MapModuleProps = {
@@ -56,9 +55,9 @@ export default function MapModule({
   const drawMiniMap = () => {
     for (var y = 0; y < mapsArray.mapsHeight; y++) {
       for (var x = 0; x < mapsArray.mapsWidth; x++) {
-        var wall = mapsArray.viewingMap[y][x];
+        var cell = mapsArray.viewingMap[y][x];
 
-        if (wall > 0) {
+        if (cell > 0) {
           // if there is a wall block at this (x,y) ...
 
           mapCtx.fillStyle = "rgb(200,200,200)";
@@ -142,14 +141,14 @@ export default function MapModule({
 
     // player position glow
     // arbitrary numbers watch out
-    if (player.showingPosition > 0) {
+    if (miniMap.showingPosition > 0) {
       objectCtx.fillStyle = "red";
       objectCtx.beginPath();
       objectCtx.arc(
         // draw a dot at the current player position
         player.x * miniMap.scale,
         player.y * miniMap.scale,
-        (25 - (player.showingPosition % 25)) * miniMap.scale,
+        (25 - (miniMap.showingPosition % 25)) * miniMap.scale,
         0,
         2 * Math.PI
       );
@@ -203,7 +202,7 @@ export default function MapModule({
     // }
 
     drawMiniMap();
-    if (player.showingPosition > 0) drawPlayer();
+    if (miniMap.showingPosition > 0) drawPlayer();
 
     // SPRITE EXAMPLE
 

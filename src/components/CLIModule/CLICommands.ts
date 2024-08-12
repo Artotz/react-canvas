@@ -1,9 +1,11 @@
 import {
   mapsArray,
+  miniMap,
   moving,
   player,
+  rayCastingVideo,
   raycastingPhoto,
-  setCurrentText,
+  setMaxRayCastingVideo,
   setMoving,
 } from "../../utils/GameVariables";
 import { addSudoCommand } from "./CLIModule";
@@ -82,7 +84,6 @@ const moveTimeoutFunction = (
   dir: { x: number; y: number },
   sign: number
 ) => {
-  // arbitrary 10 step program watch out
   let newPos = {
     x: player.x + (sign * dir.x) / totalSteps,
     y: player.y + (sign * dir.y) / totalSteps,
@@ -92,13 +93,12 @@ const moveTimeoutFunction = (
   if (
     mapsArray.missionMap[
       //
-      Math.floor(newPos.y)
-    ][Math.floor(newPos.x)] > 0
+      ~~newPos.y
+    ][~~newPos.x] > 0
   ) {
     // You were wrong. Go back.
     player.hp -= 10;
-
-    addSudoCommand({ command: "", text: "Collision detected!" });
+    addSudoCommand({ command: "", text: "Damage detected!" });
 
     setTimeout(moveTimeoutFunction, 50, totalSteps / 2 - 1, dir, -sign);
   }
@@ -115,6 +115,17 @@ const moveTimeoutFunction = (
 
       player.x = parseFloat(player.x.toFixed(1));
       player.y = parseFloat(player.y.toFixed(1));
+
+      // damaging floor
+      if (
+        mapsArray.missionMap[
+          //
+          ~~newPos.y
+        ][~~newPos.x] == -1
+      ) {
+        player.hp -= 10;
+        addSudoCommand({ command: "", text: "Damage detected!" });
+      }
 
       console.log("x: ", player.x, "y: ", player.y);
 
@@ -209,18 +220,29 @@ export const commands: Command[] = [
     title: "position",
     options: [""],
     functionCall: (options: string[]) => {
-      player.showingPosition = 500;
+      miniMap.showingPosition = 500;
 
       return "Showing position . . .";
     },
   },
   {
-    title: "camera",
+    title: "video",
     options: [""],
     functionCall: (options: string[]) => {
-      raycastingPhoto.trigger = true;
+      setMaxRayCastingVideo();
 
-      return "Acessing camera . . .";
+      return "Toggling video . . .";
+    },
+  },
+  {
+    title: "capture",
+    options: [""],
+    functionCall: (options: string[]) => {
+      if (rayCastingVideo > 0) {
+        raycastingPhoto.trigger = true;
+
+        return "Capturing image . . .";
+      } else return "Camera is toggled off!";
     },
   },
   {
