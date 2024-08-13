@@ -90,20 +90,22 @@ export const miniMap = {
   showingPosition: 0,
 };
 
-// ----- State for RaycastingModule (Photo Mode) -----
+// ----- State for RaycastingModule -----
 
-export var rayCastingVideo = 0;
+export var rayCastingVideo = 100;
 export const decreaseRayCastingVideo = () => {
-  rayCastingVideo -= rayCastingVideo > 0 ? 1 : 0;
+  rayCastingVideo -= rayCastingVideo > 0 ? 0 : 0;
 };
 export const setMaxRayCastingVideo = () => {
   rayCastingVideo = 100;
 };
 
+// ----- State for RaycastingPhotoModule -----
+
 export const raycastingPhoto = {
   trigger: false,
-  cover: 0,
-  photo: new ImageData(1, 1),
+  currentPhoto: 0,
+  photos: Array<ImageData>(0),
 };
 
 // ----- State for Score (?) -----
@@ -202,10 +204,10 @@ export const someMaps = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
     [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, p, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, x, 1],
+    [1, 0, 0, 2, 0, 0, 0, 0, 0, 1],
+    [1, p, 0, 3, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 4, 0, 0, 0, 1, 1, 1],
+    [1, 0, 0, 5, 0, 0, 0, 0, x, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
   [

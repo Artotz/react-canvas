@@ -8,11 +8,11 @@ import {
   currentMap,
   unlockedMaps,
   miniMap,
+  raycastingPhoto,
 } from "../../utils/GameVariables";
 import CLIModule, { addSudoCommand } from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
 import RaycastingModule2 from "../RaycastingModule/RaycastingModule2";
-import PhotoModule from "../PhotoModule/PhotoModule";
 import RaycastingPhotoModule2 from "../RaycastingModule/RaycastingPhotoModule2";
 
 //TODO: SYNC THE UPDATES FROM MODULES (?)
@@ -37,8 +37,8 @@ export default function MissionMenu({ quitMission = () => {} }) {
     height: 0,
   });
 
-  const raycastResolution1 = { width: 128, height: 96 },
-    raycastResolution2 = { width: 320, height: 240 };
+  const raycastResolution1 = { width: 200 / 2, height: 100 / 2 },
+    raycastResolution2 = { width: 400, height: 200 };
 
   const [colors, setColors] = useState<string[]>([
     "#5f5",
@@ -131,7 +131,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
       endGame();
     }
 
-    mapsArray.missionMap[4][3] = 1 + Math.sin(frameCount);
+    // mapsArray.missionMap[4][3] = 2 * Math.sin(frameCount);
 
     // player.fuel -= 0.025 * 100;
     player.fuel = player.fuel < 0 ? 0 : player.fuel;
@@ -171,11 +171,14 @@ export default function MissionMenu({ quitMission = () => {} }) {
       }
     }
 
+    let photosTaken = raycastingPhoto.photos.length;
+
     mission.result = ` ----- MISSION RESULT -----
 This mission came to it's end in ${frameCount} frames.
 You have ${((player.hp / player.maxHp) * 100).toFixed(2)}% hp left.
 You have ${((player.fuel / player.maxFuel) * 100).toFixed(2)}% fuel left.
 You scanned ${scannedWalls} wall${scannedWalls != 1 ? "s" : ""}.
+You took ${photosTaken} photo${photosTaken != 1 ? "s" : ""}.
 You used ${commandsUsed} command${commandsUsed != 1 ? "s" : ""}.
 
 This mission final result was registered as a ${

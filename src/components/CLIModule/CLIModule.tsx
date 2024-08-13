@@ -35,7 +35,7 @@ export const addCommand = (_command: string): boolean => {
 
 export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
-  var delay = 10;
+  var delay = 100;
   const userShellText =
     "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;

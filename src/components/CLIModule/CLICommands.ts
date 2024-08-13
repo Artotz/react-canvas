@@ -246,6 +246,18 @@ export const commands: Command[] = [
     },
   },
   {
+    title: "photo",
+    options: [""],
+    functionCall: (options: string[]) => {
+      raycastingPhoto.currentPhoto =
+        raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
+          ? raycastingPhoto.currentPhoto + 1
+          : 0;
+
+      return "Changing photo . . .";
+    },
+  },
+  {
     title: "abort",
     options: [""],
     functionCall: (options: string[]) => {

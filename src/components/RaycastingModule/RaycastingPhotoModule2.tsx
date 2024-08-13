@@ -15,7 +15,12 @@ type RaycastingPhotoModule2Props = {
   _fov?: number;
 };
 
-export type ScreenStrip = { height: number; color: string; texX: number };
+export type ScreenStrip = {
+  height: number;
+  color: string;
+  texX: number;
+  value: number;
+};
 
 export default function RaycastingPhotoModule2({
   width = 0,
@@ -50,17 +55,15 @@ export default function RaycastingPhotoModule2({
   const numRays = screenSize.width;
   const fov = (_fov * Math.PI) / 180;
 
+  var _screenStrips: ScreenStrip[] = Array(numRays);
+  var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
+
   const stripWidth = screenSize.width / numRays;
   const fovHalf = fov / 2;
 
   const viewDist = screenSize.width / 2 / Math.tan(fovHalf);
 
   const wallHeight = 1;
-
-  // STRIPS
-
-  var _screenStrips: ScreenStrip[] = Array(numRays);
-  var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
 
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
@@ -71,6 +74,7 @@ export default function RaycastingPhotoModule2({
         height: 100,
         color: "blue",
         texX: 0,
+        value: -1,
       };
 
       _screenStrips[i] = strip;
@@ -141,7 +145,8 @@ export default function RaycastingPhotoModule2({
     var y = player.y + (x - player.x) * slope; // starting vertical position. We add the small horizontal step we just made, multiplied by the slope.
 
     // if on one side
-    let color = "grey";
+    let color = "black";
+    let value = -1;
 
     while (
       x >= 0 &&
@@ -164,6 +169,8 @@ export default function RaycastingPhotoModule2({
         xHit = x; // save the coordinates of the hit. We only really use these to draw the rays on minimap.
         yHit = y;
 
+        color = "gray";
+        value = mapsArray.missionMap[wallY][wallX];
         break;
       }
       x += dX;
@@ -202,6 +209,7 @@ export default function RaycastingPhotoModule2({
 
           // if on the other side
           color = "darkgray";
+          value = mapsArray.missionMap[wallY][wallX];
         }
         break;
       }
@@ -241,6 +249,7 @@ export default function RaycastingPhotoModule2({
       strip.height = height;
       strip.color = color;
       strip.texX = textureX;
+      strip.value = value;
 
       // todo: optimization ?
       zBuffer[stripIdx] = { type: "wall", i: stripIdx, dist: dist };
@@ -335,17 +344,6 @@ export default function RaycastingPhotoModule2({
   const draw = () => {
     raycastCtx.clearRect(0, 0, canvasWidth, canvasHeight);
     draw2();
-
-    if (raycastingPhoto.trigger) {
-      raycastingPhoto.trigger = false;
-      raycastingPhoto.photo = raycastCtx.getImageData(
-        0,
-        0,
-        screenSize.width,
-        screenSize.height
-      );
-      raycastingPhoto.cover = 100;
-    }
   };
 
   const draw2 = () => {
@@ -355,58 +353,59 @@ export default function RaycastingPhotoModule2({
     // FLOOR AND CEILING
     mode7();
 
-    const spriteExample = {
-      x: 2.5,
-      y: 2.5,
-      width: 0.25,
-    };
+    // const spriteExample = {
+    //   x: 2.5,
+    //   y: 2.5,
+    //   width: 0.25,
+    // };
 
-    // SPRITES ----------------------------------------
-    // angle between player and sprite
-    var angleRadians = Math.atan2(
-      spriteExample.y - player.y,
-      spriteExample.x - player.x
-    );
+    // // SPRITES ----------------------------------------
+    // // angle between player and sprite
+    // var angleRadians = Math.atan2(
+    //   spriteExample.y - player.y,
+    //   spriteExample.x - player.x
+    // );
 
-    // angle difference
-    let angleDiff =
-      ((player.rot - angleRadians + twoPI / 2) % twoPI) - twoPI / 2;
-    angleDiff = angleDiff < -twoPI / 2 ? angleDiff + twoPI : angleDiff;
+    // // angle difference
+    // let angleDiff =
+    //   ((player.rot - angleRadians + twoPI / 2) % twoPI) - twoPI / 2;
+    // angleDiff = angleDiff < -twoPI / 2 ? angleDiff + twoPI : angleDiff;
 
-    // sprite distance
-    // fix the corners problem ( the distance is measured from the center of the sprite )
-    let spriteDist = Math.sqrt(
-      (spriteExample.y - player.y) * (spriteExample.y - player.y) +
-        (spriteExample.x - player.x) * (spriteExample.x - player.x)
-    );
+    // // sprite distance
+    // // fix the corners problem ( the distance is measured from the center of the sprite )
+    // let spriteDist = Math.sqrt(
+    //   (spriteExample.y - player.y) * (spriteExample.y - player.y) +
+    //     (spriteExample.x - player.x) * (spriteExample.x - player.x)
+    // );
 
-    // inserting sprite in zBuffer
-    // spriteDist != zBuffer dist (hands in fps game inside walls remember)
-    // todo: 0.5 maybe be too close dunno <<<
-    let _zBuffer = [
-      ...zBuffer,
-      { type: "sprite", i: -1, dist: spriteDist - 0.5 },
-    ];
-    _zBuffer.sort((a, b) => b.dist - a.dist);
+    // // inserting sprite in zBuffer
+    // // spriteDist != zBuffer dist (hands in fps game inside walls remember)
+    // // todo: 0.5 maybe be too close dunno <<<
+    // let _zBuffer = [
+    //   ...zBuffer,
+    //   { type: "sprite", i: -1, dist: spriteDist - 0.5 },
+    // ];
+    // _zBuffer.sort((a, b) => b.dist - a.dist);
 
-    //console.log(spriteDist);
-    // SPRITES (END)----------------------------------------
+    // //console.log(spriteDist);
+    // // SPRITES (END)----------------------------------------
 
     // DRAWING THE TEXTURES -----
     // screen strips
 
     // let auxMeme = Math.min(frameCount * 2, _zBuffer.length);
-    let auxMeme = _zBuffer.length;
+    // let auxMeme = _zBuffer.length;
+    let auxMeme = zBuffer.length;
     // let auxMeme = 0;
 
     for (let i = 0; i < auxMeme; i++) {
       // DRAWING THE TEXTURES
       // TODO: use texture pixel colors
-      if (_zBuffer[i].type == "wall") {
+      if (zBuffer[i].type == "wall") {
         raycastCtx.drawImage(
           greystoneWall, // source image
 
-          ~~(texSize * _screenStrips[_zBuffer[i].i].texX), // The x coordinate where to start clipping
+          ~~(texSize * _screenStrips[zBuffer[i].i].texX), // The x coordinate where to start clipping
 
           0, // The y coordinate where to start clipping
 
@@ -414,26 +413,26 @@ export default function RaycastingPhotoModule2({
 
           texSize, // The height of the clipped image
 
-          _zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
+          zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-          canvasHeight / 2 - _screenStrips[_zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+          canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
 
           stripWidth, // The width of the image to use (stretch or reduce the image)
 
-          _screenStrips[_zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
+          _screenStrips[zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
         );
 
         // different colors for x and y walls
-        if (_screenStrips[_zBuffer[i].i].color == "grey") {
+        if (_screenStrips[zBuffer[i].i].color == "darkgray") {
           raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
           raycastCtx.fillRect(
-            _zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
+            zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-            canvasHeight / 2 - _screenStrips[_zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
 
             stripWidth, // The width of the image to use (stretch or reduce the image)
 
-            _screenStrips[_zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
+            _screenStrips[zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
           );
         }
       }
@@ -442,24 +441,34 @@ export default function RaycastingPhotoModule2({
       // if angle difference is less than half the fov plus a little extra because
       // the calculation is based on the center of the sprite
       // todo: (actually, fix this to get the border of the sprite) <<<
-      else if (Math.abs(angleDiff) < fovHalf + Math.PI / 12) {
-        raycastCtx.fillStyle = "red";
+      //   else if (Math.abs(angleDiff) < fovHalf + Math.PI / 12) {
+      //     raycastCtx.fillStyle = "red";
 
-        const offsetXAux = (angleDiff / fov) * 2;
+      //     const offsetXAux = (angleDiff / fov) * 2;
 
-        // size = 0.5
-        let sizeAux = Math.round((0.5 * viewDist) / spriteDist);
+      //     // size = 0.5
+      //     let sizeAux = Math.round((0.5 * viewDist) / spriteDist);
 
-        raycastCtx.fillRect(
-          screenSize.width / 2 -
-            (screenSize.width / 2) * offsetXAux -
-            sizeAux / 2,
-          canvasHeight / 2 - sizeAux / 2,
-          sizeAux,
-          sizeAux
-        );
-      }
+      //     raycastCtx.fillRect(
+      //       screenSize.width / 2 -
+      //         (screenSize.width / 2) * offsetXAux -
+      //         sizeAux / 2,
+      //       canvasHeight / 2 - sizeAux / 2,
+      //       sizeAux,
+      //       sizeAux
+      //     );
+      //   }
     }
+  };
+
+  // ----- TAKING THE PICTURE -----
+
+  const takePhoto = () => {
+    draw();
+    raycastingPhoto.currentPhoto =
+      raycastingPhoto.photos.push(
+        raycastCtx.getImageData(0, 0, screenSize.width, screenSize.height)
+      ) - 1;
   };
 
   // ----- USE EFFECT -----
@@ -483,7 +492,18 @@ export default function RaycastingPhotoModule2({
       floorData = tempCtx?.getImageData(0, 0, texSize, texSize)!;
 
       setLoadingState(false);
-      // draw();
+
+      if (raycastingPhoto.trigger == true) {
+        takePhoto();
+        raycastingPhoto.trigger = false;
+      }
+
+      if (raycastingPhoto.photos.length > 0)
+        raycastCtx.putImageData(
+          raycastingPhoto.photos[raycastingPhoto.currentPhoto],
+          0,
+          0
+        );
     };
 
     mode7Image = raycastCtx.createImageData(
@@ -497,7 +517,7 @@ export default function RaycastingPhotoModule2({
     initScreen();
 
     console.log("RaycastingPhotoModule2");
-  }, []);
+  }, [raycastingPhoto.trigger, raycastingPhoto.currentPhoto]);
 
   // ----- HTML -----
 
