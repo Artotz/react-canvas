@@ -6,6 +6,7 @@ import {
 } from "../../utils/GameVariables";
 import { checkCommands, commands } from "./CLICommands";
 import { LoremIpsum } from "./LoremIpsum";
+import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
 
 export type CommandLineType = {
   command: string;
@@ -35,7 +36,13 @@ export const addCommand = (_command: string): boolean => {
 
 export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
-  var delay = 100;
+
+  // @UPGRADE
+  var delay =
+    getCurrentUpgrade(Categories.CLIModule, "Text Delay") == 0
+      ? 50
+      : getCurrentUpgrade(Categories.CLIModule, "Text Delay");
+
   const userShellText =
     "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
   var historyIndex = 0;
@@ -87,6 +94,11 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
     switch (e.key.toLowerCase()) {
       case "arrowup":
         e.preventDefault();
+
+        // @UPGRADE
+        if (getCurrentUpgrade(Categories.CLIModule, "Command History") == 0)
+          break;
+
         let input1 = document.getElementById("input")! as HTMLInputElement;
 
         let aux1 = [""];
@@ -94,7 +106,15 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
           if (v.command != "") aux1.push(v.command);
         });
 
-        historyIndex += historyIndex < aux1.length - 1 ? 1 : 0;
+        // @UPGRADE
+        historyIndex +=
+          historyIndex <
+          Math.min(
+            aux1.length - 1,
+            getCurrentUpgrade(Categories.CLIModule, "Command History")
+          )
+            ? 1
+            : 0;
 
         input1.value = aux1[historyIndex];
 
@@ -102,6 +122,11 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
 
       case "arrowdown":
         e.preventDefault();
+
+        // @UPGRADE
+        if (getCurrentUpgrade(Categories.CLIModule, "Command History") == 0)
+          break;
+
         let input2 = document.getElementById("input")! as HTMLInputElement;
 
         let aux2 = [""];
@@ -117,6 +142,11 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
 
       case "tab":
         e.preventDefault();
+
+        // @UPGRADE
+        if (getCurrentUpgrade(Categories.CLIModule, "Auto Complete") == 0)
+          break;
+
         let input3 = document.getElementById("input")! as HTMLInputElement;
 
         let cutAux = input3.value.split(" ");

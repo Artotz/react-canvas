@@ -3,7 +3,7 @@ import { useEffect } from "react";
 export const useMouse = (
   handleMouseDown: (e: Event) => void,
   handleMouseUp: (e: Event) => void,
-  handleMouseMove: (e: Event) => void,
+  handleMouseMove: (e: Event) => void
 ) => {
   useEffect(() => {
     window.addEventListener("mousedown", handleMouseDown);
@@ -15,5 +15,5 @@ export const useMouse = (
       window.removeEventListener("mouseup", handleMouseUp);
       window.removeEventListener("mousemove", handleMouseMove);
     };
-  }, [handleMouseDown, handleMouseUp, handleMouseMove]);
+  }, []);
 };
