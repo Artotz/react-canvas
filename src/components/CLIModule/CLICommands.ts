@@ -1,6 +1,7 @@
 import {
   mapsArray,
   miniMap,
+  missionPhase,
   moving,
   player,
   rayCastingVideo,
@@ -8,13 +9,13 @@ import {
   setMaxRayCastingVideo,
   setMoving,
 } from "../../utils/GameVariables";
+import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
 import { addSudoCommand } from "./CLIModule";
-
-const totalSteps = 50 / 5;
 
 type Command = {
   title: string;
   options: string[];
+  missionPhaseOnly: boolean;
   functionCall: (options: string[]) => string;
 };
 
@@ -27,6 +28,11 @@ export const checkCommands = (cmd: string) => {
 
   for (let i = 0; i < commands.length; i++) {
     if (_cmd[0] == commands[i].title) {
+      if (commands[i].missionPhaseOnly && !missionPhase) {
+        commandReturn = ". . . . .\nNo response.";
+        break;
+      }
+
       let _options = _cmd.slice(1);
       if (_options.length == 0) _options.push("");
 
@@ -47,6 +53,13 @@ export const checkCommands = (cmd: string) => {
 };
 
 const moveFunction = (options: string[]) => {
+  if (
+    getCurrentUpgrade(Categories.CLIModule, "Move Function") == 0 &&
+    options[0] == ""
+  ) {
+    return "move command error!";
+  }
+
   if (moving) return "Already moving!";
 
   setMoving(true);
@@ -74,7 +87,11 @@ const moveFunction = (options: string[]) => {
 
   //console.log(options);
 
-  moveTimeoutFunction(totalSteps, fixedDir, options[0] == "backward" ? -1 : 1);
+  moveTimeoutFunction(
+    getCurrentUpgrade(Categories.Player, "Move Speed"),
+    fixedDir,
+    options[0] == "backward" ? -1 : 1
+  );
 
   return "Moving . . .";
 };
@@ -85,8 +102,12 @@ const moveTimeoutFunction = (
   sign: number
 ) => {
   let newPos = {
-    x: player.x + (sign * dir.x) / totalSteps,
-    y: player.y + (sign * dir.y) / totalSteps,
+    x:
+      player.x +
+      (sign * dir.x) / getCurrentUpgrade(Categories.Player, "Move Speed"),
+    y:
+      player.y +
+      (sign * dir.y) / getCurrentUpgrade(Categories.Player, "Move Speed"),
   };
 
   // illegal move one step ahead
@@ -98,9 +119,16 @@ const moveTimeoutFunction = (
   ) {
     // You were wrong. Go back.
     player.hp -= 10;
-    addSudoCommand({ command: "", text: "Damage detected!" });
+    if (getCurrentUpgrade(Categories.Player, "Damage Detection") > 0)
+      addSudoCommand({ command: "", text: "Damage detected!" });
 
-    setTimeout(moveTimeoutFunction, 50, totalSteps / 2 - 1, dir, -sign);
+    setTimeout(
+      moveTimeoutFunction,
+      50,
+      getCurrentUpgrade(Categories.Player, "Move Speed") / 2 - 1,
+      dir,
+      -sign
+    );
   }
   //legal move
   else {
@@ -124,7 +152,8 @@ const moveTimeoutFunction = (
         ][~~newPos.x] == -1
       ) {
         player.hp -= 10;
-        addSudoCommand({ command: "", text: "Damage detected!" });
+        if (getCurrentUpgrade(Categories.Player, "Damage Detection") > 1)
+          addSudoCommand({ command: "", text: "Damage detected!" });
       }
 
       console.log("x: ", player.x, "y: ", player.y);
@@ -135,17 +164,28 @@ const moveTimeoutFunction = (
 };
 
 const turnFunction = (options: string[]) => {
+  if (
+    getCurrentUpgrade(Categories.CLIModule, "Turn Function") == 0 &&
+    options[0] == ""
+  ) {
+    return "turn command error!";
+  }
+
   if (moving) return "Already moving!";
 
   setMoving(true);
 
-  turnTimeoutFunction(totalSteps, options[0] == "left" ? -1 : 1);
+  turnTimeoutFunction(
+    getCurrentUpgrade(Categories.Player, "Turn Speed"),
+    options[0] == "left" ? -1 : 1
+  );
 
   return "Turning . . .";
 };
 
 const turnTimeoutFunction = (step: number, dir: number) => {
-  player.rot += (dir * Math.PI) / 2 / totalSteps;
+  player.rot +=
+    (dir * Math.PI) / 2 / getCurrentUpgrade(Categories.Player, "Turn Speed");
 
   if (step > 1) {
     setTimeout(turnTimeoutFunction, 50, step - 1, dir);
@@ -160,16 +200,19 @@ export const commands: Command[] = [
   {
     title: "move",
     options: ["", "foward", "backward"],
+    missionPhaseOnly: true,
     functionCall: moveFunction,
   },
   {
     title: "turn",
     options: ["", "left", "right"],
+    missionPhaseOnly: true,
     functionCall: turnFunction,
   },
   {
     title: "durability",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       return "Durability: " + player.hp.toFixed(2);
     },
@@ -177,6 +220,7 @@ export const commands: Command[] = [
   {
     title: "fuel",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       return "Fuel: " + player.fuel.toFixed(2);
     },
@@ -184,6 +228,7 @@ export const commands: Command[] = [
   {
     title: "scan",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       // let radarPos = {
       //   x: ~~(player.x + Math.cos(player.rot) * 1),
@@ -219,6 +264,7 @@ export const commands: Command[] = [
   {
     title: "position",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       miniMap.showingPosition = 500;
 
@@ -228,6 +274,7 @@ export const commands: Command[] = [
   {
     title: "video",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       setMaxRayCastingVideo();
 
@@ -237,6 +284,7 @@ export const commands: Command[] = [
   {
     title: "capture",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       if (rayCastingVideo > 0) {
         raycastingPhoto.trigger = true;
@@ -248,6 +296,7 @@ export const commands: Command[] = [
   {
     title: "photo",
     options: [""],
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       raycastingPhoto.currentPhoto =
         raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
@@ -260,6 +309,7 @@ export const commands: Command[] = [
   {
     title: "abort",
     options: [""],
+    missionPhaseOnly: false,
     functionCall: (options: string[]) => {
       return "Aborting . . .";
     },
@@ -267,6 +317,7 @@ export const commands: Command[] = [
   {
     title: "help",
     options: [""],
+    missionPhaseOnly: false,
     functionCall: (options: string[]) => {
       let _cmdsHelp = "";
       for (let i = 0; i < commands.length; i++) {

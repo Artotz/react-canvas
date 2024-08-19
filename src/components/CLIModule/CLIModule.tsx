@@ -38,10 +38,7 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
 
   // @UPGRADE
-  var delay =
-    getCurrentUpgrade(Categories.CLIModule, "Text Delay") == 0
-      ? 50
-      : getCurrentUpgrade(Categories.CLIModule, "Text Delay");
+  var delay = getCurrentUpgrade(Categories.CLIModule, "Text Delay");
 
   const userShellText =
     "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
@@ -189,7 +186,7 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
   };
 
   useEffect(() => {
-    console.log("CLIModule");
+    // console.log("CLIModule");
 
     if (focused) document.addEventListener("keydown", bindingsKeyDown);
     return () => {

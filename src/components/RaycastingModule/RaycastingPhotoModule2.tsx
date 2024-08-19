@@ -516,7 +516,7 @@ export default function RaycastingPhotoModule2({
     // initializing the screen strips
     initScreen();
 
-    console.log("RaycastingPhotoModule2");
+    // console.log("RaycastingPhotoModule2");
   }, [raycastingPhoto.trigger, raycastingPhoto.currentPhoto]);
 
   // ----- HTML -----

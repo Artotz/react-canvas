@@ -575,7 +575,7 @@ export default function RaycastingModule2({
     then = window.performance.now();
     startTime = then;
 
-    console.log("RaycastingModule2");
+    // console.log("RaycastingModule2");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);

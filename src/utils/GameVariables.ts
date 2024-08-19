@@ -108,7 +108,13 @@ export const raycastingPhoto = {
   photos: Array<ImageData>(0),
 };
 
+// ------------------------------
+
 // ----- State for Score (?) -----
+export var missionPhase = true;
+export const setMissionPhase = (value: boolean) => {
+  missionPhase = value;
+};
 export const mission = { result: "" };
 
 // ----- Money duh -----
@@ -119,6 +125,8 @@ export const addMoney = (amount: number) => {
 
 // ----- Map Management -----
 export const resetMap = () => {
+  setMissionPhase(true);
+
   mapsArray.mapsHeight = mapsArray.missionMap.length;
   mapsArray.mapsWidth = mapsArray.missionMap[0].length;
 

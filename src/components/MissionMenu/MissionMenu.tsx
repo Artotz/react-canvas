@@ -9,6 +9,7 @@ import {
   unlockedMaps,
   miniMap,
   raycastingPhoto,
+  setMissionPhase,
 } from "../../utils/GameVariables";
 import CLIModule, { addSudoCommand } from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
@@ -98,6 +99,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
   //KEYBINDING HOOK
   // useKeybindings();
 
+  //TODO: FIX TO DELTA TIME
   const move = () => {
     // // Player will move this far along
     // // the current direction vector
@@ -156,7 +158,10 @@ export default function MissionMenu({ quitMission = () => {} }) {
     if (!gameOver) move();
   };
 
+  //TODO: FIX THIS
   const endGame = () => {
+    setMissionPhase(false);
+
     let commandsUsed = 0;
     commandHistory.map((v) => {
       if (v.command != "") commandsUsed++;
@@ -206,11 +211,12 @@ This mission final result was registered as a ${
     then = window.performance.now();
     startTime = then;
 
-    console.log("MissionMenu");
+    // console.log("MissionMenu");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
 
+      //TODO: ADJUST TO DELTA TIME
       // game logic
       // move();
 

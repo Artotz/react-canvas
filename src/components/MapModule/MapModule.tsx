@@ -6,6 +6,7 @@ import {
   player,
   raycastingRays,
 } from "../../utils/GameVariables";
+import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
 
 export type MapModuleProps = {
   width?: number;
@@ -111,38 +112,44 @@ export default function MapModule({
     objectCtx.fill();
 
     // player rotation
-    objectCtx.strokeStyle = "red";
-    objectCtx.beginPath();
-    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
-    objectCtx.lineTo(
-      (player.x + Math.cos(player.rot)) * miniMap.scale,
-      (player.y + Math.sin(player.rot)) * miniMap.scale
-    );
-    objectCtx.closePath();
-    objectCtx.stroke();
+    //@UPGRADE
+    if (getCurrentUpgrade(Categories.MapModule, "Player Direction") > 0) {
+      objectCtx.strokeStyle = "red";
+      objectCtx.beginPath();
+      objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+      objectCtx.lineTo(
+        (player.x + Math.cos(player.rot)) * miniMap.scale,
+        (player.y + Math.sin(player.rot)) * miniMap.scale
+      );
+      objectCtx.closePath();
+      objectCtx.stroke();
+      if (getCurrentUpgrade(Categories.MapModule, "Player Direction") == 1) {
+        objectCtx.beginPath();
+        objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+        objectCtx.lineTo(
+          (player.x + Math.cos(player.rot - Math.PI / 4)) * miniMap.scale,
+          (player.y + Math.sin(player.rot - Math.PI / 4)) * miniMap.scale
+        );
+        objectCtx.closePath();
+        objectCtx.stroke();
 
-    objectCtx.beginPath();
-    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
-    objectCtx.lineTo(
-      (player.x + Math.cos(player.rot - Math.PI / 4)) * miniMap.scale,
-      (player.y + Math.sin(player.rot - Math.PI / 4)) * miniMap.scale
-    );
-    objectCtx.closePath();
-    objectCtx.stroke();
-
-    objectCtx.beginPath();
-    objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
-    objectCtx.lineTo(
-      (player.x + Math.cos(player.rot + Math.PI / 4)) * miniMap.scale,
-      (player.y + Math.sin(player.rot + Math.PI / 4)) * miniMap.scale
-    );
-    objectCtx.closePath();
-    objectCtx.stroke();
+        objectCtx.beginPath();
+        objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+        objectCtx.lineTo(
+          (player.x + Math.cos(player.rot + Math.PI / 4)) * miniMap.scale,
+          (player.y + Math.sin(player.rot + Math.PI / 4)) * miniMap.scale
+        );
+        objectCtx.closePath();
+        objectCtx.stroke();
+      }
+    }
 
     // player position glow
     // arbitrary numbers watch out
-    if (miniMap.showingPosition > 0) {
-      objectCtx.fillStyle = "red";
+    //@UPGRADE
+    if (getCurrentUpgrade(Categories.MapModule, "Player Position") < Infinity) {
+      objectCtx.strokeStyle = "red";
+
       objectCtx.beginPath();
       objectCtx.arc(
         // draw a dot at the current player position
@@ -187,10 +194,10 @@ export default function MapModule({
       //   -player.y * miniMap.scale + mapCtx.canvas.height / 2;
       miniMap.drawingOffsetX = centerAux.x;
       miniMap.drawingOffsetY = centerAux.y;
-      if (miniMap.offsetX != 0 || miniMap.offsetY != 0) {
-        miniMap.offsetX = 0;
-        miniMap.offsetY = 0;
-      }
+      // if (miniMap.offsetX != 0 || miniMap.offsetY != 0) {
+      miniMap.offsetX = 0;
+      miniMap.offsetY = 0;
+      // }
     }
 
     mapCtx.translate(miniMap.drawingOffsetX, miniMap.drawingOffsetY);
@@ -244,7 +251,11 @@ export default function MapModule({
       //   y: Math.floor((e.nativeEvent.layerY - miniMap.offsetY) / miniMap.scale),
       // };
       // console.log(click);
-    } else if (e.button == 1) {
+      //@upgrade
+    } else if (
+      e.button == 1 &&
+      getCurrentUpgrade(Categories.MapModule, "Move Map") > 0
+    ) {
       setLastClick({
         x: e.clientX - miniMap.offsetX,
         y: e.clientY - miniMap.offsetY,
@@ -272,51 +283,50 @@ export default function MapModule({
       miniMap.offsetX = -lastClick.x + e.clientX;
       miniMap.offsetY = -lastClick.y + e.clientY;
     }
-
-    if (e.buttons == 1) {
-      let click = {
-        x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
-        ),
-        y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
-        ),
-      };
-      if (
-        click.x < mapsArray.mapsWidth &&
-        click.y < mapsArray.mapsHeight &&
-        click.x >= 0 &&
-        click.y >= 0
-      )
-        mapsArray.drawingMap[click.y][click.x] = mapsArray.drawingMap[click.y][
-          click.x
-        ] = 1;
-    } else if (e.buttons == 2) {
-      let click = {
-        x: Math.floor(
-          (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
-        ),
-        y: Math.floor(
-          (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
-        ),
-      };
-      if (
-        click.x < mapsArray.mapsWidth &&
-        click.y < mapsArray.mapsHeight &&
-        click.x >= 0 &&
-        click.y >= 0
-      )
-        mapsArray.drawingMap[click.y][click.x] = mapsArray.drawingMap[click.y][
-          click.x
-        ] = 0;
+    if (getCurrentUpgrade(Categories.MapModule, "Draw on Map") > 0) {
+      if (e.buttons == 1) {
+        let click = {
+          x: Math.floor(
+            (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
+          ),
+          y: Math.floor(
+            (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
+          ),
+        };
+        if (
+          click.x < mapsArray.mapsWidth &&
+          click.y < mapsArray.mapsHeight &&
+          click.x >= 0 &&
+          click.y >= 0
+        )
+          mapsArray.drawingMap[click.y][click.x] = 1;
+      } else if (e.buttons == 2) {
+        let click = {
+          x: Math.floor(
+            (e.nativeEvent.layerX - miniMap.drawingOffsetX) / miniMap.scale
+          ),
+          y: Math.floor(
+            (e.nativeEvent.layerY - miniMap.drawingOffsetY) / miniMap.scale
+          ),
+        };
+        if (
+          click.x < mapsArray.mapsWidth &&
+          click.y < mapsArray.mapsHeight &&
+          click.x >= 0 &&
+          click.y >= 0
+        )
+          mapsArray.drawingMap[click.y][click.x] = 0;
+      }
     }
   };
 
   const handleMouseWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    if (e.deltaY > 0) {
-      miniMap.scale += miniMap.scale == 30 ? 0 : 1;
-    } else if (e.deltaY < 0) {
-      miniMap.scale -= miniMap.scale == 5 ? 0 : 1;
+    if (getCurrentUpgrade(Categories.MapModule, "Map Zoom") > 0) {
+      if (e.deltaY > 0) {
+        miniMap.scale += miniMap.scale == 30 ? 0 : 1;
+      } else if (e.deltaY < 0) {
+        miniMap.scale -= miniMap.scale == 5 ? 0 : 1;
+      }
     }
   };
 
@@ -339,7 +349,7 @@ export default function MapModule({
     then = window.performance.now();
     startTime = then;
 
-    console.log("MapModule");
+    // console.log("MapModule");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);

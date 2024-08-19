@@ -12,7 +12,7 @@ export const StoreItems: StoreItemType[] = [
   // ---------- CLIMODULE ----------
   {
     id: 0,
-    category: "CLIMODULECLIMODULE",
+    category: "CLIMODULE",
     name: "Basic Movement",
     description: "",
     prerequisite: [],
@@ -225,14 +225,31 @@ bruh: for (let i = 0; i < StoreItems.length - 1; i++) {
 }
 
 export enum Categories {
+  Player,
   CLIModule,
+  MapModule,
 }
 
 export const getCurrentUpgrade = (
   upgradeCategory: Categories,
   upgradeName: string
 ): number => {
-  //console.log(upgradeCategory + " " + upgradeName);
+  if (
+    !(upgradeCategory == Categories.CLIModule && upgradeName == "Text Delay")
+  ) {
+    console.log(Categories[upgradeCategory] + " " + upgradeName);
+  }
+
+  if (
+    upgradeCategory == Categories.Player &&
+    (upgradeName == "Move Speed" || upgradeName == "Turn Speed")
+  ) {
+    return 10;
+  }
+
+  if (upgradeCategory == Categories.CLIModule && upgradeName == "Text Delay") {
+    return 50;
+  }
 
   return 0;
 };
