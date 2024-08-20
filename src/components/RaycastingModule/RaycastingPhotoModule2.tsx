@@ -533,6 +533,22 @@ export default function RaycastingPhotoModule2({
           backgroundColor: "black",
         }}
       >
+        <div
+          style={{
+            transform: "scale(" + scale + ")",
+            width: screenSize.width + 4,
+            height: screenSize.height + 4,
+            backgroundColor: "black",
+            left: width / 2 - screenSize.width / 2 - 2,
+            top: height / 2 - screenSize.height / 2 - 2,
+            position: "absolute",
+            // border: "2px solid red",
+          }}
+        >
+          <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
+            Loading . . .
+          </div>
+        </div>
         <canvas
           ref={canvasRef}
           style={{
@@ -549,16 +565,18 @@ export default function RaycastingPhotoModule2({
           <div
             style={{
               transform: "scale(" + scale + ")",
-              width: screenSize.width,
-              height: screenSize.height,
+              width: screenSize.width + 4,
+              height: screenSize.height + 4,
               backgroundColor: "black",
-              left: width / 2 - screenSize.width / 2,
-              top: height / 2 - screenSize.height / 2,
+              left: width / 2 - screenSize.width / 2 - 2,
+              top: height / 2 - screenSize.height / 2 - 2,
               position: "absolute",
               // border: "2px solid red",
             }}
           >
-            loading...
+            <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
+              Loading . . .
+            </div>
           </div>
         )}
       </div>

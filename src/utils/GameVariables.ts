@@ -124,6 +124,7 @@ export const addMoney = (amount: number) => {
 };
 
 // ----- Map Management -----
+// todo: fix this
 export const resetMap = () => {
   setMissionPhase(true);
 

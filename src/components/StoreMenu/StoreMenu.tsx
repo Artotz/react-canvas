@@ -30,7 +30,9 @@ export default function StoreMenu() {
                   return (
                     <div
                       key={i2}
-                      className={`flex w-4 h-4 border-solid border-2 border-green-500 ${i2 < v.acquired ? "bg-green-500" : "bg-black"}`}
+                      className={`flex w-4 h-4 border-solid border-2 border-green-500 ${
+                        i2 < v.acquired ? "bg-green-500" : "bg-black"
+                      }`}
                     ></div>
                   );
                 })}
@@ -48,9 +50,11 @@ export default function StoreMenu() {
                     onClick={() => {
                       addMoney(-v.cost[v.acquired]);
 
-                      StoreItems[_tabItem.title as keyof typeof StoreItems][
-                        i
-                      ].acquired += 1;
+                      StoreItems.map((v) => {
+                        if (v.name == _tabItem.content[i].name) {
+                          v.acquired++;
+                        }
+                      });
 
                       setKeyState(Math.random());
                     }}
@@ -68,14 +72,22 @@ export default function StoreMenu() {
 
   useEffect(() => {
     let _tabs: React.JSX.Element[] = [];
-    for (let category in StoreItems) {
-      _tabs.push(
-        tabItem({
-          title: category,
-          content: StoreItems[category as keyof typeof StoreItems],
-        }),
-      );
+
+    let _array = {} as any;
+
+    StoreItems.map((v) => {
+      if (!_array.hasOwnProperty(v.category)) {
+        _array[v.category] = [];
+      }
+      _array[v.category].push(v);
+    });
+
+    console.log(_array);
+
+    for (let myProp in _array) {
+      _tabs.push(tabItem({ title: myProp, content: _array[myProp] }));
     }
+
     setTabs([..._tabs]);
   }, [keyState]);
 

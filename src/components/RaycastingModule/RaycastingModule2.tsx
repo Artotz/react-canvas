@@ -66,7 +66,8 @@ export default function RaycastingModule2({
   const fov = (_fov * Math.PI) / 180;
 
   var _screenStrips: ScreenStrip[] = Array(numRays);
-  var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
+  var zBuffer: { type: string; i: number; dist: number; trueDist: number }[] =
+    Array(numRays);
 
   const stripWidth = screenSize.width / numRays;
   const fovHalf = fov / 2;
@@ -85,6 +86,8 @@ export default function RaycastingModule2({
     elapsed: number;
 
   var fps = 0;
+
+  const lightsOff = true;
 
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
@@ -250,7 +253,7 @@ export default function RaycastingModule2({
 
       // use perpendicular distance to adjust for fish eye
       // distorted_dist = correct_dist / cos(relative_angle_of_ray)
-
+      let trueDist = dist;
       dist = dist * Math.cos(player.rot - rayAngle);
 
       // now calc the position, height and width of the wall strip
@@ -273,7 +276,12 @@ export default function RaycastingModule2({
       strip.value = value;
 
       // todo: optimization ?
-      zBuffer[stripIdx] = { type: "wall", i: stripIdx, dist: dist };
+      zBuffer[stripIdx] = {
+        type: "wall",
+        i: stripIdx,
+        dist: dist,
+        trueDist: trueDist,
+      };
     }
   };
 
@@ -323,7 +331,12 @@ export default function RaycastingModule2({
         // (amazing breakthrough: meme and meme2 are the x and y coords for a tileset)
 
         // flashlight effect is composed of a Z-Index darkening combined with an edges of X darkening
-        // let flashlightEffect = -1.5 *255 *(1 -Math.abs(z)/(screenSize.height/2)) - 0.75 * 255 * Math.abs(x-screenSize.width/2)/(screenSize.width/2);
+
+        let zLight = 1.75 * -255 * (1 - Math.abs(z) / (screenSize.height / 2));
+        let xLight =
+          255 * -(1 - Math.abs(Math.sin((x / screenSize.width) * Math.PI)));
+
+        let flashlightEffect = lightsOff ? zLight + xLight : 0;
 
         // if (y < screenSize.height / 2) {
         //   // r
@@ -342,13 +355,13 @@ export default function RaycastingModule2({
         // } else {
         // r
         mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-          floorData.data[_x * 4 + _y * texSize * 4];
+          floorData.data[_x * 4 + _y * texSize * 4] + flashlightEffect;
         // g
         mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 1];
+          floorData.data[_x * 4 + _y * texSize * 4 + 1] + flashlightEffect;
         // b
         mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 2];
+          floorData.data[_x * 4 + _y * texSize * 4 + 2] + flashlightEffect;
         // a
         mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
       }
@@ -457,17 +470,33 @@ export default function RaycastingModule2({
           _screenStrips[zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
         );
 
+        // flashlight effect
+        // todo: sync this with flashlight from mode7
+        if (lightsOff) {
+          // arbitrary number below xd
+          raycastCtx.fillStyle = "rgba(0,0,0," + zBuffer[i].trueDist / 2 + ")";
+          raycastCtx.fillRect(
+            zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
+
+            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
+
+            stripWidth, // The width of the image to use (stretch or reduce the image)
+
+            _screenStrips[zBuffer[i].i].height + 2 // The height of the image to use (stretch or reduce the image)
+          );
+        }
+
         // different colors for x and y walls
-        if (_screenStrips[zBuffer[i].i].color == "darkgray") {
+        else if (_screenStrips[zBuffer[i].i].color == "darkgray") {
           raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
           raycastCtx.fillRect(
             zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
 
             stripWidth, // The width of the image to use (stretch or reduce the image)
 
-            _screenStrips[zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
+            _screenStrips[zBuffer[i].i].height + 2 // The height of the image to use (stretch or reduce the image)
           );
         }
       }
@@ -627,6 +656,22 @@ export default function RaycastingModule2({
           backgroundColor: "black",
         }}
       >
+        <div
+          style={{
+            transform: "scale(" + scale + ")",
+            width: screenSize.width + 4,
+            height: screenSize.height + 4,
+            backgroundColor: "black",
+            left: width / 2 - screenSize.width / 2 - 2,
+            top: height / 2 - screenSize.height / 2 - 2,
+            position: "absolute",
+            // border: "2px solid red",
+          }}
+        >
+          <div className="flex full-size full-center text-[4px] font-mono text-green-500 animate-pulse">
+            Loading . . .
+          </div>
+        </div>
         <canvas
           ref={canvasRef}
           style={{
@@ -643,16 +688,18 @@ export default function RaycastingModule2({
           <div
             style={{
               transform: "scale(" + scale + ")",
-              width: screenSize.width,
-              height: screenSize.height,
+              width: screenSize.width + 4,
+              height: screenSize.height + 4,
               backgroundColor: "black",
-              left: width / 2 - screenSize.width / 2,
-              top: height / 2 - screenSize.height / 2,
+              left: width / 2 - screenSize.width / 2 - 2,
+              top: height / 2 - screenSize.height / 2 - 2,
               position: "absolute",
               // border: "2px solid red",
             }}
           >
-            loading...
+            <div className="flex full-size full-center text-[4px] font-mono text-green-500 animate-pulse">
+              Loading . . .
+            </div>
           </div>
         )}
       </div>

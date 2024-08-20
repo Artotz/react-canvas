@@ -38,7 +38,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
     height: 0,
   });
 
-  const raycastResolution1 = { width: 200 / 2, height: 100 / 2 },
+  const raycastResolution1 = { width: 400, height: 200 },
     raycastResolution2 = { width: 400, height: 200 };
 
   const [colors, setColors] = useState<string[]>([
@@ -288,7 +288,7 @@ This mission final result was registered as a ${
                 height={bigWindowSize.height}
                 canvasWidth={raycastResolution1.width}
                 canvasHeight={raycastResolution1.height}
-                _targetFps={5}
+                _targetFps={30}
                 focused={true}
               />
             ) : (
@@ -341,7 +341,7 @@ This mission final result was registered as a ${
                     height={smallWindowSize.height}
                     canvasWidth={raycastResolution1.width}
                     canvasHeight={raycastResolution1.height}
-                    _targetFps={5}
+                    _targetFps={30}
                     focused={false}
                   />
                 ) : (

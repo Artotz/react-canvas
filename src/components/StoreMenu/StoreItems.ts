@@ -10,28 +10,110 @@ export type StoreItemType = {
 
 export const StoreItems: StoreItemType[] = [
   // ---------- CLIMODULE ----------
+
   {
     id: 0,
     category: "CLIMODULE",
-    name: "Basic Movement",
+    name: "move Command",
+    description: "",
+    prerequisite: [],
+    cost: [0],
+    acquired: 1,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "turn Command",
+    description: "",
+    prerequisite: [],
+    cost: [0],
+    acquired: 1,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "integrity Command",
     description: "",
     prerequisite: [],
     cost: [100],
     acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "fuel Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "scan Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "position Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "video Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "capture Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "gallery Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "abort Command",
+    description: "",
+    prerequisite: [],
+    cost: [0],
+    acquired: 1,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
+    name: "help Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    acquired: 1,
   },
   {
     id: 0,
     category: "CLIMODULE",
     name: "Auto Complete",
-    description: "",
-    prerequisite: [],
-    cost: [100],
-    acquired: 0,
-  },
-  {
-    id: 0,
-    category: "CLIMODULE",
-    name: "Help Command",
     description: "",
     prerequisite: [],
     cost: [100],
@@ -249,6 +331,13 @@ export const getCurrentUpgrade = (
 
   if (upgradeCategory == Categories.CLIModule && upgradeName == "Text Delay") {
     return 50;
+  }
+
+  if (
+    upgradeCategory == Categories.CLIModule &&
+    upgradeName.endsWith("Command")
+  ) {
+    return StoreItems.find((item) => item.name == upgradeName)?.acquired ?? 0;
   }
 
   return 0;

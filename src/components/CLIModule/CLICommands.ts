@@ -31,6 +31,15 @@ export const checkCommands = (cmd: string) => {
       if (commands[i].missionPhaseOnly && !missionPhase) {
         commandReturn = ". . . . .\nNo response.";
         break;
+      } else if (
+        getCurrentUpgrade(
+          Categories.CLIModule,
+          commands[i].title + " Command"
+        ) == 0
+      ) {
+        // commandReturn = ". . . . .\nNo response.";
+        console.log("command not unlocked");
+        break;
       }
 
       let _options = _cmd.slice(1);
@@ -54,7 +63,8 @@ export const checkCommands = (cmd: string) => {
 
 const moveFunction = (options: string[]) => {
   if (
-    getCurrentUpgrade(Categories.CLIModule, "Move Function") == 0 &&
+    getCurrentUpgrade(Categories.CLIModule, "move Command Default Option") ==
+      0 &&
     options[0] == ""
   ) {
     return "move command error!";
@@ -165,7 +175,8 @@ const moveTimeoutFunction = (
 
 const turnFunction = (options: string[]) => {
   if (
-    getCurrentUpgrade(Categories.CLIModule, "Turn Function") == 0 &&
+    getCurrentUpgrade(Categories.CLIModule, "Turn Command Default Option") ==
+      0 &&
     options[0] == ""
   ) {
     return "turn command error!";
@@ -210,11 +221,11 @@ export const commands: Command[] = [
     functionCall: turnFunction,
   },
   {
-    title: "durability",
+    title: "integrity",
     options: [""],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
-      return "Durability: " + player.hp.toFixed(2);
+      return "Integrity: " + player.hp.toFixed(2);
     },
   },
   {
@@ -286,22 +297,26 @@ export const commands: Command[] = [
     options: [""],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
-      if (rayCastingVideo > 0) {
-        raycastingPhoto.trigger = true;
+      raycastingPhoto.trigger = true;
 
-        return "Capturing image . . .";
-      } else return "Camera is toggled off!";
+      return "Capturing image . . .";
     },
   },
   {
-    title: "photo",
-    options: [""],
+    title: "gallery",
+    options: ["previous", "next"],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
-      raycastingPhoto.currentPhoto =
-        raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
-          ? raycastingPhoto.currentPhoto + 1
-          : 0;
+      if (options[0] == "previous")
+        raycastingPhoto.currentPhoto =
+          raycastingPhoto.currentPhoto > 0
+            ? raycastingPhoto.currentPhoto - 1
+            : raycastingPhoto.photos.length - 1;
+      else if (options[0] == "next")
+        raycastingPhoto.currentPhoto =
+          raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
+            ? raycastingPhoto.currentPhoto + 1
+            : 0;
 
       return "Changing photo . . .";
     },
@@ -321,7 +336,15 @@ export const commands: Command[] = [
     functionCall: (options: string[]) => {
       let _cmdsHelp = "";
       for (let i = 0; i < commands.length; i++) {
-        _cmdsHelp += commands[i].title + (i < commands.length - 1 ? "\n" : "");
+        if (
+          getCurrentUpgrade(
+            Categories.CLIModule,
+            commands[i].title + " Command"
+          ) > 0
+        ) {
+          _cmdsHelp +=
+            commands[i].title + (i < commands.length - 1 ? "\n" : "");
+        }
       }
       return _cmdsHelp;
     },
