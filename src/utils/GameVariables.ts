@@ -88,22 +88,29 @@ export const miniMap = {
   drawingOffsetY: 0,
   scale: 15,
   showingPosition: 0,
+  maxShowingPosition: 1000,
+};
+
+export const setMaxShowingPosition = () => {
+  miniMap.showingPosition = miniMap.maxShowingPosition;
 };
 
 // ----- State for RaycastingModule -----
 
-export var rayCastingVideo = 100;
+export var rayCastingVideo = 10000;
+export var maxRayCastingVideo = 10000;
 export const decreaseRayCastingVideo = () => {
-  rayCastingVideo -= rayCastingVideo > 0 ? 0 : 0;
+  rayCastingVideo -= rayCastingVideo > 0 ? 1 : 0;
 };
 export const setMaxRayCastingVideo = () => {
-  rayCastingVideo = 100;
+  rayCastingVideo = maxRayCastingVideo;
 };
 
 // ----- State for RaycastingPhotoModule -----
 
 export const raycastingPhoto = {
   trigger: false,
+  cover: 0,
   currentPhoto: 0,
   photos: Array<ImageData>(0),
 };
@@ -142,7 +149,7 @@ export const resetMap = () => {
     }
 
     let arr = Array<number>(mapsArray.mapsWidth);
-    arr.fill(0);
+    arr.fill(-999);
     mapsArray.viewingMap.push([...arr]);
     mapsArray.drawingMap.push([...arr]);
   }
@@ -211,12 +218,12 @@ const o = -1;
 export const someMaps = [
   [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, o, 1],
     [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 2, 0, 0, 0, 0, 0, 1],
-    [1, p, 0, 3, 0, 0, 0, 0, 0, 1],
-    [1, 0, 0, 4, 0, 0, 0, 1, 1, 1],
-    [1, 0, 0, 5, 0, 0, 0, 0, x, 1],
+    [1, 0, 0, 2, o, 0, o, 0, 0, 1],
+    [1, p, 0, 3, 0, 0, 0, o, 0, 1],
+    [1, 0, 0, 4, 0, o, 0, 1, 1, 1],
+    [1, 0, 0, 5, o, 0, 0, 0, x, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
   ],
   [

@@ -7,6 +7,7 @@ import {
   rayCastingVideo,
   raycastingPhoto,
   setMaxRayCastingVideo,
+  setMaxShowingPosition,
   setMoving,
 } from "../../utils/GameVariables";
 import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
@@ -66,6 +67,14 @@ const moveFunction = (options: string[]) => {
     getCurrentUpgrade(Categories.CLIModule, "move Command Default Option") ==
       0 &&
     options[0] == ""
+  ) {
+    return "move command error!";
+  }
+
+  if (
+    getCurrentUpgrade(Categories.CLIModule, "move Command backward Option") ==
+      0 &&
+    options[0] == "backward"
   ) {
     return "move command error!";
   }
@@ -249,6 +258,9 @@ export const commands: Command[] = [
       // mapsArray.viewingMap[radarPos.y][radarPos.x] =
       //   mapsArray.missionMap[radarPos.y][radarPos.x];
 
+      mapsArray.viewingMap[~~player.y][~~player.x] =
+        mapsArray.missionMap[~~player.y][~~player.x];
+
       // CROSS
       mapsArray.viewingMap[~~player.y - 1][~~player.x] =
         mapsArray.missionMap[~~player.y - 1][~~player.x];
@@ -277,7 +289,7 @@ export const commands: Command[] = [
     options: [""],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
-      miniMap.showingPosition = 500;
+      setMaxShowingPosition();
 
       return "Showing position . . .";
     },
@@ -297,26 +309,68 @@ export const commands: Command[] = [
     options: [""],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
+      if (raycastingPhoto.cover > 0) return "Processing image!";
+
       raycastingPhoto.trigger = true;
+      raycastingPhoto.cover = 100;
+
+      const bruh = () => {
+        raycastingPhoto.cover -= 10;
+        if (raycastingPhoto.cover > 0)
+          setTimeout(
+            bruh,
+            getCurrentUpgrade(
+              Categories.RaycastingPhotoModule,
+              "Photo Capture Delay"
+            )
+          );
+      };
+      bruh();
 
       return "Capturing image . . .";
     },
   },
   {
     title: "gallery",
-    options: ["previous", "next"],
+    options: ["previous", "next", "delete"],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
-      if (options[0] == "previous")
+      if (options[0] == "delete") {
+        // if (
+        //   getCurrentUpgrade(
+        //     Categories.CLIModule,
+        //     "gallery Command delete Option"
+        //   ) == 0
+        // )
+        //   return "gallery command error!";
+
+        if (raycastingPhoto.cover > 0) return "Processing image!";
+
+        raycastingPhoto.photos.splice(raycastingPhoto.currentPhoto, 1);
+        raycastingPhoto.currentPhoto = raycastingPhoto.currentPhoto - 1;
+
+        return "Deleting image . . .";
+      } else if (options[0] == "previous") {
+        if (
+          getCurrentUpgrade(
+            Categories.CLIModule,
+            "gallery Command previous Option"
+          ) == 0
+        )
+          return "gallery command error!";
+
+        if (raycastingPhoto.cover > 0) return "Processing image!";
+
         raycastingPhoto.currentPhoto =
           raycastingPhoto.currentPhoto > 0
             ? raycastingPhoto.currentPhoto - 1
             : raycastingPhoto.photos.length - 1;
-      else if (options[0] == "next")
-        raycastingPhoto.currentPhoto =
-          raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
-            ? raycastingPhoto.currentPhoto + 1
-            : 0;
+      } else if (options[0] == "next")
+        if (raycastingPhoto.cover > 0) return "Processing image!";
+      raycastingPhoto.currentPhoto =
+        raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
+          ? raycastingPhoto.currentPhoto + 1
+          : 0;
 
       return "Changing photo . . .";
     },

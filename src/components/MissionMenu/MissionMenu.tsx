@@ -38,15 +38,8 @@ export default function MissionMenu({ quitMission = () => {} }) {
     height: 0,
   });
 
-  const raycastResolution1 = { width: 400, height: 200 },
+  const raycastResolution1 = { width: 400 / 4, height: 200 / 4 },
     raycastResolution2 = { width: 400, height: 200 };
-
-  const [colors, setColors] = useState<string[]>([
-    "#5f5",
-    "#555",
-    "#55f",
-    "#ff5",
-  ]);
 
   var frameCount = 0;
   const [frameCountState, setFrameCountState] = useState(0);
@@ -135,7 +128,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
 
     // mapsArray.missionMap[4][3] = 2 * Math.sin(frameCount);
 
-    // player.fuel -= 0.025 * 100;
+    player.fuel -= 0.025;
     player.fuel = player.fuel < 0 ? 0 : player.fuel;
 
     miniMap.showingPosition -= miniMap.showingPosition > 0 ? 1 : 0;
@@ -172,7 +165,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
 
     for (var y = 0; y < mapsArray.mapsHeight; y++) {
       for (var x = 0; x < mapsArray.mapsWidth; x++) {
-        if (mapsArray.viewingMap[y][x] == 1) scannedWalls++;
+        if (mapsArray.viewingMap[y][x] > -999) scannedWalls++;
       }
     }
 
@@ -182,7 +175,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
 This mission came to it's end in ${frameCount} frames.
 You have ${((player.hp / player.maxHp) * 100).toFixed(2)}% hp left.
 You have ${((player.fuel / player.maxFuel) * 100).toFixed(2)}% fuel left.
-You scanned ${scannedWalls} wall${scannedWalls != 1 ? "s" : ""}.
+You scanned ${scannedWalls} tile${scannedWalls != 1 ? "s" : ""}.
 You took ${photosTaken} photo${photosTaken != 1 ? "s" : ""}.
 You used ${commandsUsed} command${commandsUsed != 1 ? "s" : ""}.
 
@@ -266,7 +259,7 @@ This mission final result was registered as a ${
       <div className="grid grid-rows-3 grid-cols-4 gap-2 full-size">
         <div
           ref={ref1}
-          className={`flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3 bg-[${colors[0]}]`}
+          className={`flex flex-col full-size full-center border-solid border-2 border-black row-span-4 col-span-3`}
         >
           {modules[0] == 0 && (
             <CLIModule focused={true} quitMission={quitMission} />
@@ -286,9 +279,6 @@ This mission final result was registered as a ${
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
-                canvasWidth={raycastResolution1.width}
-                canvasHeight={raycastResolution1.height}
-                _targetFps={30}
                 focused={true}
               />
             ) : (
@@ -299,8 +289,7 @@ This mission final result was registered as a ${
               <RaycastingPhotoModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
-                canvasWidth={raycastResolution2.width}
-                canvasHeight={raycastResolution2.height}
+                focused={true}
               />
             ) : (
               results()
@@ -312,9 +301,7 @@ This mission final result was registered as a ${
             <div
               key={i}
               ref={i == 0 ? ref2 : null}
-              className={`flex flex-col full-size full-center border-solid border-2 border-black bg-[${
-                colors[i + 1]
-              }]`}
+              className={`flex flex-col full-size full-center border-solid border-2 border-black`}
               onClick={() => {
                 let aux = modules[0];
                 modules[0] = modules[i + 1];
@@ -339,9 +326,6 @@ This mission final result was registered as a ${
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
-                    canvasWidth={raycastResolution1.width}
-                    canvasHeight={raycastResolution1.height}
-                    _targetFps={30}
                     focused={false}
                   />
                 ) : (
@@ -352,8 +336,7 @@ This mission final result was registered as a ${
                   <RaycastingPhotoModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
-                    canvasWidth={raycastResolution2.width}
-                    canvasHeight={raycastResolution2.height}
+                    focused={false}
                   />
                 ) : (
                   results()

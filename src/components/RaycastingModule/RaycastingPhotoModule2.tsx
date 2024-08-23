@@ -6,6 +6,8 @@ import {
   raycastingPhoto,
   twoPI,
 } from "../../utils/GameVariables";
+import { addCommand } from "../CLIModule/CLIModule";
+import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
 
 type RaycastingPhotoModule2Props = {
   width?: number;
@@ -13,6 +15,7 @@ type RaycastingPhotoModule2Props = {
   canvasWidth?: number;
   canvasHeight?: number;
   _fov?: number;
+  focused: boolean;
 };
 
 export type ScreenStrip = {
@@ -25,15 +28,14 @@ export type ScreenStrip = {
 export default function RaycastingPhotoModule2({
   width = 0,
   height = 0,
-  canvasWidth = 0,
-  canvasHeight = 0,
   _fov = 90,
+  focused = false,
 }: RaycastingPhotoModule2Props) {
   // ----- VARIABLES -----
-
   // ----- CANVAS -----
-
-  const screenSize = { width: canvasWidth, height: canvasHeight };
+  let res =
+    getCurrentUpgrade(Categories.RaycastingPhotoModule, "Photo Resolution") + 4;
+  const screenSize = { width: 100 * res, height: 75 * res };
   //const screenSize = { width: width, height: height };
 
   const canvasRef = createRef<HTMLCanvasElement>();
@@ -49,6 +51,7 @@ export default function RaycastingPhotoModule2({
   var mode7Image: ImageData;
 
   const [loadingState, setLoadingState] = useState(true);
+  const [coverState, setCoverState] = useState(true);
 
   // ----- FUN ZONE -----
 
@@ -56,7 +59,8 @@ export default function RaycastingPhotoModule2({
   const fov = (_fov * Math.PI) / 180;
 
   var _screenStrips: ScreenStrip[] = Array(numRays);
-  var zBuffer: { type: string; i: number; dist: number }[] = Array(numRays);
+  var zBuffer: { type: string; i: number; dist: number; trueDist: number }[] =
+    Array(numRays);
 
   const stripWidth = screenSize.width / numRays;
   const fovHalf = fov / 2;
@@ -64,6 +68,20 @@ export default function RaycastingPhotoModule2({
   const viewDist = screenSize.width / 2 / Math.tan(fovHalf);
 
   const wallHeight = 1;
+
+  const lightsOff = true;
+  const flashLightSettings = [
+    { z: Infinity, x: Infinity, walls: 0 },
+    { z: 3, x: 3, walls: 1.55 },
+    { z: 1.6, x: 1.25, walls: 2.25 },
+    { z: 1.45, x: 0.7, walls: 2.9 },
+    { z: 0, x: 0, walls: Infinity },
+  ];
+
+  // ----- UPGRADES -----
+
+  var currentFlashLightSettings: number;
+  var photoColor: number;
 
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
@@ -125,8 +143,8 @@ export default function RaycastingPhotoModule2({
     var angleCos = Math.cos(rayAngle);
 
     var dist = 0; // the distance to the block we hit
-    var xHit = 0; // the x and y coord of where the ray hit the block
-    var yHit = 0;
+    // var xHit = 0; // the x and y coord of where the ray hit the block
+    // var yHit = 0;
 
     var textureX = 0; // the x-coord on the texture of the block, ie. what part of the texture are we going to render
     var wallX: number; // the (x,y) map coords of the block
@@ -166,8 +184,8 @@ export default function RaycastingPhotoModule2({
         textureX = y % 1; // where exactly are we on the wall? textureX is the x coordinate on the texture that we'll use when texturing the wall.
         if (!right) textureX = 1 - textureX; // if we're looking to the left side of the map, the texture should be reversed
 
-        xHit = x; // save the coordinates of the hit. We only really use these to draw the rays on minimap.
-        yHit = y;
+        // xHit = x; // save the coordinates of the hit. We only really use these to draw the rays on minimap.
+        // yHit = y;
 
         color = "gray";
         value = mapsArray.missionMap[wallY][wallX];
@@ -202,8 +220,8 @@ export default function RaycastingPhotoModule2({
         var blockDist = distX * distX + distY * distY;
         if (!dist || blockDist < dist) {
           dist = blockDist;
-          xHit = x;
-          yHit = y;
+          // xHit = x;
+          // yHit = y;
           textureX = x % 1;
           if (up) textureX = 1 - textureX;
 
@@ -229,7 +247,7 @@ export default function RaycastingPhotoModule2({
 
       // use perpendicular distance to adjust for fish eye
       // distorted_dist = correct_dist / cos(relative_angle_of_ray)
-
+      let trueDist = dist;
       dist = dist * Math.cos(player.rot - rayAngle);
 
       // now calc the position, height and width of the wall strip
@@ -252,11 +270,16 @@ export default function RaycastingPhotoModule2({
       strip.value = value;
 
       // todo: optimization ?
-      zBuffer[stripIdx] = { type: "wall", i: stripIdx, dist: dist };
+      zBuffer[stripIdx] = {
+        type: "wall",
+        i: stripIdx,
+        dist: dist,
+        trueDist: trueDist,
+      };
     }
   };
 
-  // ----- FLOOR AND CEILING ( MODE 7 ) -----
+  // ----- FLOOR AND CEILING (MODE7) -----
 
   const mode7 = () => {
     let _x = 0,
@@ -302,48 +325,75 @@ export default function RaycastingPhotoModule2({
         // (amazing breakthrough: meme and meme2 are the x and y coords for a tileset)
 
         // flashlight effect is composed of a Z-Index darkening combined with an edges of X darkening
-        // let flashlightEffect = -1.5 *255 *(1 -Math.abs(z)/(screenSize.height/2)) - 0.75 * 255 * Math.abs(x-screenSize.width/2)/(screenSize.width/2);
 
-        // if (y < screenSize.height / 2) {
-        //   // r
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-        //     255 - floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
-        //   // g
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-        //     255 -
-        //     floorData.data[_x * 4 + _y * texSize * 4 + 1] -
-        //     (meme2 - 1) * 10;
-        //   // b
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-        //     255 - floorData.data[_x * 4 + _y * texSize * 4 + 2];
-        //   // a
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
-        // } else {
-        // r
-        mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-          floorData.data[_x * 4 + _y * texSize * 4];
-        // g
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 1];
-        // b
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 2];
-        // a
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        let zLight =
+          flashLightSettings[currentFlashLightSettings].z *
+          -255 *
+          (1 - Math.abs(z) / (screenSize.height / 2));
+        let xLight =
+          flashLightSettings[currentFlashLightSettings].x *
+          255 *
+          -(1 - Math.abs(Math.sin((x / screenSize.width) * Math.PI)));
+
+        let flashlightEffect = lightsOff ? zLight + xLight : 0;
+
+        let tile = -999;
+
+        if (
+          meme >= 0 &&
+          meme < mapsArray.missionMap.length &&
+          meme2 >= 0 &&
+          meme2 < mapsArray.missionMap[0].length &&
+          photoColor
+        )
+          tile = mapsArray.missionMap[meme][meme2];
+
+        if (y < screenSize.height / 2) {
+          // r
+          mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+            floorData.data[_x * 4 + _y * texSize * 4] + flashlightEffect;
+          // g
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 1] + flashlightEffect;
+          // b
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 2] + flashlightEffect;
+          // a
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        } else {
+          // r
+          mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+            floorData.data[_x * 4 + _y * texSize * 4] + flashlightEffect;
+          // g
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 1] -
+            (tile == -1 ? 100 : 0) +
+            flashlightEffect;
+          // b
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 2] -
+            (tile == -1 ? 100 : 0) +
+            flashlightEffect;
+          // a
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        }
       }
-      // }
 
       z++;
     }
     raycastCtx.putImageData(mode7Image, 0, 0);
-    console.log(floorData.data);
   };
 
   // ----- DRAWING -----
 
   const draw = () => {
-    raycastCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    raycastCtx.clearRect(0, 0, screenSize.width, screenSize.height);
+
     draw2();
+    // HUD -----
+    raycastCtx.fillStyle = "red";
+
+    raycastCtx.fillText((raycastingPhoto.photos.length + 1).toString(), 10, 30);
   };
 
   const draw2 = () => {
@@ -415,26 +465,46 @@ export default function RaycastingPhotoModule2({
 
           zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-          canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+          screenSize.height / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
 
           stripWidth, // The width of the image to use (stretch or reduce the image)
 
           _screenStrips[zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
         );
 
-        // different colors for x and y walls
-        if (_screenStrips[zBuffer[i].i].color == "darkgray") {
-          raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
+        // flashlight effect
+        // todo: sync this with flashlight from mode7
+        if (lightsOff) {
+          // arbitrary number below xd
+          raycastCtx.fillStyle =
+            "rgba(0,0,0," +
+            zBuffer[i].trueDist /
+              flashLightSettings[currentFlashLightSettings].walls +
+            ")";
           raycastCtx.fillRect(
             zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+            screenSize.height / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
 
             stripWidth, // The width of the image to use (stretch or reduce the image)
 
-            _screenStrips[zBuffer[i].i].height // The height of the image to use (stretch or reduce the image)
+            _screenStrips[zBuffer[i].i].height + 2 // The height of the image to use (stretch or reduce the image)
           );
         }
+
+        // different colors for x and y walls
+        // else if (_screenStrips[zBuffer[i].i].color == "darkgray") {
+        //   raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
+        //   raycastCtx.fillRect(
+        //     zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
+
+        //     canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
+
+        //     stripWidth, // The width of the image to use (stretch or reduce the image)
+
+        //     _screenStrips[zBuffer[i].i].height + 2 // The height of the image to use (stretch or reduce the image)
+        //   );
+        // }
       }
 
       // DRAWING SPRITES
@@ -469,6 +539,54 @@ export default function RaycastingPhotoModule2({
       raycastingPhoto.photos.push(
         raycastCtx.getImageData(0, 0, screenSize.width, screenSize.height)
       ) - 1;
+  };
+
+  // ----- KEYBINDINGS -----
+
+  const bindingsKeyDown = (e: KeyboardEvent) => {
+    e = e || window.event;
+
+    // Which key was pressed?
+    console.log(e.key);
+
+    switch (e.key.toLowerCase()) {
+      // case "arrowup":
+      //   e.preventDefault();
+      //   break;
+
+      // case "arrowdown":
+      //   e.preventDefault();
+      //   break;
+
+      case "arrowleft":
+        e.preventDefault();
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingPhotoModule,
+            "Gallery Commands"
+          )
+        )
+          addCommand("gallery previous");
+        break;
+
+      case "arrowright":
+        e.preventDefault();
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingPhotoModule,
+            "Gallery Commands"
+          )
+        )
+          addCommand("gallery next");
+        break;
+
+      // case " ":
+      //   e.preventDefault();
+      //   break;
+
+      default:
+        break;
+    }
   };
 
   // ----- USE EFFECT -----
@@ -512,13 +630,33 @@ export default function RaycastingPhotoModule2({
     );
 
     raycastCtx.font = "30px monospace";
+    currentFlashLightSettings = getCurrentUpgrade(
+      Categories.RaycastingPhotoModule,
+      "Photo Flash"
+    );
+    photoColor = getCurrentUpgrade(
+      Categories.RaycastingPhotoModule,
+      "Photo Color"
+    );
 
     // initializing the screen strips
     initScreen();
 
     // console.log("RaycastingPhotoModule2");
+    if (focused) document.addEventListener("keydown", bindingsKeyDown);
+
+    return () => {
+      if (focused) document.removeEventListener("keydown", bindingsKeyDown);
+    };
   }, [raycastingPhoto.trigger, raycastingPhoto.currentPhoto]);
 
+  useEffect(() => {
+    setCoverState(true);
+    // console.log(raycastingPhoto.cover);
+    if (raycastingPhoto.cover == 0) {
+      setCoverState(false);
+    }
+  }, [raycastingPhoto.cover]);
   // ----- HTML -----
 
   return (
@@ -546,7 +684,7 @@ export default function RaycastingPhotoModule2({
           }}
         >
           <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
-            Loading . . .
+            Booting . . .
           </div>
         </div>
         <canvas
@@ -561,7 +699,7 @@ export default function RaycastingPhotoModule2({
           width={screenSize.width}
           height={screenSize.height}
         />
-        {loadingState && (
+        {(loadingState || coverState) && (
           <div
             style={{
               transform: "scale(" + scale + ")",

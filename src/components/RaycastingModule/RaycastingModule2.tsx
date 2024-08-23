@@ -1,15 +1,15 @@
 import { createRef, useEffect, useRef, useState } from "react";
 
 import {
-  decreaseRayCastingVideo,
   mapsArray,
   player,
   rayCastingVideo,
-  raycastingPhoto,
+  decreaseRayCastingVideo,
   raycastingRays,
   twoPI,
 } from "../../utils/GameVariables";
 import { addCommand } from "../CLIModule/CLIModule";
+import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
 
 type RaycastingModule2Props = {
   width?: number;
@@ -17,7 +17,6 @@ type RaycastingModule2Props = {
   canvasWidth?: number;
   canvasHeight?: number;
   _fov?: number;
-  _targetFps?: number;
   focused: boolean;
 };
 
@@ -31,10 +30,7 @@ export type ScreenStrip = {
 export default function RaycastingModule2({
   width = 0,
   height = 0,
-  canvasWidth = 0,
-  canvasHeight = 0,
   _fov = 90,
-  _targetFps = 30,
   focused = false,
 }: RaycastingModule2Props) {
   // ----- VARIABLES -----
@@ -42,8 +38,9 @@ export default function RaycastingModule2({
   var frameCount = 0;
 
   // ----- CANVAS -----
-
-  const screenSize = { width: canvasWidth, height: canvasHeight };
+  let res =
+    getCurrentUpgrade(Categories.RaycastingModule, "Video Resolution") + 1;
+  const screenSize = { width: 100 * res, height: 75 * res };
   //const screenSize = { width: width, height: height };
 
   const canvasRef = createRef<HTMLCanvasElement>();
@@ -78,7 +75,10 @@ export default function RaycastingModule2({
 
   // ----- MEMES -----
 
-  var targetFps: number = _targetFps,
+  var targetFps: number = getCurrentUpgrade(
+      Categories.RaycastingModule,
+      "Video Framerate"
+    ),
     fpsInterval: number,
     startTime: number,
     now: number,
@@ -88,6 +88,18 @@ export default function RaycastingModule2({
   var fps = 0;
 
   const lightsOff = true;
+  const flashLightSettings = [
+    { z: Infinity, x: Infinity, walls: 0 },
+    { z: 3, x: 3, walls: 1.55 },
+    { z: 1.6, x: 1.25, walls: 2.25 },
+    { z: 1.45, x: 0.7, walls: 2.9 },
+    { z: 0, x: 0, walls: Infinity },
+  ];
+
+  // ----- UPGRADES -----
+
+  var currentFlashLightSettings: number;
+  var videoColor: number;
 
   // ----- FUNCTIONS -----
   // ----- INITIALIZATION -----
@@ -149,8 +161,8 @@ export default function RaycastingModule2({
     var angleCos = Math.cos(rayAngle);
 
     var dist = 0; // the distance to the block we hit
-    var xHit = 0; // the x and y coord of where the ray hit the block
-    var yHit = 0;
+    // var xHit = 0; // the x and y coord of where the ray hit the block
+    // var yHit = 0;
 
     var textureX = 0; // the x-coord on the texture of the block, ie. what part of the texture are we going to render
     var wallX: number; // the (x,y) map coords of the block
@@ -190,8 +202,8 @@ export default function RaycastingModule2({
         textureX = y % 1; // where exactly are we on the wall? textureX is the x coordinate on the texture that we'll use when texturing the wall.
         if (!right) textureX = 1 - textureX; // if we're looking to the left side of the map, the texture should be reversed
 
-        xHit = x; // save the coordinates of the hit. We only really use these to draw the rays on minimap.
-        yHit = y;
+        // xHit = x; // save the coordinates of the hit. We only really use these to draw the rays on minimap.
+        // yHit = y;
 
         color = "gray";
         value = mapsArray.missionMap[wallY][wallX];
@@ -226,8 +238,8 @@ export default function RaycastingModule2({
         var blockDist = distX * distX + distY * distY;
         if (!dist || blockDist < dist) {
           dist = blockDist;
-          xHit = x;
-          yHit = y;
+          // xHit = x;
+          // yHit = y;
           textureX = x % 1;
           if (up) textureX = 1 - textureX;
 
@@ -245,7 +257,7 @@ export default function RaycastingModule2({
       //drawRay(xHit, yHit);
 
       // draw rays
-      raycastingRays[stripIdx] = { x: xHit, y: yHit };
+      // raycastingRays[stripIdx] = { x: xHit, y: yHit };
 
       var strip = _screenStrips[stripIdx];
 
@@ -285,7 +297,7 @@ export default function RaycastingModule2({
     }
   };
 
-  // ----- FLOOR AND CEILING ( MODE 7 ) -----
+  // ----- FLOOR AND CEILING (MODE7) -----
 
   const mode7 = () => {
     let _x = 0,
@@ -332,40 +344,58 @@ export default function RaycastingModule2({
 
         // flashlight effect is composed of a Z-Index darkening combined with an edges of X darkening
 
-        let zLight = 1.75 * -255 * (1 - Math.abs(z) / (screenSize.height / 2));
+        let zLight =
+          flashLightSettings[currentFlashLightSettings].z *
+          -255 *
+          (1 - Math.abs(z) / (screenSize.height / 2));
         let xLight =
-          255 * -(1 - Math.abs(Math.sin((x / screenSize.width) * Math.PI)));
+          flashLightSettings[currentFlashLightSettings].x *
+          255 *
+          -(1 - Math.abs(Math.sin((x / screenSize.width) * Math.PI)));
 
         let flashlightEffect = lightsOff ? zLight + xLight : 0;
 
-        // if (y < screenSize.height / 2) {
-        //   // r
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-        //     255 - floorData.data[_x * 4 + _y * texSize * 4] - (meme - 1) * 10;
-        //   // g
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-        //     255 -
-        //     floorData.data[_x * 4 + _y * texSize * 4 + 1] -
-        //     (meme2 - 1) * 10;
-        //   // b
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-        //     255 - floorData.data[_x * 4 + _y * texSize * 4 + 2];
-        //   // a
-        //   mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
-        // } else {
-        // r
-        mode7Image.data[x * 4 + y * mode7Image.width * 4] =
-          floorData.data[_x * 4 + _y * texSize * 4] + flashlightEffect;
-        // g
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 1] + flashlightEffect;
-        // b
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
-          floorData.data[_x * 4 + _y * texSize * 4 + 2] + flashlightEffect;
-        // a
-        mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        let tile = -999;
+
+        if (
+          meme >= 0 &&
+          meme < mapsArray.missionMap.length &&
+          meme2 >= 0 &&
+          meme2 < mapsArray.missionMap[0].length &&
+          videoColor
+        )
+          tile = mapsArray.missionMap[meme][meme2];
+
+        if (y < screenSize.height / 2) {
+          // r
+          mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+            floorData.data[_x * 4 + _y * texSize * 4] + flashlightEffect;
+          // g
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 1] + flashlightEffect;
+          // b
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 2] + flashlightEffect;
+          // a
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        } else {
+          // r
+          mode7Image.data[x * 4 + y * mode7Image.width * 4] =
+            floorData.data[_x * 4 + _y * texSize * 4] + flashlightEffect;
+          // g
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 1] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 1] -
+            (tile == -1 ? 100 : 0) +
+            flashlightEffect;
+          // b
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 2] =
+            floorData.data[_x * 4 + _y * texSize * 4 + 2] -
+            (tile == -1 ? 100 : 0) +
+            flashlightEffect;
+          // a
+          mode7Image.data[x * 4 + y * mode7Image.width * 4 + 3] = 255;
+        }
       }
-      // }
 
       z++;
     }
@@ -375,23 +405,13 @@ export default function RaycastingModule2({
   // ----- DRAWING -----
 
   const draw = () => {
-    raycastCtx.clearRect(0, 0, canvasWidth, canvasHeight);
+    raycastCtx.clearRect(0, 0, screenSize.width, screenSize.height);
 
     if (rayCastingVideo > 0) {
       decreaseRayCastingVideo();
 
       draw2();
     }
-    // HUD -----
-    raycastCtx.fillStyle = "red";
-    raycastCtx.beginPath();
-    if (canvasWidth > 100) raycastCtx.fillText("fps: " + fps, 10, 30);
-    raycastCtx.fillRect(
-      0,
-      screenSize.height - 2,
-      (screenSize.width * rayCastingVideo) / 100,
-      2
-    );
   };
 
   const draw2 = () => {
@@ -463,7 +483,7 @@ export default function RaycastingModule2({
 
           zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-          canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
+          screenSize.height / 2 - _screenStrips[zBuffer[i].i].height / 2, // The y coordinate where to place the image on the canvas
 
           stripWidth, // The width of the image to use (stretch or reduce the image)
 
@@ -474,11 +494,15 @@ export default function RaycastingModule2({
         // todo: sync this with flashlight from mode7
         if (lightsOff) {
           // arbitrary number below xd
-          raycastCtx.fillStyle = "rgba(0,0,0," + zBuffer[i].trueDist / 2 + ")";
+          raycastCtx.fillStyle =
+            "rgba(0,0,0," +
+            zBuffer[i].trueDist /
+              flashLightSettings[currentFlashLightSettings].walls +
+            ")";
           raycastCtx.fillRect(
             zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
+            screenSize.height / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
 
             stripWidth, // The width of the image to use (stretch or reduce the image)
 
@@ -487,18 +511,18 @@ export default function RaycastingModule2({
         }
 
         // different colors for x and y walls
-        else if (_screenStrips[zBuffer[i].i].color == "darkgray") {
-          raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
-          raycastCtx.fillRect(
-            zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
+        // else if (_screenStrips[zBuffer[i].i].color == "darkgray") {
+        //   raycastCtx.fillStyle = "rgba(0,0,0,0.5)";
+        //   raycastCtx.fillRect(
+        //     zBuffer[i].i * stripWidth, // The x coordinate where to place the image on the canvas
 
-            canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
+        //     canvasHeight / 2 - _screenStrips[zBuffer[i].i].height / 2 - 1, // The y coordinate where to place the image on the canvas
 
-            stripWidth, // The width of the image to use (stretch or reduce the image)
+        //     stripWidth, // The width of the image to use (stretch or reduce the image)
 
-            _screenStrips[zBuffer[i].i].height + 2 // The height of the image to use (stretch or reduce the image)
-          );
-        }
+        //     _screenStrips[zBuffer[i].i].height + 2 // The height of the image to use (stretch or reduce the image)
+        //   );
+        // }
       }
 
       // DRAWING SPRITES
@@ -536,27 +560,57 @@ export default function RaycastingModule2({
     switch (e.key.toLowerCase()) {
       case "arrowup":
         e.preventDefault();
-        addCommand("move foward");
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingModule,
+            "Video Movement Commands"
+          )
+        )
+          addCommand("move foward");
         break;
 
       case "arrowdown":
         e.preventDefault();
-        addCommand("move backward");
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingModule,
+            "Video Movement Commands"
+          )
+        )
+          addCommand("move backward");
         break;
 
       case "arrowleft":
         e.preventDefault();
-        addCommand("turn left");
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingModule,
+            "Video Movement Commands"
+          )
+        )
+          addCommand("turn left");
         break;
 
       case "arrowright":
         e.preventDefault();
-        addCommand("turn right");
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingModule,
+            "Video Movement Commands"
+          )
+        )
+          addCommand("turn right");
         break;
 
       case " ":
         e.preventDefault();
-        addCommand("capture");
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingModule,
+            "Video capture Command"
+          )
+        )
+          addCommand("capture");
         break;
 
       default:
@@ -595,6 +649,11 @@ export default function RaycastingModule2({
     );
 
     raycastCtx.font = "30px monospace";
+    currentFlashLightSettings = getCurrentUpgrade(
+      Categories.RaycastingModule,
+      "Video Flash"
+    );
+    videoColor = getCurrentUpgrade(Categories.RaycastingModule, "Video Color");
 
     // initializing the screen strips
     initScreen();
@@ -669,7 +728,7 @@ export default function RaycastingModule2({
           }}
         >
           <div className="flex full-size full-center text-[4px] font-mono text-green-500 animate-pulse">
-            Loading . . .
+            Booting . . .
           </div>
         </div>
         <canvas

@@ -2,8 +2,10 @@ import { createRef, useEffect, useState } from "react";
 import {
   // drawingMouse,
   mapsArray,
+  maxRayCastingVideo,
   miniMap,
   player,
+  rayCastingVideo,
   raycastingRays,
 } from "../../utils/GameVariables";
 import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
@@ -33,9 +35,6 @@ export default function MapModule({
 
   // ----- SIZING HELL -----
 
-  // const screenWidth = _screenWidth;
-  // const screenHeight = _screenHeight;
-
   const screenSize = { width: width, height: height };
 
   const [lastClick, setLastClick] = useState({ x: 0, y: 0 });
@@ -57,6 +56,22 @@ export default function MapModule({
     for (var y = 0; y < mapsArray.mapsHeight; y++) {
       for (var x = 0; x < mapsArray.mapsWidth; x++) {
         var cell = mapsArray.viewingMap[y][x];
+
+        if (cell <= 0 && cell > -999) {
+          // if there is a wall block at this (x,y) ...
+          if (cell == -1) {
+            mapCtx.fillStyle = "rgb(150,100,100)";
+          } else {
+            mapCtx.fillStyle = "rgb(150,150,150)";
+          }
+          mapCtx.fillRect(
+            // ... then draw a block on the minimap
+            x * miniMap.scale,
+            y * miniMap.scale,
+            miniMap.scale,
+            miniMap.scale
+          );
+        }
 
         if (cell > 0) {
           // if there is a wall block at this (x,y) ...
@@ -147,20 +162,20 @@ export default function MapModule({
     // player position glow
     // arbitrary numbers watch out
     //@UPGRADE
-    if (getCurrentUpgrade(Categories.MapModule, "Player Position") < Infinity) {
-      objectCtx.strokeStyle = "red";
+    // if (getCurrentUpgrade(Categories.MapModule, "Player Position") < Infinity) {
+    //   objectCtx.strokeStyle = "red";
 
-      objectCtx.beginPath();
-      objectCtx.arc(
-        // draw a dot at the current player position
-        player.x * miniMap.scale,
-        player.y * miniMap.scale,
-        (25 - (miniMap.showingPosition % 25)) * miniMap.scale,
-        0,
-        2 * Math.PI
-      );
-      objectCtx.stroke();
-    }
+    //   objectCtx.beginPath();
+    //   objectCtx.arc(
+    //     // draw a dot at the current player position
+    //     player.x * miniMap.scale,
+    //     player.y * miniMap.scale,
+    //     (25 - (miniMap.showingPosition % 25)) * miniMap.scale,
+    //     0,
+    //     2 * Math.PI
+    //   );
+    //   objectCtx.stroke();
+    // }
   };
 
   const drawRay = (rayX: number, rayY: number) => {
@@ -237,9 +252,77 @@ export default function MapModule({
     mapCtx.setTransform(1, 0, 0, 1, 0, 0);
     objectCtx.setTransform(1, 0, 0, 1, 0, 0);
 
+    mapCtx.font = "20px monospace";
     mapCtx.fillStyle = "red";
-    mapCtx.beginPath();
-    mapCtx.fillText("fps: " + fps, 10, 20);
+    mapCtx.fillText("fps: " + fps, 10, 30);
+
+    // HUD -----
+    mapCtx.font = "12px monospace";
+
+    if (
+      getCurrentUpgrade(Categories.MapModule, "video HUD") +
+        getCurrentUpgrade(Categories.MapModule, "position HUD") +
+        getCurrentUpgrade(Categories.MapModule, "fuel HUD") +
+        getCurrentUpgrade(Categories.MapModule, "integrity HUD") >
+      0
+    ) {
+      mapCtx.fillStyle = "black";
+      mapCtx.fillRect(
+        0,
+        mapCtx.canvas.height - 10 * 4,
+        mapCtx.canvas.width,
+        10 * 4
+      );
+    }
+
+    if (getCurrentUpgrade(Categories.MapModule, "video HUD") > 0) {
+      mapCtx.fillStyle = "blue";
+      mapCtx.fillRect(
+        0,
+        mapCtx.canvas.height - 10,
+        mapCtx.canvas.width * (rayCastingVideo / maxRayCastingVideo),
+        10
+      );
+      mapCtx.fillStyle = "white";
+      mapCtx.fillText("video", 8, mapCtx.canvas.height - 0);
+    }
+
+    if (getCurrentUpgrade(Categories.MapModule, "position HUD") > 0) {
+      mapCtx.fillStyle = "red";
+      mapCtx.fillRect(
+        0,
+        mapCtx.canvas.height - 10 * 2,
+        mapCtx.canvas.width *
+          (miniMap.showingPosition / miniMap.maxShowingPosition),
+        10
+      );
+      mapCtx.fillStyle = "white";
+      mapCtx.fillText("position", 8, mapCtx.canvas.height - 10 * 1);
+    }
+
+    if (getCurrentUpgrade(Categories.MapModule, "fuel HUD") > 0) {
+      mapCtx.fillStyle = "rgb(120,120,20)";
+      mapCtx.fillRect(
+        0,
+        mapCtx.canvas.height - 10 * 3,
+        mapCtx.canvas.width * (player.fuel / player.maxFuel),
+        10
+      );
+      mapCtx.fillStyle = "white";
+      mapCtx.fillText("fuel", 8, mapCtx.canvas.height - 10 * 2);
+    }
+
+    if (getCurrentUpgrade(Categories.MapModule, "integrity HUD") > 0) {
+      mapCtx.fillStyle = "green";
+      mapCtx.fillRect(
+        0,
+        mapCtx.canvas.height - 10 * 4,
+        mapCtx.canvas.width * (player.hp / player.maxHp),
+        10
+      );
+      mapCtx.fillStyle = "white";
+      mapCtx.fillText("integrity", 8, mapCtx.canvas.height - 10 * 3);
+    }
   };
 
   // ----- MOUSE -----

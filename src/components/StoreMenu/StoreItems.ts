@@ -36,7 +36,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -45,7 +45,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -54,7 +54,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -63,7 +63,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -72,7 +72,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -81,7 +81,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -90,7 +90,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -117,7 +117,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -126,7 +126,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   // ---------- GUI ----------
   {
@@ -136,7 +136,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   // ---------- SENSOR ----------
   {
@@ -146,7 +146,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -155,7 +155,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -164,7 +164,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   // ---------- MAP ----------
   {
@@ -174,7 +174,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -183,7 +183,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -192,7 +192,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -201,7 +201,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   // ---------- CAMERA ----------
   {
@@ -211,7 +211,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100, 200, 300],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -220,7 +220,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100, 200],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -229,7 +229,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -238,7 +238,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -247,7 +247,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -256,7 +256,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   // ---------- ROB-I ----------
   {
@@ -266,7 +266,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -275,7 +275,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -284,7 +284,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
   {
     id: 0,
@@ -293,7 +293,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 0,
+    acquired: 1,
   },
 ];
 
@@ -310,18 +310,14 @@ export enum Categories {
   Player,
   CLIModule,
   MapModule,
+  RaycastingModule,
+  RaycastingPhotoModule,
 }
 
 export const getCurrentUpgrade = (
   upgradeCategory: Categories,
   upgradeName: string
 ): number => {
-  if (
-    !(upgradeCategory == Categories.CLIModule && upgradeName == "Text Delay")
-  ) {
-    console.log(Categories[upgradeCategory] + " " + upgradeName);
-  }
-
   if (
     upgradeCategory == Categories.Player &&
     (upgradeName == "Move Speed" || upgradeName == "Turn Speed")
@@ -335,10 +331,55 @@ export const getCurrentUpgrade = (
 
   if (
     upgradeCategory == Categories.CLIModule &&
+    upgradeName == "position Command Duration"
+  ) {
+    return 500;
+  }
+
+  if (upgradeCategory == Categories.MapModule && upgradeName.endsWith("HUD")) {
+    return 1;
+  }
+
+  if (
+    upgradeCategory == Categories.CLIModule &&
     upgradeName.endsWith("Command")
   ) {
     return StoreItems.find((item) => item.name == upgradeName)?.acquired ?? 0;
   }
 
+  if (
+    upgradeCategory == Categories.RaycastingModule &&
+    (upgradeName == "Video Resolution" ||
+      upgradeName == "Video Flash" ||
+      upgradeName == "Video Framerate" ||
+      upgradeName == "Video Color")
+  ) {
+    if (upgradeName == "Video Flash") return 1;
+    if (upgradeName == "Video Color") return 0;
+    if (upgradeName == "Video Framerate") return 10;
+    return 0;
+  }
+
+  if (
+    upgradeCategory == Categories.RaycastingModule &&
+    upgradeName == "Video Movement Commands"
+  ) {
+    return 1;
+  }
+
+  if (
+    upgradeCategory == Categories.RaycastingPhotoModule &&
+    (upgradeName == "Photo Resolution" ||
+      upgradeName == "Photo Flash" ||
+      upgradeName == "Photo Color" ||
+      upgradeName == "Photo Capture Delay")
+  ) {
+    if (upgradeName == "Photo Flash") return 3;
+    if (upgradeName == "Photo Color") return 1;
+    if (upgradeName == "Photo Capture Delay") return 500;
+    return 0;
+  }
+
+  console.log(Categories[upgradeCategory] + " " + upgradeName);
   return 0;
 };
