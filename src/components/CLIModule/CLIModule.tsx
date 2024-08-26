@@ -37,7 +37,6 @@ export const addCommand = (_command: string): boolean => {
 export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
 
-  // @UPGRADE
   var delay = getCurrentUpgrade(Categories.CLIModule, "Text Delay");
 
   const userShellText =
@@ -92,7 +91,6 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
       case "arrowup":
         e.preventDefault();
 
-        // @UPGRADE
         if (getCurrentUpgrade(Categories.CLIModule, "Command History") == 0)
           break;
 
@@ -103,7 +101,6 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
           if (v.command != "") aux1.push(v.command);
         });
 
-        // @UPGRADE
         historyIndex +=
           historyIndex <
           Math.min(
@@ -120,7 +117,6 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
       case "arrowdown":
         e.preventDefault();
 
-        // @UPGRADE
         if (getCurrentUpgrade(Categories.CLIModule, "Command History") == 0)
           break;
 
@@ -140,7 +136,6 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
       case "tab":
         e.preventDefault();
 
-        // @UPGRADE
         if (getCurrentUpgrade(Categories.CLIModule, "Auto Complete") == 0)
           break;
 

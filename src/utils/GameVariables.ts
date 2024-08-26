@@ -110,8 +110,10 @@ export const setMaxRayCastingVideo = () => {
 
 export const raycastingPhoto = {
   trigger: false,
+  trigger2: false,
   cover: 0,
   currentPhoto: 0,
+  totalPhotos: 0,
   photos: Array<ImageData>(0),
 };
 

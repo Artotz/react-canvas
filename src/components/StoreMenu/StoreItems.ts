@@ -347,6 +347,10 @@ export const getCurrentUpgrade = (
     return StoreItems.find((item) => item.name == upgradeName)?.acquired ?? 0;
   }
 
+  if (upgradeCategory == Categories.CLIModule) {
+    return 1;
+  }
+
   if (
     upgradeCategory == Categories.RaycastingModule &&
     (upgradeName == "Video Resolution" ||
@@ -376,7 +380,7 @@ export const getCurrentUpgrade = (
   ) {
     if (upgradeName == "Photo Flash") return 3;
     if (upgradeName == "Photo Color") return 1;
-    if (upgradeName == "Photo Capture Delay") return 500;
+    if (upgradeName == "Photo Capture Delay") return 50;
     return 0;
   }
 

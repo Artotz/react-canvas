@@ -393,7 +393,7 @@ export default function RaycastingPhotoModule2({
     // HUD -----
     raycastCtx.fillStyle = "red";
 
-    raycastCtx.fillText((raycastingPhoto.photos.length + 1).toString(), 10, 30);
+    raycastCtx.fillText((raycastingPhoto.totalPhotos++).toString(), 10, 30);
   };
 
   const draw2 = () => {
@@ -616,6 +616,10 @@ export default function RaycastingPhotoModule2({
         raycastingPhoto.trigger = false;
       }
 
+      if (raycastingPhoto.trigger2 == true) {
+        raycastingPhoto.trigger2 = false;
+      }
+
       if (raycastingPhoto.photos.length > 0)
         raycastCtx.putImageData(
           raycastingPhoto.photos[raycastingPhoto.currentPhoto],
@@ -642,13 +646,13 @@ export default function RaycastingPhotoModule2({
     // initializing the screen strips
     initScreen();
 
-    // console.log("RaycastingPhotoModule2");
+    console.log("RaycastingPhotoModule2");
     if (focused) document.addEventListener("keydown", bindingsKeyDown);
 
     return () => {
       if (focused) document.removeEventListener("keydown", bindingsKeyDown);
     };
-  }, [raycastingPhoto.trigger, raycastingPhoto.currentPhoto]);
+  }, [raycastingPhoto.trigger, raycastingPhoto.trigger2]);
 
   useEffect(() => {
     setCoverState(true);

@@ -336,19 +336,21 @@ export const commands: Command[] = [
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       if (options[0] == "delete") {
-        // if (
-        //   getCurrentUpgrade(
-        //     Categories.CLIModule,
-        //     "gallery Command delete Option"
-        //   ) == 0
-        // )
-        //   return "gallery command error!";
+        if (
+          getCurrentUpgrade(
+            Categories.CLIModule,
+            "gallery Command delete Option"
+          ) == 0
+        )
+          return "gallery command error!";
 
         if (raycastingPhoto.cover > 0) return "Processing image!";
 
         raycastingPhoto.photos.splice(raycastingPhoto.currentPhoto, 1);
-        raycastingPhoto.currentPhoto = raycastingPhoto.currentPhoto - 1;
+        if (raycastingPhoto.currentPhoto > raycastingPhoto.photos.length - 1)
+          raycastingPhoto.currentPhoto = raycastingPhoto.photos.length - 1;
 
+        raycastingPhoto.trigger2 = true;
         return "Deleting image . . .";
       } else if (options[0] == "previous") {
         if (
@@ -372,6 +374,7 @@ export const commands: Command[] = [
           ? raycastingPhoto.currentPhoto + 1
           : 0;
 
+      raycastingPhoto.trigger2 = true;
       return "Changing photo . . .";
     },
   },
