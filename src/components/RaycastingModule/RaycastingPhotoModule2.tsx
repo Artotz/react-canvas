@@ -626,6 +626,7 @@ export default function RaycastingPhotoModule2({
           0,
           0
         );
+      else raycastCtx.clearRect(0, 0, screenSize.width, screenSize.height);
     };
 
     mode7Image = raycastCtx.createImageData(
