@@ -72,7 +72,7 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
           if (currentText.length == commandHistory[0].text.length) {
             clearInterval(addChar);
             console.log("meme acabou");
-            if (commandHistory[0].command == "abort") quitMission();
+            if (commandHistory[0].command == "quit") quitMission();
           }
         }
       }

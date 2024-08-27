@@ -1,12 +1,7 @@
 import { useState } from "react";
 
 import "../../utils/GameVariables";
-import {
-  changeCurrentMap,
-  resetMap,
-  unlockedMaps,
-  someMaps,
-} from "../../utils/GameVariables";
+import { resetMap, unlockedEntries } from "../../utils/GameVariables";
 import MissionMenu from "../MissionMenu/MissionMenu";
 import StoreMenu from "../StoreMenu/StoreMenu";
 
@@ -14,14 +9,11 @@ export default function DesktopInterface() {
   const [playing, setPlaying] = useState(false);
   const [app, setApp] = useState("");
 
-  const loadMap = (_map: number) => {
-    if (unlockedMaps[_map]) {
-      changeCurrentMap(_map);
-      resetMap();
+  const loadMap = (entry: number) => {
+    resetMap(unlockedEntries[entry].y, unlockedEntries[entry].x);
 
-      setApp("mission");
-      setPlaying(true);
-    }
+    setApp("mission");
+    setPlaying(true);
   };
 
   const quitMission = () => {
@@ -119,7 +111,7 @@ export default function DesktopInterface() {
                   {/* BUTTONS */}
                   <div className="grid grid-rows-6 grid-flow-col h-full gap-4">
                     {/* ----- MISSIONS ----- */}
-                    {someMaps.map((v, i) => {
+                    {unlockedEntries.map((v, i) => {
                       return (
                         <div
                           key={i}
@@ -127,14 +119,16 @@ export default function DesktopInterface() {
                             loadMap(i);
                           }}
                           className={`flex flex-col w-content h-fit border-green-500 border-solid border-2 justify-center items-center select-none p-2 gap-2 ${
-                            unlockedMaps[i]
+                            unlockedEntries[i].isUnlocked
                               ? "cursor-pointer hover:bg-green-500 hover:text-black"
                               : "cursor-not-allowed"
                           }`}
                         >
                           <div
                             className={`flex w-8 h-8 ${
-                              unlockedMaps[i] ? "bg-blue-500" : "bg-red-500"
+                              unlockedEntries[i].isUnlocked
+                                ? "bg-blue-500"
+                                : "bg-red-500"
                             }`}
                           ></div>
                           <div className="flex justify-center">lvl {i}</div>

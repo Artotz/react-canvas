@@ -5,8 +5,6 @@ import {
   mapsArray,
   commandHistory,
   mission,
-  currentMap,
-  unlockedMaps,
   miniMap,
   raycastingPhoto,
   setMissionPhase,
@@ -118,13 +116,13 @@ export default function MissionMenu({ quitMission = () => {} }) {
     // player.x = newX;
     // player.y = newY;
 
-    if (
-      mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -420
-    ) {
-      youWon = true;
-      setYouWonState(true);
-      endGame();
-    }
+    // if (
+    //   mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -420
+    // ) {
+    //   youWon = true;
+    //   setYouWonState(true);
+    //   endGame();
+    // }
 
     // mapsArray.missionMap[4][3] = 2 * Math.sin(frameCount);
 
@@ -150,6 +148,10 @@ export default function MissionMenu({ quitMission = () => {} }) {
   const missionLogic = () => {
     if (!gameOver) move();
   };
+
+  // const quitMission = () => {
+  //   quitMissionDesktop();
+  // };
 
   //TODO: FIX THIS
   const endGame = () => {
@@ -188,7 +190,7 @@ This mission final result was registered as a ${
       text: mission.result,
     });
 
-    if (youWon) unlockedMaps[currentMap + 1] = true;
+    // if (youWon) unlockedMaps[currentMap + 1] = true;
 
     gameOver = true;
     setGameOverState(true);

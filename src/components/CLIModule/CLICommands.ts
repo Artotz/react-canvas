@@ -29,17 +29,18 @@ export const checkCommands = (cmd: string) => {
 
   for (let i = 0; i < commands.length; i++) {
     if (_cmd[0] == commands[i].title) {
-      if (commands[i].missionPhaseOnly && !missionPhase) {
-        commandReturn = ". . . . .\nNo response.";
-        break;
-      } else if (
+      if (
         getCurrentUpgrade(
           Categories.CLIModule,
           commands[i].title + " Command"
         ) == 0
       ) {
-        // commandReturn = ". . . . .\nNo response.";
         console.log("command not unlocked");
+        break;
+      } else if (commands[i].missionPhaseOnly && !missionPhase) {
+        // commandReturn = ". . . . .\nNo response.";
+
+        commandReturn = ". . . . .\nNo response.";
         break;
       }
 
@@ -258,6 +259,21 @@ export const commands: Command[] = [
       // mapsArray.viewingMap[radarPos.y][radarPos.x] =
       //   mapsArray.missionMap[radarPos.y][radarPos.x];
 
+      // let cell;
+      // for (let i = -1; i < 2; i++) {
+      //   for (let j = -1; j < 2; j++) {
+      //     cell = mapsArray.missionMap[~~player.y + i][~~player.x + j];
+
+      //     if (
+      //       cell == -1 &&
+      //       getCurrentUpgrade(Categories.MapModule, "scan Threat Detection") < 0
+      //     )
+      //       cell = 0;
+
+      //     mapsArray.viewingMap[~~player.y + i][~~player.x + j] = cell;
+      //   }
+      // }
+
       mapsArray.viewingMap[~~player.y][~~player.x] =
         mapsArray.missionMap[~~player.y][~~player.x];
 
@@ -272,14 +288,16 @@ export const commands: Command[] = [
         mapsArray.missionMap[~~player.y][~~player.x + 1];
 
       // DIAGONALS
-      mapsArray.viewingMap[~~player.y - 1][~~player.x - 1] =
-        mapsArray.missionMap[~~player.y - 1][~~player.x - 1];
-      mapsArray.viewingMap[~~player.y - 1][~~player.x + 1] =
-        mapsArray.missionMap[~~player.y - 1][~~player.x + 1];
-      mapsArray.viewingMap[~~player.y + 1][~~player.x - 1] =
-        mapsArray.missionMap[~~player.y + 1][~~player.x - 1];
-      mapsArray.viewingMap[~~player.y + 1][~~player.x + 1] =
-        mapsArray.missionMap[~~player.y + 1][~~player.x + 1];
+      if (getCurrentUpgrade(Categories.MapModule, "scan Range Augment") > 0) {
+        mapsArray.viewingMap[~~player.y - 1][~~player.x - 1] =
+          mapsArray.missionMap[~~player.y - 1][~~player.x - 1];
+        mapsArray.viewingMap[~~player.y - 1][~~player.x + 1] =
+          mapsArray.missionMap[~~player.y - 1][~~player.x + 1];
+        mapsArray.viewingMap[~~player.y + 1][~~player.x - 1] =
+          mapsArray.missionMap[~~player.y + 1][~~player.x - 1];
+        mapsArray.viewingMap[~~player.y + 1][~~player.x + 1] =
+          mapsArray.missionMap[~~player.y + 1][~~player.x + 1];
+      }
 
       return "Scanning . . .";
     },
@@ -381,9 +399,18 @@ export const commands: Command[] = [
   {
     title: "abort",
     options: [""],
-    missionPhaseOnly: false,
+    missionPhaseOnly: true,
     functionCall: (options: string[]) => {
       return "Aborting . . .";
+    },
+  },
+  {
+    title: "quit",
+    options: [""],
+    missionPhaseOnly: false,
+    functionCall: (options: string[]) => {
+      if (missionPhase) return "Can't quit now!";
+      else return "Quitting . . . . .";
     },
   },
   {

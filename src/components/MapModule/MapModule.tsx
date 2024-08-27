@@ -55,46 +55,53 @@ export default function MapModule({
   const drawMiniMap = () => {
     for (var y = 0; y < mapsArray.mapsHeight; y++) {
       for (var x = 0; x < mapsArray.mapsWidth; x++) {
-        var cell = mapsArray.viewingMap[y][x];
+        // var cell = mapsArray.viewingMap[y][x];
+        var cell = mapsArray.missionMap[y][x];
 
-        if (cell <= 0 && cell > -999) {
-          // if there is a wall block at this (x,y) ...
-          if (cell == -1) {
-            mapCtx.fillStyle = "rgb(150,100,100)";
-          } else {
-            mapCtx.fillStyle = "rgb(150,150,150)";
+        if (cell > -999) {
+          if (cell <= 0) {
+            // if there is a wall block at this (x,y) ...
+            if (
+              cell == -1 &&
+              getCurrentUpgrade(Categories.MapModule, "scan Threat Detection") >
+                0
+            ) {
+              mapCtx.fillStyle = "rgb(150,100,100)";
+            } else if (cell == -420) {
+              mapCtx.fillStyle = "rgb(100,150,100)";
+            } else {
+              mapCtx.fillStyle = "rgb(150,150,150)";
+            }
+            mapCtx.fillRect(
+              // ... then draw a block on the minimap
+              x * miniMap.scale,
+              y * miniMap.scale,
+              miniMap.scale,
+              miniMap.scale
+            );
+          } else if (cell > 0) {
+            // if there is a wall block at this (x,y) ...
+
+            mapCtx.fillStyle = "rgb(200,200,200)";
+            mapCtx.fillRect(
+              // ... then draw a block on the minimap
+              x * miniMap.scale,
+              y * miniMap.scale,
+              miniMap.scale,
+              miniMap.scale
+            );
           }
-          mapCtx.fillRect(
-            // ... then draw a block on the minimap
-            x * miniMap.scale,
-            y * miniMap.scale,
-            miniMap.scale,
-            miniMap.scale
-          );
-        }
 
-        if (cell > 0) {
-          // if there is a wall block at this (x,y) ...
-
-          mapCtx.fillStyle = "rgb(200,200,200)";
-          mapCtx.fillRect(
-            // ... then draw a block on the minimap
-            x * miniMap.scale,
-            y * miniMap.scale,
-            miniMap.scale,
-            miniMap.scale
-          );
-        }
-
-        if (mapsArray.drawingMap[y][x] == 1) {
-          mapCtx.fillStyle = "rgb(200,100,100,0.5)";
-          mapCtx.fillRect(
-            // ... then draw a block on the minimap
-            x * miniMap.scale,
-            y * miniMap.scale,
-            miniMap.scale,
-            miniMap.scale
-          );
+          if (mapsArray.drawingMap[y][x] == 1) {
+            mapCtx.fillStyle = "rgb(200,100,100,0.5)";
+            mapCtx.fillRect(
+              // ... then draw a block on the minimap
+              x * miniMap.scale,
+              y * miniMap.scale,
+              miniMap.scale,
+              miniMap.scale
+            );
+          }
         }
       }
     }
@@ -192,27 +199,27 @@ export default function MapModule({
     mapCtx.clearRect(0, 0, mapCtx.canvas.width, mapCtx.canvas.height);
     objectCtx.clearRect(0, 0, objectCtx.canvas.width, objectCtx.canvas.height);
 
-    const centerAux = {
-      x: mapCtx.canvas.width / 2 - (mapsArray.mapsWidth / 2) * miniMap.scale,
-      y: mapCtx.canvas.height / 2 - (mapsArray.mapsHeight / 2) * miniMap.scale,
+    var centerAux;
+
+    // center on center
+    centerAux = {
+      x: mapCtx.canvas.width / 2,
+      y: mapCtx.canvas.height / 2,
     };
 
+    // center on player
+    if (getCurrentUpgrade(Categories.MapModule, "Center minimap on ROB-I") > 0)
+      centerAux = {
+        x: -player.x * miniMap.scale + mapCtx.canvas.width / 2,
+        y: -player.y * miniMap.scale + mapCtx.canvas.height / 2,
+      };
+
     if (focused) {
-      //if (true) {
       miniMap.drawingOffsetX = centerAux.x + miniMap.offsetX;
       miniMap.drawingOffsetY = centerAux.y + miniMap.offsetY;
     } else {
-      // center on player
-      // miniMap.drawingOffsetX =
-      //   -player.x * miniMap.scale + mapCtx.canvas.width / 2;
-      // miniMap.drawingOffsetY =
-      //   -player.y * miniMap.scale + mapCtx.canvas.height / 2;
       miniMap.drawingOffsetX = centerAux.x;
       miniMap.drawingOffsetY = centerAux.y;
-      // if (miniMap.offsetX != 0 || miniMap.offsetY != 0) {
-      miniMap.offsetX = 0;
-      miniMap.offsetY = 0;
-      // }
     }
 
     mapCtx.translate(miniMap.drawingOffsetX, miniMap.drawingOffsetY);

@@ -33,8 +33,10 @@ export default function RaycastingPhotoModule2({
 }: RaycastingPhotoModule2Props) {
   // ----- VARIABLES -----
   // ----- CANVAS -----
-  let res =
-    getCurrentUpgrade(Categories.RaycastingPhotoModule, "Photo Resolution") + 4;
+  let res = getCurrentUpgrade(
+    Categories.RaycastingPhotoModule,
+    "Photo Resolution"
+  );
   const screenSize = { width: 100 * res, height: 75 * res };
   //const screenSize = { width: width, height: height };
 
@@ -75,6 +77,7 @@ export default function RaycastingPhotoModule2({
     { z: 3, x: 3, walls: 1.55 },
     { z: 1.6, x: 1.25, walls: 2.25 },
     { z: 1.45, x: 0.7, walls: 2.9 },
+    { z: 1.1, x: 0.25, walls: 5 },
     { z: 0, x: 0, walls: Infinity },
   ];
 
@@ -641,7 +644,7 @@ export default function RaycastingPhotoModule2({
     );
     photoColor = getCurrentUpgrade(
       Categories.RaycastingPhotoModule,
-      "Photo Color"
+      "Photo Threat Detection"
     );
 
     // initializing the screen strips

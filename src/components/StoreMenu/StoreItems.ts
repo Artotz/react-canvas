@@ -104,6 +104,15 @@ export const StoreItems: StoreItemType[] = [
   {
     id: 0,
     category: "CLIMODULE",
+    name: "quit Command",
+    description: "",
+    prerequisite: [],
+    cost: [0],
+    acquired: 1,
+  },
+  {
+    id: 0,
+    category: "CLIMODULE",
     name: "help Command",
     description: "",
     prerequisite: [],
@@ -326,7 +335,7 @@ export const getCurrentUpgrade = (
   }
 
   if (upgradeCategory == Categories.CLIModule && upgradeName == "Text Delay") {
-    return 50;
+    return 20;
   }
 
   if (
@@ -356,12 +365,12 @@ export const getCurrentUpgrade = (
     (upgradeName == "Video Resolution" ||
       upgradeName == "Video Flash" ||
       upgradeName == "Video Framerate" ||
-      upgradeName == "Video Color")
+      upgradeName == "Video Threat Detection")
   ) {
-    if (upgradeName == "Video Flash") return 1;
-    if (upgradeName == "Video Color") return 0;
-    if (upgradeName == "Video Framerate") return 10;
-    return 0;
+    if (upgradeName == "Video Flash") return 4;
+    if (upgradeName == "Video Threat Detection") return 0;
+    if (upgradeName == "Video Framerate") return 30;
+    return 2;
   }
 
   if (
@@ -375,15 +384,15 @@ export const getCurrentUpgrade = (
     upgradeCategory == Categories.RaycastingPhotoModule &&
     (upgradeName == "Photo Resolution" ||
       upgradeName == "Photo Flash" ||
-      upgradeName == "Photo Color" ||
+      upgradeName == "Photo Threat Detection" ||
       upgradeName == "Photo Capture Delay")
   ) {
     if (upgradeName == "Photo Flash") return 3;
-    if (upgradeName == "Photo Color") return 1;
+    if (upgradeName == "Photo Threat Detection") return 1;
     if (upgradeName == "Photo Capture Delay") return 50;
-    return 0;
+    return 4;
   }
 
   console.log(Categories[upgradeCategory] + " " + upgradeName);
-  return 0;
+  return 1;
 };
