@@ -3,11 +3,10 @@ import { useKeybindings } from "../../hooks/useKeybindings";
 import {
   player,
   mapsArray,
-  commandHistory,
-  mission,
   miniMap,
-  raycastingPhoto,
-  setMissionPhase,
+  gameOver,
+  endGame,
+  youWon,
 } from "../../utils/GameVariables";
 import CLIModule, { addSudoCommand } from "../CLIModule/CLIModule";
 import MapModule from "../MapModule/MapModule";
@@ -18,11 +17,6 @@ import RaycastingPhotoModule2 from "../RaycastingModule/RaycastingPhotoModule2";
 
 export default function MissionMenu({ quitMission = () => {} }) {
   const [modules, setModules] = useState([0, 1, 2, 3]);
-
-  var gameOver = false;
-  const [gameOverState, setGameOverState] = useState(false);
-  var youWon = false;
-  const [youWonState, setYouWonState] = useState(false);
 
   const ref1 = createRef<HTMLDivElement>();
   const ref2 = createRef<HTMLDivElement>();
@@ -35,9 +29,6 @@ export default function MissionMenu({ quitMission = () => {} }) {
     width: 0,
     height: 0,
   });
-
-  const raycastResolution1 = { width: 400 / 4, height: 200 / 4 },
-    raycastResolution2 = { width: 400, height: 200 };
 
   var frameCount = 0;
   const [frameCountState, setFrameCountState] = useState(0);
@@ -53,7 +44,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
   // ----- JSX ELEMENTS ------
 
   const results = () => {
-    if (!youWonState) return signalLost();
+    if (!youWon) return signalLost();
     else return connectionEnded();
   };
 
@@ -87,113 +78,55 @@ export default function MissionMenu({ quitMission = () => {} }) {
 
   // ----- PLAYER MOVEMENT -----
 
-  //KEYBINDING HOOK
-  // useKeybindings();
+  // const move = () => {
+  //   // // Player will move this far along
+  //   // // the current direction vector
+  //   // var moveStep = player.speed * player.moveSpeed;
+  //   // // Add rotation if player is rotating (player.dir != 0)
+  //   // player.rot += player.dir * player.rotSpeed;
+  //   // // player.rot =
+  //   // //   player.rot < 0
+  //   // //     ? 2 * Math.PI + player.rot
+  //   // //     : player.rot >= 2 * Math.PI
+  //   // //     ? player.rot - 2 * Math.PI
+  //   // //     : player.rot;
+  //   // // console.log(player.rot / (2 * Math.PI));
+  //   // // Calculate new player position with simple trigonometry
+  //   // var newX = player.x + Math.cos(player.rot) * moveStep;
+  //   // var newY = player.y + Math.sin(player.rot) * moveStep;
+  //   // if (isBlocking(newX, newY)) return;
+  //   // // Set new position
+  //   // player.x = newX;
+  //   // player.y = newY;
+  // };
 
-  //TODO: FIX TO DELTA TIME
-  const move = () => {
-    // // Player will move this far along
-    // // the current direction vector
-    // var moveStep = player.speed * player.moveSpeed;
+  // const isBlocking = (x: number, y: number) => {
+  //   // first make sure that we cannot move outside the boundaries of the level
+  //   if (y < 0 || y >= mapsArray.mapsHeight || x < 0 || x >= mapsArray.mapsWidth)
+  //     return true;
 
-    // // Add rotation if player is rotating (player.dir != 0)
-    // player.rot += player.dir * player.rotSpeed;
-    // // player.rot =
-    // //   player.rot < 0
-    // //     ? 2 * Math.PI + player.rot
-    // //     : player.rot >= 2 * Math.PI
-    // //     ? player.rot - 2 * Math.PI
-    // //     : player.rot;
-
-    // // console.log(player.rot / (2 * Math.PI));
-    // // Calculate new player position with simple trigonometry
-    // var newX = player.x + Math.cos(player.rot) * moveStep;
-    // var newY = player.y + Math.sin(player.rot) * moveStep;
-
-    // if (isBlocking(newX, newY)) return;
-
-    // // Set new position
-    // player.x = newX;
-    // player.y = newY;
-
-    // if (
-    //   mapsArray.missionMap[Math.floor(player.y)][Math.floor(player.x)] == -420
-    // ) {
-    //   youWon = true;
-    //   setYouWonState(true);
-    //   endGame();
-    // }
-
-    // mapsArray.missionMap[4][3] = 2 * Math.sin(frameCount);
-
-    player.fuel -= 0.025;
-    player.fuel = player.fuel < 0 ? 0 : player.fuel;
-
-    miniMap.showingPosition -= miniMap.showingPosition > 0 ? 1 : 0;
-
-    if (player.fuel <= 0 || player.hp <= 0) endGame();
-  };
-
-  const isBlocking = (x: number, y: number) => {
-    // first make sure that we cannot move outside the boundaries of the level
-    if (y < 0 || y >= mapsArray.mapsHeight || x < 0 || x >= mapsArray.mapsWidth)
-      return true;
-
-    // return true if the map block is not 0, ie. if there is a blocking wall.
-    return mapsArray.missionMap[Math.floor(y)][Math.floor(x)] > 0;
-  };
+  //   // return true if the map block is not 0, ie. if there is a blocking wall.
+  //   return mapsArray.missionMap[Math.floor(y)][Math.floor(x)] > 0;
+  // };
 
   // ----- GAME LOGIC -----
 
+  //TODO: FIX TO DELTA TIME
   const missionLogic = () => {
-    if (!gameOver) move();
-  };
+    if (!gameOver) {
+      // move();
 
-  // const quitMission = () => {
-  //   quitMissionDesktop();
-  // };
+      // mapsArray.missionMap[4][3] = 2 * Math.sin(frameCount);
 
-  //TODO: FIX THIS
-  const endGame = () => {
-    setMissionPhase(false);
+      player.fuel -= 0.025 * 5;
+      player.fuel = player.fuel < 0 ? 0 : player.fuel;
 
-    let commandsUsed = 0;
-    commandHistory.map((v) => {
-      if (v.command != "") commandsUsed++;
-    });
-    //commandHistory.length = 0;
+      miniMap.showingPosition -= miniMap.showingPosition > 0 ? 1 : 0;
 
-    let scannedWalls = 0;
-
-    for (var y = 0; y < mapsArray.mapsHeight; y++) {
-      for (var x = 0; x < mapsArray.mapsWidth; x++) {
-        if (mapsArray.viewingMap[y][x] > -999) scannedWalls++;
+      if ((player.fuel <= 0 || player.hp <= 0) && !gameOver) {
+        endGame(false);
       }
     }
-
-    let photosTaken = raycastingPhoto.photos.length;
-
-    mission.result = ` ----- MISSION RESULT -----
-This mission came to it's end in ${frameCount} frames.
-You have ${((player.hp / player.maxHp) * 100).toFixed(2)}% hp left.
-You have ${((player.fuel / player.maxFuel) * 100).toFixed(2)}% fuel left.
-You scanned ${scannedWalls} tile${scannedWalls != 1 ? "s" : ""}.
-You took ${photosTaken} photo${photosTaken != 1 ? "s" : ""}.
-You used ${commandsUsed} command${commandsUsed != 1 ? "s" : ""}.
-
-This mission final result was registered as a ${
-      youWon ? "success" : "failure"
-    }.`;
-
-    addSudoCommand({
-      command: "",
-      text: mission.result,
-    });
-
-    // if (youWon) unlockedMaps[currentMap + 1] = true;
-
-    gameOver = true;
-    setGameOverState(true);
   };
 
   // ----- RENDERING -----
@@ -267,7 +200,7 @@ This mission final result was registered as a ${
             <CLIModule focused={true} quitMission={quitMission} />
           )}
           {modules[0] == 1 &&
-            (!gameOverState ? (
+            (!gameOver ? (
               <MapModule
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
@@ -277,7 +210,7 @@ This mission final result was registered as a ${
               results()
             ))}
           {modules[0] == 2 &&
-            (!gameOverState ? (
+            (!gameOver ? (
               <RaycastingModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
@@ -287,7 +220,7 @@ This mission final result was registered as a ${
               results()
             ))}
           {modules[0] == 3 &&
-            (!gameOverState ? (
+            (!gameOver ? (
               <RaycastingPhotoModule2
                 width={bigWindowSize.width}
                 height={bigWindowSize.height}
@@ -314,7 +247,7 @@ This mission final result was registered as a ${
                 <CLIModule focused={false} quitMission={quitMission} />
               )}
               {modules[i + 1] == 1 &&
-                (!gameOverState ? (
+                (!gameOver ? (
                   <MapModule
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
@@ -324,7 +257,7 @@ This mission final result was registered as a ${
                   results()
                 ))}
               {modules[i + 1] == 2 &&
-                (!gameOverState ? (
+                (!gameOver ? (
                   <RaycastingModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}
@@ -334,7 +267,7 @@ This mission final result was registered as a ${
                   results()
                 ))}
               {modules[i + 1] == 3 &&
-                (!gameOverState ? (
+                (!gameOver ? (
                   <RaycastingPhotoModule2
                     width={smallWindowSize.width}
                     height={smallWindowSize.height}

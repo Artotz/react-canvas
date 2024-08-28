@@ -364,6 +364,8 @@ export const commands: Command[] = [
 
         if (raycastingPhoto.cover > 0) return "Processing image!";
 
+        if (raycastingPhoto.photos.length == 0) return "No photos to delete!";
+
         raycastingPhoto.photos.splice(raycastingPhoto.currentPhoto, 1);
         if (raycastingPhoto.currentPhoto > raycastingPhoto.photos.length - 1)
           raycastingPhoto.currentPhoto = raycastingPhoto.photos.length - 1;
@@ -385,12 +387,13 @@ export const commands: Command[] = [
           raycastingPhoto.currentPhoto > 0
             ? raycastingPhoto.currentPhoto - 1
             : raycastingPhoto.photos.length - 1;
-      } else if (options[0] == "next")
+      } else if (options[0] == "next") {
         if (raycastingPhoto.cover > 0) return "Processing image!";
-      raycastingPhoto.currentPhoto =
-        raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
-          ? raycastingPhoto.currentPhoto + 1
-          : 0;
+        raycastingPhoto.currentPhoto =
+          raycastingPhoto.currentPhoto < raycastingPhoto.photos.length - 1
+            ? raycastingPhoto.currentPhoto + 1
+            : 0;
+      }
 
       raycastingPhoto.trigger2 = true;
       return "Changing photo . . .";
@@ -401,7 +404,7 @@ export const commands: Command[] = [
     options: [""],
     missionPhaseOnly: true,
     functionCall: (options: string[]) => {
-      return "Aborting . . .";
+      return "Aborting . . . . . . . . . .";
     },
   },
   {
@@ -410,7 +413,7 @@ export const commands: Command[] = [
     missionPhaseOnly: false,
     functionCall: (options: string[]) => {
       if (missionPhase) return "Can't quit now!";
-      else return "Quitting . . . . .";
+      else return "Quitting . . . . . . . . . .";
     },
   },
   {

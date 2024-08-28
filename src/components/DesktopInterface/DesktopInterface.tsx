@@ -83,8 +83,7 @@ export default function DesktopInterface() {
           {/* ----- APPLICATION WINDOW ----- */}
           <div className="flex flex-col full-size bg-green-500 border-solid border-2 border-green-500">
             {/* ----- WINDOW NAME BAR ----- */}
-            {/* {app != "mission" && ( */}
-            {true && (
+            {app != "mission" && (
               <div className="flex w-full h-12 p-2 justify-between border-solid border-2 border-black">
                 <div className="flex text-xl text-black font-bold">
                   {app}.exe

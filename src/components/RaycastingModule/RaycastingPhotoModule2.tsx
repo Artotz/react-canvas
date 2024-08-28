@@ -583,9 +583,16 @@ export default function RaycastingPhotoModule2({
           addCommand("gallery next");
         break;
 
-      // case " ":
-      //   e.preventDefault();
-      //   break;
+      case "delete":
+        e.preventDefault();
+        if (
+          getCurrentUpgrade(
+            Categories.RaycastingPhotoModule,
+            "Gallery Commands"
+          )
+        )
+          addCommand("gallery delete");
+        break;
 
       default:
         break;
@@ -650,7 +657,7 @@ export default function RaycastingPhotoModule2({
     // initializing the screen strips
     initScreen();
 
-    console.log("RaycastingPhotoModule2");
+    // console.log("RaycastingPhotoModule2");
     if (focused) document.addEventListener("keydown", bindingsKeyDown);
 
     return () => {
@@ -682,17 +689,17 @@ export default function RaycastingPhotoModule2({
         <div
           style={{
             transform: "scale(" + scale + ")",
-            width: screenSize.width + 4,
-            height: screenSize.height + 4,
+            width: screenSize.width,
+            height: screenSize.height,
             backgroundColor: "black",
-            left: width / 2 - screenSize.width / 2 - 2,
-            top: height / 2 - screenSize.height / 2 - 2,
+            left: width / 2 - screenSize.width / 2,
+            top: height / 2 - screenSize.height / 2,
             position: "absolute",
             // border: "2px solid red",
           }}
         >
           <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
-            Booting . . .
+            No photos.
           </div>
         </div>
         <canvas
@@ -711,17 +718,17 @@ export default function RaycastingPhotoModule2({
           <div
             style={{
               transform: "scale(" + scale + ")",
-              width: screenSize.width + 4,
-              height: screenSize.height + 4,
+              width: screenSize.width + 2,
+              height: screenSize.height + 2,
               backgroundColor: "black",
-              left: width / 2 - screenSize.width / 2 - 2,
-              top: height / 2 - screenSize.height / 2 - 2,
+              left: width / 2 - screenSize.width / 2 - 1,
+              top: height / 2 - screenSize.height / 2 - 1,
               position: "absolute",
               // border: "2px solid red",
             }}
           >
             <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
-              Loading . . .
+              Processing . . .
             </div>
           </div>
         )}

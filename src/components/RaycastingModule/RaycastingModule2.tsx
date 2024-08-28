@@ -661,12 +661,12 @@ export default function RaycastingModule2({
     // initializing the screen strips
     initScreen();
 
+    // console.log("RaycastingModule2");
+
     // fps calculation
     fpsInterval = 1000 / targetFps;
     then = window.performance.now();
     startTime = then;
-
-    // console.log("RaycastingModule2");
 
     const render = () => {
       animationFrameId = window.requestAnimationFrame(render);
@@ -721,16 +721,16 @@ export default function RaycastingModule2({
         <div
           style={{
             transform: "scale(" + scale + ")",
-            width: screenSize.width + 4,
-            height: screenSize.height + 4,
+            width: screenSize.width,
+            height: screenSize.height,
             backgroundColor: "black",
-            left: width / 2 - screenSize.width / 2 - 2,
-            top: height / 2 - screenSize.height / 2 - 2,
+            left: width / 2 - screenSize.width / 2,
+            top: height / 2 - screenSize.height / 2,
             position: "absolute",
             // border: "2px solid red",
           }}
         >
-          <div className="flex full-size full-center text-[4px] font-mono text-green-500 animate-pulse">
+          <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
             Booting . . .
           </div>
         </div>
@@ -750,16 +750,16 @@ export default function RaycastingModule2({
           <div
             style={{
               transform: "scale(" + scale + ")",
-              width: screenSize.width + 4,
-              height: screenSize.height + 4,
+              width: screenSize.width + 2,
+              height: screenSize.height + 2,
               backgroundColor: "black",
-              left: width / 2 - screenSize.width / 2 - 2,
-              top: height / 2 - screenSize.height / 2 - 2,
+              left: width / 2 - screenSize.width / 2 - 1,
+              top: height / 2 - screenSize.height / 2 - 1,
               position: "absolute",
               // border: "2px solid red",
             }}
           >
-            <div className="flex full-size full-center text-[4px] font-mono text-green-500 animate-pulse">
+            <div className="flex full-size full-center font-mono text-green-500 animate-pulse">
               Loading . . .
             </div>
           </div>

@@ -3,6 +3,11 @@ import {
   CommandLineType,
   addSudoCommand,
 } from "../components/CLIModule/CLIModule";
+import { gameMapMatrix } from "./GameMapMatrix";
+
+export const localUsername = JSON.parse(
+  window.localStorage.getItem("username")!
+);
 
 // random default values for reasons
 export const mapsArray = {
@@ -56,8 +61,8 @@ export const player: Player = {
   // other stuff
   maxFuel: 100, // max battery whatever
   fuel: 100, // battery whatever
-  maxHp: 20, // max durability
-  hp: 20, // durability
+  maxHp: 20, // max integrity
+  hp: 20, // integrity
 };
 
 export const twoPI = Math.PI * 2;
@@ -97,7 +102,7 @@ export const setMaxShowingPosition = () => {
 
 // ----- State for RaycastingModule -----
 
-export var rayCastingVideo = 10000;
+export var rayCastingVideo = 0;
 export var maxRayCastingVideo = 10000;
 export const decreaseRayCastingVideo = () => {
   rayCastingVideo -= rayCastingVideo > 0 ? 1 : 0;
@@ -119,12 +124,68 @@ export const raycastingPhoto = {
 
 // ------------------------------
 
-// ----- State for Score (?) -----
+// ----- State for Mission (?) -----
 export var missionPhase = true;
 export const setMissionPhase = (value: boolean) => {
   missionPhase = value;
 };
-export const mission = { result: "" };
+
+export var gameOver = false;
+export const setGameOver = (value: boolean) => {
+  gameOver = value;
+};
+
+export var youWon = false;
+export const setYouWon = (value: boolean) => {
+  youWon = value;
+};
+
+export const endGame = (wasIntentional: boolean) => {
+  setMissionPhase(false);
+
+  let commandsUsed = 0;
+  commandHistory.map((v) => {
+    if (v.command != "") commandsUsed++;
+  });
+  //commandHistory.length = 0;
+
+  let scannedWalls = 0;
+
+  for (var y = 0; y < mapsArray.mapsHeight; y++) {
+    for (var x = 0; x < mapsArray.mapsWidth; x++) {
+      if (mapsArray.viewingMap[y][x] > -999) scannedWalls++;
+    }
+  }
+
+  console.log(mapsArray.viewingMap);
+
+  let photosTaken = raycastingPhoto.photos.length;
+
+  if (mapsArray.missionMap[~~player.y][~~player.x] == -420 && wasIntentional) {
+    youWon = true;
+  }
+
+  let result = ` ----- MISSION RESULT -----
+This mission came to it's end in ??? frames.
+You have ${((player.hp / player.maxHp) * 100).toFixed(2)}% hp left.
+You have ${((player.fuel / player.maxFuel) * 100).toFixed(2)}% fuel left.
+You scanned ${scannedWalls} tile${scannedWalls != 1 ? "s" : ""}.
+You took ${photosTaken} photo${photosTaken != 1 ? "s" : ""}.
+You used ${commandsUsed} command${commandsUsed != 1 ? "s" : ""}.
+
+This mission final result was registered as a ${
+    youWon ? "success" : "failure"
+  }.`;
+
+  addSudoCommand({
+    command: "",
+    text: result,
+  });
+
+  // if (youWon) unlockedMaps[currentMap + 1] = true;
+
+  setGameOver(true);
+};
 
 // ----- Money duh -----
 export var money = 0;
@@ -135,8 +196,6 @@ export const addMoney = (amount: number) => {
 // ----- Map Management -----
 // todo: fix this
 export const resetMap = (x: number, y: number) => {
-  setMissionPhase(true);
-
   // mapsArray.mapsHeight = mapsArray.missionMap.length;
   // mapsArray.mapsWidth = mapsArray.missionMap[0].length;
 
@@ -159,6 +218,7 @@ export const resetMap = (x: number, y: number) => {
   // console.log(mapsArray.missionMap);
   // console.log(mapsArray.drawingMap);
 
+  // Player -----
   Object.assign(player, {
     x: x + 0.5, // current x, y position
     y: y + 0.5,
@@ -171,11 +231,11 @@ export const resetMap = (x: number, y: number) => {
     // other stuff
     //maxFuel: 100, // max battery whatever
     fuel: player.maxFuel, // battery whatever
-    //maxHp: 20, // max durability
-    hp: player.maxHp, // durability
-    showingPosition: 0, // frames displaying position
+    //maxHp: 20, // max integrity
+    hp: player.maxHp, // integrity
   });
 
+  //CLIModule -----
   commandHistory.length = 0;
   addSudoCommand({
     command: "",
@@ -184,348 +244,37 @@ export const resetMap = (x: number, y: number) => {
 
   setMoving(false);
 
-  Object.assign(
-    {
-      trigger: false,
-      cover: 0,
-      photo: Array<ScreenStrip>(),
-    },
-    raycastingPhoto
-  );
+  // MapModule -----
+  Object.assign(miniMap, {
+    offsetX: 0,
+    offsetY: 0,
+    drawingOffsetX: 0,
+    drawingOffsetY: 0,
+    scale: 20,
+    showingPosition: 0,
+  });
 
-  Object.assign(
-    {
-      offsetX: 0,
-      offsetY: 0,
-      drawingOffsetX: 0,
-      drawingOffsetY: 0,
-      scale: 20,
-    },
-    miniMap
-  );
+  console.log(miniMap);
+
+  // RaycastingModule -----
+  rayCastingVideo = 0;
+
+  // RaycastingPhotoModule -----
+  Object.assign(raycastingPhoto, {
+    cover: 0,
+  });
+
+  setMissionPhase(true);
+  setGameOver(false);
+  setYouWon(false);
 };
 
-const o = -1;
-
-mapsArray.missionMap = [
-  [
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  ],
-  [
-    1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    o,
-    1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-  ],
-  [
-    1,
-    0,
-    0,
-    2,
-    o,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-  ],
-  [
-    1,
-    0,
-    0,
-    3,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    o,
-    0,
-    1,
-  ],
-  [
-    1,
-    0,
-    0,
-    4,
-    0,
-    o,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    1,
-  ],
-  [
-    1,
-    0,
-    0,
-    5,
-    o,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-  ],
-  [
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  ],
-];
-
+mapsArray.missionMap = gameMapMatrix;
 mapsArray.mapsHeight = mapsArray.missionMap.length;
 mapsArray.mapsWidth = mapsArray.missionMap[0].length;
 
+mapsArray.viewingMap.length = 0;
+mapsArray.drawingMap.length = 0;
 for (let i = 0; i < mapsArray.mapsHeight; i++) {
   let arr = Array<number>(mapsArray.mapsWidth);
   arr.fill(-999);

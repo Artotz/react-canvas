@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import {
   commandHistory,
   currentText,
+  endGame,
+  localUsername,
+  missionPhase,
   setCurrentText,
 } from "../../utils/GameVariables";
 import { checkCommands, commands } from "./CLICommands";
-import { LoremIpsum } from "./LoremIpsum";
+import { LoremIpsum } from "../../utils/LoremIpsum";
 import { Categories, getCurrentUpgrade } from "../StoreMenu/StoreItems";
 
 export type CommandLineType = {
@@ -34,13 +37,19 @@ export const addCommand = (_command: string): boolean => {
   return true;
 };
 
+export const getLastPlayerCommand = () => {
+  for (let i = 0; i < commandHistory.length; i++) {
+    if (commandHistory[i].command != "") return commandHistory[i].command;
+  }
+  return "";
+};
+
 export default function CLIModule({ focused = false, quitMission = () => {} }) {
   //var text = LoremIpsum;
 
   var delay = getCurrentUpgrade(Categories.CLIModule, "Text Delay");
 
-  const userShellText =
-    "C:\\Users\\" + JSON.parse(window.localStorage.getItem("username")!) + ">";
+  const userShellText = "C:\\Users\\" + localUsername + ">";
   var historyIndex = 0;
 
   // const [currentTextState, setCurrentTextState] = useState("");
@@ -71,8 +80,13 @@ export default function CLIModule({ focused = false, quitMission = () => {} }) {
           );
           if (currentText.length == commandHistory[0].text.length) {
             clearInterval(addChar);
+
             console.log("meme acabou");
-            if (commandHistory[0].command == "quit") quitMission();
+
+            let lastPlayerCommand = getLastPlayerCommand();
+            if (lastPlayerCommand == "abort" && missionPhase) endGame(true);
+            else if (lastPlayerCommand == "quit" && !missionPhase)
+              quitMission();
           }
         }
       }

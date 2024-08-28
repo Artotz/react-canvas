@@ -356,6 +356,13 @@ export const getCurrentUpgrade = (
     return StoreItems.find((item) => item.name == upgradeName)?.acquired ?? 0;
   }
 
+  if (
+    upgradeCategory == Categories.CLIModule &&
+    upgradeName == "Command History"
+  ) {
+    return 3;
+  }
+
   if (upgradeCategory == Categories.CLIModule) {
     return 1;
   }
@@ -392,7 +399,7 @@ export const getCurrentUpgrade = (
     if (upgradeName == "Photo Capture Delay") return 50;
     return 4;
   }
-
-  console.log(Categories[upgradeCategory] + " " + upgradeName);
+  if (!(upgradeCategory == Categories.MapModule))
+    console.log(Categories[upgradeCategory] + " " + upgradeName);
   return 1;
 };
