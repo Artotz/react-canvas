@@ -118,7 +118,7 @@ export default function MissionMenu({ quitMission = () => {} }) {
 
       // mapsArray.missionMap[4][3] = 2 * Math.sin(frameCount);
 
-      player.fuel -= 0.025 * 5;
+      player.fuel -= 0.025;
       player.fuel = player.fuel < 0 ? 0 : player.fuel;
 
       miniMap.showingPosition -= miniMap.showingPosition > 0 ? 1 : 0;

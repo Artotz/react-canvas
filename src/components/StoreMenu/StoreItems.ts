@@ -1,308 +1,469 @@
+export enum Categories {
+  Player,
+  CLIModule,
+  MapModule,
+  RaycastingModule,
+  RaycastingPhotoModule,
+}
+
 export type StoreItemType = {
   id: number;
-  category: string;
+  category: Categories;
   name: string;
   description: string;
   prerequisite: string[];
   cost: number[];
+  value: number[];
   acquired: number;
 };
 
 export const StoreItems: StoreItemType[] = [
   // ---------- CLIMODULE ----------
-
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "move Command",
     description: "",
     prerequisite: [],
     cost: [0],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "turn Command",
     description: "",
     prerequisite: [],
     cost: [0],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "integrity Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "fuel Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "scan Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "position Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "video Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "capture Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "gallery Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "abort Command",
     description: "",
     prerequisite: [],
     cost: [0],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "quit Command",
     description: "",
     prerequisite: [],
     cost: [0],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "help Command",
     description: "",
     prerequisite: [],
     cost: [100],
+    value: [0, 1],
     acquired: 1,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "Auto Complete",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
+    value: [0, 1],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "CLIMODULE",
+    category: Categories.CLIModule,
     name: "Command History",
     description: "",
     prerequisite: [],
-    cost: [100],
-    acquired: 1,
-  },
-  // ---------- GUI ----------
-  {
-    id: 0,
-    category: "GUI",
-    name: "Basic Buttons",
-    description: "",
-    prerequisite: [],
-    cost: [100],
-    acquired: 1,
-  },
-  // ---------- SENSOR ----------
-  {
-    id: 0,
-    category: "Sensor",
-    name: "Radius",
-    description: "",
-    prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    cost: [100, 200, 300],
+    value: [0, 1, 3, Infinity],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Sensor",
-    name: "Auto Refresh Rate",
+    category: Categories.CLIModule,
+    name: "Text Delay",
     description: "",
     prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    cost: [100, 200, 300],
+    value: [100, 75, 50, 25],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Sensor",
-    name: "Detect Objects",
+    category: Categories.CLIModule,
+    name: "position Command Duration",
+    description: "",
+    prerequisite: [],
+    cost: [100, 200, 300],
+    value: [100, 250, 500, Infinity],
+    acquired: 0,
+  },
+  // ---------- BRUH ----------
+  {
+    id: 0,
+    category: Categories.CLIModule,
+    name: "move Command Default Option",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.CLIModule,
+    name: "move Command backward Option",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.CLIModule,
+    name: "Turn Command Default Option",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.CLIModule,
+    name: "gallery Command delete Option",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.CLIModule,
+    name: "gallery Command previous Option",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  // ---------- SCAN ----------
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "scan Range",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
   },
   // ---------- MAP ----------
   {
     id: 0,
-    category: "Map",
-    name: "Current Location",
+    category: Categories.MapModule,
+    name: "Player Direction",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
+    value: [0, 1, 2],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Map",
-    name: "Direction",
+    category: Categories.MapModule,
+    name: "video HUD",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
+    value: [0, 1],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Map",
-    name: "Add Wall on Click",
+    category: Categories.MapModule,
+    name: "position HUD",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
+    value: [0, 1],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Map",
-    name: "Auto add Wall on Wall Bump",
+    category: Categories.MapModule,
+    name: "fuel HUD",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "integrity HUD",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "scan Threat Detection",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "Center minimap on ROB-I",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "Move Map",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "Draw on Map",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  // ---------- VIDEO ----------
+  {
+    id: 0,
+    category: Categories.RaycastingModule,
+    name: "Video Resolution",
+    description: "",
+    prerequisite: [],
+    cost: [100, 200, 300, 400],
+    value: [10, 20, 30, 40, 50],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.RaycastingModule,
+    name: "Video Flash",
+    description: "",
+    prerequisite: [],
+    cost: [100, 200, 300, 400, 500],
+    value: [0, 1, 2, 3, 4, 5],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.RaycastingModule,
+    name: "Video Framerate",
+    description: "",
+    prerequisite: [],
+    cost: [100, 200, 300, 400, 500],
+    value: [5, 10, 15, 20, 25, 30],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.RaycastingModule,
+    name: "Video Threat Detection",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.RaycastingModule,
+    name: "Video Movement Commands",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
   },
   // ---------- CAMERA ----------
   {
     id: 0,
-    category: "Camera",
-    name: "Number of Rays",
+    category: Categories.RaycastingModule,
+    name: "Photo Resolution",
     description: "",
     prerequisite: [],
-    cost: [100, 200, 300],
-    acquired: 1,
+    cost: [100, 200, 300, 400],
+    value: [10, 20, 30, 40, 50],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Camera",
-    name: "FoV",
+    category: Categories.RaycastingModule,
+    name: "Photo Flash",
     description: "",
     prerequisite: [],
-    cost: [100, 200],
-    acquired: 1,
+    cost: [100, 200, 300, 400, 500],
+    value: [0, 1, 2, 3, 4, 5],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "Camera",
-    name: "Distance",
+    category: Categories.RaycastingModule,
+    name: "Photo Capture Delay",
+    description: "",
+    prerequisite: [],
+    cost: [100, 200, 300, 400, 500],
+    value: [500, 400, 300, 200, 100, 0],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.RaycastingModule,
+    name: "Photo Threat Detection",
     description: "",
     prerequisite: [],
     cost: [100],
-    acquired: 1,
-  },
-  {
-    id: 0,
-    category: "Camera",
-    name: "Color",
-    description: "",
-    prerequisite: [],
-    cost: [100],
-    acquired: 1,
-  },
-  {
-    id: 0,
-    category: "Camera",
-    name: "Auto Refresh Rate",
-    description: "",
-    prerequisite: [],
-    cost: [100],
-    acquired: 1,
-  },
-  {
-    id: 0,
-    category: "Camera",
-    name: "KB+M Integration",
-    description: "",
-    prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    value: [0, 1],
+    acquired: 0,
   },
   // ---------- ROB-I ----------
   {
     id: 0,
-    category: "ROB-I",
+    category: Categories.Player,
     name: "Move Speed",
     description: "",
     prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    cost: [100, 200, 300],
+    value: [10, 8, 6, 4],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "ROB-I",
+    category: Categories.Player,
     name: "Turn Speed",
     description: "",
     prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    cost: [100, 200, 300],
+    value: [10, 8, 6, 4],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "ROB-I",
-    name: "Durability",
+    category: Categories.Player,
+    name: "Integrity Reinforcements",
     description: "",
     prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    cost: [100, 200, 300],
+    value: [20, 30, 40, 50],
+    acquired: 0,
   },
   {
     id: 0,
-    category: "ROB-I",
+    category: Categories.Player,
     name: "Fuel Capacity",
     description: "",
     prerequisite: [],
-    cost: [100],
-    acquired: 1,
+    cost: [100, 200, 300],
+    value: [20, 30, 40, 50],
+    acquired: 0,
   },
 ];
 
@@ -315,91 +476,13 @@ bruh: for (let i = 0; i < StoreItems.length - 1; i++) {
   }
 }
 
-export enum Categories {
-  Player,
-  CLIModule,
-  MapModule,
-  RaycastingModule,
-  RaycastingPhotoModule,
-}
-
 export const getCurrentUpgrade = (
   upgradeCategory: Categories,
   upgradeName: string
 ): number => {
-  if (
-    upgradeCategory == Categories.Player &&
-    (upgradeName == "Move Speed" || upgradeName == "Turn Speed")
-  ) {
-    return 10;
-  }
+  let item = StoreItems.find((item) => item.name == upgradeName);
+  if (item) return item.value[item.acquired];
 
-  if (upgradeCategory == Categories.CLIModule && upgradeName == "Text Delay") {
-    return 20;
-  }
-
-  if (
-    upgradeCategory == Categories.CLIModule &&
-    upgradeName == "position Command Duration"
-  ) {
-    return 500;
-  }
-
-  if (upgradeCategory == Categories.MapModule && upgradeName.endsWith("HUD")) {
-    return 1;
-  }
-
-  if (
-    upgradeCategory == Categories.CLIModule &&
-    upgradeName.endsWith("Command")
-  ) {
-    return StoreItems.find((item) => item.name == upgradeName)?.acquired ?? 0;
-  }
-
-  if (
-    upgradeCategory == Categories.CLIModule &&
-    upgradeName == "Command History"
-  ) {
-    return 3;
-  }
-
-  if (upgradeCategory == Categories.CLIModule) {
-    return 1;
-  }
-
-  if (
-    upgradeCategory == Categories.RaycastingModule &&
-    (upgradeName == "Video Resolution" ||
-      upgradeName == "Video Flash" ||
-      upgradeName == "Video Framerate" ||
-      upgradeName == "Video Threat Detection")
-  ) {
-    if (upgradeName == "Video Flash") return 4;
-    if (upgradeName == "Video Threat Detection") return 0;
-    if (upgradeName == "Video Framerate") return 30;
-    return 2;
-  }
-
-  if (
-    upgradeCategory == Categories.RaycastingModule &&
-    upgradeName == "Video Movement Commands"
-  ) {
-    return 1;
-  }
-
-  if (
-    upgradeCategory == Categories.RaycastingPhotoModule &&
-    (upgradeName == "Photo Resolution" ||
-      upgradeName == "Photo Flash" ||
-      upgradeName == "Photo Threat Detection" ||
-      upgradeName == "Photo Capture Delay")
-  ) {
-    if (upgradeName == "Photo Flash") return 3;
-    if (upgradeName == "Photo Threat Detection") return 1;
-    if (upgradeName == "Photo Capture Delay") return 50;
-    return 4;
-  }
-  if (!(upgradeCategory == Categories.MapModule))
-    console.log(Categories[upgradeCategory] + " " + upgradeName);
+  console.log(Categories[upgradeCategory] + " " + upgradeName);
   return 1;
 };

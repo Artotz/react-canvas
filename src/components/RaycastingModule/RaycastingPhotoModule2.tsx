@@ -37,7 +37,7 @@ export default function RaycastingPhotoModule2({
     Categories.RaycastingPhotoModule,
     "Photo Resolution"
   );
-  const screenSize = { width: 100 * res, height: 75 * res };
+  const screenSize = { width: 4 * res, height: 3 * res };
   //const screenSize = { width: width, height: height };
 
   const canvasRef = createRef<HTMLCanvasElement>();

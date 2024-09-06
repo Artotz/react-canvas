@@ -288,7 +288,7 @@ export const commands: Command[] = [
         mapsArray.missionMap[~~player.y][~~player.x + 1];
 
       // DIAGONALS
-      if (getCurrentUpgrade(Categories.MapModule, "scan Range Augment") > 0) {
+      if (getCurrentUpgrade(Categories.MapModule, "scan Range") > 0) {
         mapsArray.viewingMap[~~player.y - 1][~~player.x - 1] =
           mapsArray.missionMap[~~player.y - 1][~~player.x - 1];
         mapsArray.viewingMap[~~player.y - 1][~~player.x + 1] =

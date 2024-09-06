@@ -39,7 +39,7 @@ export default function RaycastingModule2({
 
   // ----- CANVAS -----
   let res = getCurrentUpgrade(Categories.RaycastingModule, "Video Resolution");
-  const screenSize = { width: 100 * res, height: 75 * res };
+  const screenSize = { width: 4 * res, height: 3 * res };
   //const screenSize = { width: width, height: height };
 
   const canvasRef = createRef<HTMLCanvasElement>();

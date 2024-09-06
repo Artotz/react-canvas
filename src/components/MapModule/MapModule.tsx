@@ -145,21 +145,23 @@ export default function MapModule({
       );
       objectCtx.closePath();
       objectCtx.stroke();
-      if (getCurrentUpgrade(Categories.MapModule, "Player Direction") == 1) {
-        objectCtx.beginPath();
-        objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
-        objectCtx.lineTo(
-          (player.x + Math.cos(player.rot - Math.PI / 4)) * miniMap.scale,
-          (player.y + Math.sin(player.rot - Math.PI / 4)) * miniMap.scale
-        );
-        objectCtx.closePath();
-        objectCtx.stroke();
 
+      if (getCurrentUpgrade(Categories.MapModule, "Player Direction") > 1) {
         objectCtx.beginPath();
         objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
         objectCtx.lineTo(
-          (player.x + Math.cos(player.rot + Math.PI / 4)) * miniMap.scale,
-          (player.y + Math.sin(player.rot + Math.PI / 4)) * miniMap.scale
+          (player.x + (3 * Math.cos(player.rot - Math.PI / 4)) / 4) *
+            miniMap.scale,
+          (player.y + (3 * Math.sin(player.rot - Math.PI / 4)) / 4) *
+            miniMap.scale
+        );
+
+        objectCtx.moveTo(player.x * miniMap.scale, player.y * miniMap.scale);
+        objectCtx.lineTo(
+          (player.x + (3 * Math.cos(player.rot + Math.PI / 4)) / 4) *
+            miniMap.scale,
+          (player.y + (3 * Math.sin(player.rot + Math.PI / 4)) / 4) *
+            miniMap.scale
         );
         objectCtx.closePath();
         objectCtx.stroke();
@@ -300,7 +302,11 @@ export default function MapModule({
         0,
         mapCtx.canvas.height - 10 * 2,
         mapCtx.canvas.width *
-          (miniMap.showingPosition / miniMap.maxShowingPosition),
+          (miniMap.showingPosition /
+            getCurrentUpgrade(
+              Categories.MapModule,
+              "position Command Duration"
+            )),
         10
       );
       mapCtx.fillStyle = "white";
@@ -312,7 +318,8 @@ export default function MapModule({
       mapCtx.fillRect(
         0,
         mapCtx.canvas.height - 10 * 3,
-        mapCtx.canvas.width * (player.fuel / player.maxFuel),
+        mapCtx.canvas.width *
+          (player.fuel / getCurrentUpgrade(Categories.Player, "Fuel Capacity")),
         10
       );
       mapCtx.fillStyle = "white";
@@ -324,7 +331,9 @@ export default function MapModule({
       mapCtx.fillRect(
         0,
         mapCtx.canvas.height - 10 * 4,
-        mapCtx.canvas.width * (player.hp / player.maxHp),
+        mapCtx.canvas.width *
+          (player.hp /
+            getCurrentUpgrade(Categories.Player, "Integrity Reinforcements")),
         10
       );
       mapCtx.fillStyle = "white";

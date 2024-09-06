@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { addMoney, money } from "../../utils/GameVariables";
 import Tabs from "../Tabs/Tabs";
 import { StoreItems, StoreItemType } from "./StoreItems";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 export default function StoreMenu() {
   const [tabs, setTabs] = useState<React.JSX.Element[]>([]);
   const [keyState, setKeyState] = useState<number>(0);
+  const [acquiredUpgrades, setAcquiredUpgrades, removeAcquiredUpgrades] =
+    useLocalStorage("acquiredUpgrades", undefined);
 
   function tabItem(_tabItem: { title: string; content: StoreItemType[] }) {
     return (
@@ -71,6 +74,17 @@ export default function StoreMenu() {
   }
 
   useEffect(() => {
+    let _dbUpgrades = acquiredUpgrades;
+
+    StoreItems.map((v, i) => {
+      v.acquired = _dbUpgrades[i] || 0;
+    });
+
+    console.log("loaded from database");
+    console.log(_dbUpgrades);
+  }, []);
+
+  useEffect(() => {
     let _tabs: React.JSX.Element[] = [];
 
     let _array = {} as any;
@@ -82,13 +96,18 @@ export default function StoreMenu() {
       _array[v.category].push(v);
     });
 
-    console.log(_array);
+    console.log("updated");
 
     for (let myProp in _array) {
       _tabs.push(tabItem({ title: myProp, content: _array[myProp] }));
     }
 
     setTabs([..._tabs]);
+
+    let _acquiredUpgrades = StoreItems.map((v) => v.acquired);
+    setAcquiredUpgrades(_acquiredUpgrades);
+    console.log("saved to database");
+    console.log(_acquiredUpgrades);
   }, [keyState]);
 
   return (

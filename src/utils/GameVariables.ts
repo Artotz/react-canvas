@@ -4,6 +4,10 @@ import {
   addSudoCommand,
 } from "../components/CLIModule/CLIModule";
 import { gameMapMatrix } from "./GameMapMatrix";
+import {
+  Categories,
+  getCurrentUpgrade,
+} from "../components/StoreMenu/StoreItems";
 
 export const localUsername = JSON.parse(
   window.localStorage.getItem("username")!
@@ -43,9 +47,7 @@ export type Player = {
   rotSpeed: number;
 
   // other stuff
-  maxFuel: number;
   fuel: number;
-  maxHp: number;
   hp: number;
 };
 
@@ -59,9 +61,7 @@ export const player: Player = {
   rotSpeed: (6 * Math.PI) / 180, // how much does the player rotate each step/update (in radians)
 
   // other stuff
-  maxFuel: 100, // max battery whatever
   fuel: 100, // battery whatever
-  maxHp: 20, // max integrity
   hp: 20, // integrity
 };
 
@@ -93,11 +93,13 @@ export const miniMap = {
   drawingOffsetY: 0,
   scale: 20,
   showingPosition: 0,
-  maxShowingPosition: 1000,
 };
 
 export const setMaxShowingPosition = () => {
-  miniMap.showingPosition = miniMap.maxShowingPosition;
+  miniMap.showingPosition = getCurrentUpgrade(
+    Categories.MapModule,
+    "position Command Duration"
+  );
 };
 
 // ----- State for RaycastingModule -----
@@ -167,8 +169,15 @@ export const endGame = (wasIntentional: boolean) => {
 
   let result = ` ----- MISSION RESULT -----
 This mission came to it's end in ??? frames.
-You have ${((player.hp / player.maxHp) * 100).toFixed(2)}% hp left.
-You have ${((player.fuel / player.maxFuel) * 100).toFixed(2)}% fuel left.
+You have ${(
+    (player.hp /
+      getCurrentUpgrade(Categories.Player, "Integrity Reinforcements")) *
+    100
+  ).toFixed(2)}% hp left.
+You have ${(
+    (player.fuel / getCurrentUpgrade(Categories.Player, "Fuel Capacity")) *
+    100
+  ).toFixed(2)}% fuel left.
 You scanned ${scannedWalls} tile${scannedWalls != 1 ? "s" : ""}.
 You took ${photosTaken} photo${photosTaken != 1 ? "s" : ""}.
 You used ${commandsUsed} command${commandsUsed != 1 ? "s" : ""}.
@@ -230,9 +239,9 @@ export const resetMap = (x: number, y: number) => {
 
     // other stuff
     //maxFuel: 100, // max battery whatever
-    fuel: player.maxFuel, // battery whatever
+    fuel: getCurrentUpgrade(Categories.Player, "Fuel Capacity"), // battery whatever
     //maxHp: 20, // max integrity
-    hp: player.maxHp, // integrity
+    hp: getCurrentUpgrade(Categories.Player, "Integrity Reinforcements"), // integrity
   });
 
   //CLIModule -----
