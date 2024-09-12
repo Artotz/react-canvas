@@ -4,6 +4,7 @@ import "../../utils/GameVariables";
 import { resetMap, unlockedEntries } from "../../utils/GameVariables";
 import MissionMenu from "../MissionMenu/MissionMenu";
 import StoreMenu from "../StoreMenu/StoreMenu";
+import DatabaseHelper from "../StoreMenu/DatabaseHelper";
 
 export default function DesktopInterface() {
   const [playing, setPlaying] = useState(false);
@@ -138,9 +139,7 @@ export default function DesktopInterface() {
                 </div>
               )}
               {app == "store" && <StoreMenu />}
-              {app == "storage" && (
-                <div className="flex full-size full-center"> vazio </div>
-              )}
+              {app == "storage" && <DatabaseHelper />}
             </div>
           </div>
         </div>

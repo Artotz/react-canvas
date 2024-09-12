@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { addMoney, money } from "../../utils/GameVariables";
 import Tabs from "../Tabs/Tabs";
-import { StoreItems, StoreItemType } from "./StoreItems";
+import { Categories, StoreItems, StoreItemType } from "./StoreItems";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 export default function StoreMenu() {
@@ -9,6 +8,8 @@ export default function StoreMenu() {
   const [keyState, setKeyState] = useState<number>(0);
   const [acquiredUpgrades, setAcquiredUpgrades, removeAcquiredUpgrades] =
     useLocalStorage("acquiredUpgrades", undefined);
+
+  const [money, setMoney, removeMoney] = useLocalStorage("money", undefined);
 
   function tabItem(_tabItem: { title: string; content: StoreItemType[] }) {
     return (
@@ -51,15 +52,17 @@ export default function StoreMenu() {
                   <div
                     className="flex p-2 px-4 border-solid border-2 border-black hover:border-green-500 bg-green-500 text-black hover:bg-black hover:text-green-500 cursor-pointer select-none"
                     onClick={() => {
-                      addMoney(-v.cost[v.acquired]);
+                      if (money > v.cost[v.acquired]) {
+                        setMoney(money - v.cost[v.acquired]);
 
-                      StoreItems.map((v) => {
-                        if (v.name == _tabItem.content[i].name) {
-                          v.acquired++;
-                        }
-                      });
+                        StoreItems.map((v) => {
+                          if (v.name == _tabItem.content[i].name) {
+                            v.acquired++;
+                          }
+                        });
 
-                      setKeyState(Math.random());
+                        setKeyState(Math.random());
+                      }
                     }}
                   >
                     {v.cost[v.acquired] + " $"}
@@ -77,7 +80,7 @@ export default function StoreMenu() {
     let _dbUpgrades = acquiredUpgrades;
 
     StoreItems.map((v, i) => {
-      v.acquired = _dbUpgrades[i] || 0;
+      v.acquired = _dbUpgrades[i];
     });
 
     console.log("loaded from database");
@@ -99,7 +102,12 @@ export default function StoreMenu() {
     console.log("updated");
 
     for (let myProp in _array) {
-      _tabs.push(tabItem({ title: myProp, content: _array[myProp] }));
+      _tabs.push(
+        tabItem({
+          title: Categories[parseInt(myProp)],
+          content: _array[myProp],
+        })
+      );
     }
 
     setTabs([..._tabs]);
@@ -107,7 +115,7 @@ export default function StoreMenu() {
     let _acquiredUpgrades = StoreItems.map((v) => v.acquired);
     setAcquiredUpgrades(_acquiredUpgrades);
     console.log("saved to database");
-    console.log(_acquiredUpgrades);
+    // console.log(_acquiredUpgrades);
   }, [keyState]);
 
   return (

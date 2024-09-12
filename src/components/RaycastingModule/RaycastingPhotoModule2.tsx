@@ -566,7 +566,7 @@ export default function RaycastingPhotoModule2({
         if (
           getCurrentUpgrade(
             Categories.RaycastingPhotoModule,
-            "Gallery Commands"
+            "Gallery Arrow Commands"
           )
         )
           addCommand("gallery previous");
@@ -577,7 +577,7 @@ export default function RaycastingPhotoModule2({
         if (
           getCurrentUpgrade(
             Categories.RaycastingPhotoModule,
-            "Gallery Commands"
+            "Gallery Arrow Commands"
           )
         )
           addCommand("gallery next");

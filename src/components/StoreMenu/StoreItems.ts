@@ -169,16 +169,6 @@ export const StoreItems: StoreItemType[] = [
     value: [100, 75, 50, 25],
     acquired: 0,
   },
-  {
-    id: 0,
-    category: Categories.CLIModule,
-    name: "position Command Duration",
-    description: "",
-    prerequisite: [],
-    cost: [100, 200, 300],
-    value: [100, 250, 500, Infinity],
-    acquired: 0,
-  },
   // ---------- BRUH ----------
   {
     id: 0,
@@ -249,7 +239,7 @@ export const StoreItems: StoreItemType[] = [
     description: "",
     prerequisite: [],
     cost: [100],
-    value: [0, 1, 2],
+    value: [0, 1],
     acquired: 0,
   },
   {
@@ -332,6 +322,26 @@ export const StoreItems: StoreItemType[] = [
     value: [0, 1],
     acquired: 0,
   },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "Map Zoom",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.MapModule,
+    name: "position Command Duration",
+    description: "",
+    prerequisite: [],
+    cost: [100, 200, 300],
+    value: [100, 250, 500, Infinity],
+    acquired: 0,
+  },
   // ---------- VIDEO ----------
   {
     id: 0,
@@ -383,10 +393,20 @@ export const StoreItems: StoreItemType[] = [
     value: [0, 1],
     acquired: 0,
   },
-  // ---------- CAMERA ----------
   {
     id: 0,
     category: Categories.RaycastingModule,
+    name: "Video capture Command",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  // ---------- CAMERA ----------
+  {
+    id: 0,
+    category: Categories.RaycastingPhotoModule,
     name: "Photo Resolution",
     description: "",
     prerequisite: [],
@@ -396,7 +416,7 @@ export const StoreItems: StoreItemType[] = [
   },
   {
     id: 0,
-    category: Categories.RaycastingModule,
+    category: Categories.RaycastingPhotoModule,
     name: "Photo Flash",
     description: "",
     prerequisite: [],
@@ -406,7 +426,7 @@ export const StoreItems: StoreItemType[] = [
   },
   {
     id: 0,
-    category: Categories.RaycastingModule,
+    category: Categories.RaycastingPhotoModule,
     name: "Photo Capture Delay",
     description: "",
     prerequisite: [],
@@ -416,7 +436,17 @@ export const StoreItems: StoreItemType[] = [
   },
   {
     id: 0,
-    category: Categories.RaycastingModule,
+    category: Categories.RaycastingPhotoModule,
+    name: "Gallery Arrow Commands",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1],
+    acquired: 0,
+  },
+  {
+    id: 0,
+    category: Categories.RaycastingPhotoModule,
     name: "Photo Threat Detection",
     description: "",
     prerequisite: [],
@@ -465,16 +495,29 @@ export const StoreItems: StoreItemType[] = [
     value: [20, 30, 40, 50],
     acquired: 0,
   },
+  {
+    id: 0,
+    category: Categories.Player,
+    name: "Damage Detection",
+    description: "",
+    prerequisite: [],
+    cost: [100],
+    value: [0, 1, 2],
+    acquired: 0,
+  },
 ];
 
-bruh: for (let i = 0; i < StoreItems.length - 1; i++) {
+let bruh = false;
+for (let i = 0; i < StoreItems.length; i++) {
+  if (StoreItems[i].cost.length != StoreItems[i].value.length - 1)
+    console.error("Cost/Value discrepancy at " + i);
   for (let j = i + 1; j < StoreItems.length - 1; j++) {
     if (StoreItems[i].id == StoreItems[j].id) {
-      console.error("bruh (there are duplicate ids on StoreItems)");
-      break bruh;
+      bruh = true;
     }
   }
 }
+if (bruh) console.error("bruh (there are duplicate ids on StoreItems)");
 
 export const getCurrentUpgrade = (
   upgradeCategory: Categories,

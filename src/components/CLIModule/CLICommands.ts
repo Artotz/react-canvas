@@ -38,8 +38,6 @@ export const checkCommands = (cmd: string) => {
         console.log("command not unlocked");
         break;
       } else if (commands[i].missionPhaseOnly && !missionPhase) {
-        // commandReturn = ". . . . .\nNo response.";
-
         commandReturn = ". . . . .\nNo response.";
         break;
       }

@@ -196,12 +196,6 @@ This mission final result was registered as a ${
   setGameOver(true);
 };
 
-// ----- Money duh -----
-export var money = 0;
-export const addMoney = (amount: number) => {
-  money += amount;
-};
-
 // ----- Map Management -----
 // todo: fix this
 export const resetMap = (x: number, y: number) => {
